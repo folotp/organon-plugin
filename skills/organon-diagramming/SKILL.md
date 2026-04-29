@@ -22,10 +22,14 @@ Apply in order — first match wins :
 
 ## Excalidraw — the connector renders in chat, the bridge persists
 
-The Claude-side Excalidraw connector (`create_view`) is **in-chat rendering only**. It produces JSON elements that animate into the conversation. **It does not write `.excalidraw.md` files in the vault.** If the user wants a connector-generated drawing saved into Organon, perform the two-step bridge :
+The Claude-side Excalidraw connector (`create_view`) is **in-chat rendering only**. It produces JSON elements that animate into the conversation. **It does not write `.excalidraw.md` files in the vault.**
 
-1. Call `create_view` with the `elements` array (in-chat render).
-2. Wrap the elements in the Excalidraw plugin's `.excalidraw.md` file structure and save via `create_vault_file` to `99 - Méta/Media/Excalidraw/<name>.excalidraw.md`.
+**Use the chat render as a preview before persisting.** When PA asks for an Excalidraw drawing destined for the vault, the natural workflow is : (1) call `create_view` so PA sees the rendered diagram in chat, (2) wait for validation (« looks good » / « adjust X »), (3) only then run the bridge to persist. Iterating in chat is cheap ; rewriting a `.excalidraw.md` after the fact is more expensive than re-rendering. Mention the preview step explicitly when surfacing the work, so PA knows they can ask for changes before the file lands in the vault.
+
+If the user wants a connector-generated drawing saved into Organon, perform the two-step bridge :
+
+1. Call `create_view` with the `elements` array (in-chat render — also serves as the preview).
+2. After PA validates the preview, wrap the elements in the Excalidraw plugin's `.excalidraw.md` file structure and save via `create_vault_file` to `99 - Méta/Media/Excalidraw/<name>.excalidraw.md`.
 
 **Skeleton** (reproduce verbatim — the plugin parses these literal markers) :
 

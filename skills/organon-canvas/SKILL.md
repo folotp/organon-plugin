@@ -68,6 +68,12 @@ Common label translations to keep ready when drafting :
 
 `file` nodes can target a heading or block ref via `subpath:` (`"#Section name"` or `"#^block-id"`). For Organon notes : remember that block refs are subject to politique C4 (no systematic anchors per `organon-markdown-style`) — only point `subpath:` at headings or at descriptive ad-hoc anchors that already exist in the target note. Don't invent an anchor and rely on it being there.
 
+## Node and edge IDs — the kepano convention, not an Organon rule
+
+JSON Canvas 1.0 spec only requires `id` to be a string ; there is no formal Obsidian standard. The **kepano `json-canvas` skill recommends 16-character lowercase hexadecimal strings** (64-bit random value, e.g. `"6f0ad84f44ce9c17"`), which is the convention Organon follows by cascade. Use `secrets.token_hex(8)` in Python or equivalent to generate.
+
+Don't substitute semantic IDs (`"vlt-bug-014"`, `"root-cause"`) — even though they parse as valid JSON Canvas, they collide more readily across canvases and break the kepano-recommended uniqueness budget. The deterministic readability gain isn't worth the convention drift. If you need a human-readable handle on a node, put it in the node's `text:` (text node) or accompanying `label:` (file/group node), not in the `id:`.
+
 ## MCP write safety
 
 A `.canvas` file is JSON, not markdown — `patch_vault_file targetType: heading|block|frontmatter` does not apply. Use `create_vault_file` (full replace) for canvas edits. NFC normalization on the path still applies (cf. `organon-vault-write`). Validate JSON parses before writing.
