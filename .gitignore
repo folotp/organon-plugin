@@ -1,0 +1,23 @@
+# Archives plugin/skill (binaires packagés)
+*.plugin
+*.skill
+
+# Espaces de travail eval
+eval-workspace/
+eval-workspace-iter2-cmp/
+
+# Python
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store
+
+# Snippets (générés, non-source)
+snippets/
+
+# Backups
+*.bak
+
+# Fichier temporaire zip résiduel
+zibn6G7I
