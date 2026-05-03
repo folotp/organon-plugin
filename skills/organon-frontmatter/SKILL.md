@@ -76,7 +76,13 @@ Pour le frontmatter complet d'un ADR (exemple canonique) : référer à `[[VLT-A
 
 ## Touch-on-edit (legacy migration, VLT-ADR-007)
 
-Édition d'une note legacy déclenche normalisation : `shape:` → `content-model:`, tag `notetype/*` → champ `type:`, `#statut/*` → `status:`, `date created` → `created`, `author` → `creator`, `first-name` → `given-name`. Migration par attrition canonique — pas de sweep batch global.
+Édition d'une note legacy déclenche normalisation des clés legacy détectées : `shape:` → `content-model:`, tag `notetype/*` → champ `type:`, `#statut/*` → `status:`, `date created` → `created`, `author` → `creator`, `first-name` → `given-name`. Migration par attrition canonique — pas de sweep batch global. Détection passive complémentaire via l'audit script Templater (cf. VLT-ADR-005, sortie `Audit-YYYY-MM-DD.md` §Clés frontmatter obsolètes).
+
+**Seuil** — normaliser au plus ~3 clés legacy par édition. Au-delà, la modification dépasse le scope de l'édition demandée : flagger à PA dans la réponse, laisser PA décider de poursuivre ou skipper.
+
+**Journal de la note** — documenter chaque normalisation appliquée. Forme canonique dans la table Journal/Historique : « Frontmatter normalisé : `<clé legacy>` → `<clé canonique>` ». Une ligne par clé migrée. Permet à PA de tracer la cause des changements et au script d'audit de mesurer la convergence.
+
+**Skip explicite** — si l'édition demandée est elle-même large (> 10 lignes touchées) ou si PA prompt « édit minimal », ne pas appliquer touch-on-edit ; mentionner les clés legacy détectées comme dette dans la réponse pour traitement séparé.
 
 ## Governance
 
