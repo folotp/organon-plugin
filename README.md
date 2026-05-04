@@ -21,7 +21,7 @@ Seven description-triggered skills that load automatically when working with the
 
 ## Cascade with kepano/obsidian-skills
 
-Each Organon skill cascades to the kepano `obsidian-skills` plugin (already installed via Cowork) for generic Obsidian syntax. Organon-specific deltas only — single source of truth, no duplication.
+Each Organon skill cascades to the [kepano `obsidian-skills` plugin](https://github.com/kepano/obsidian-skills) (already installed via Claude Desktop) for generic Obsidian syntax. Organon-specific deltas only — single source of truth, no duplication.
 
 ## Empirical validation
 
