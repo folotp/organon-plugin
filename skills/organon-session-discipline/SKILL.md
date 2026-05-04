@@ -14,13 +14,22 @@ PA prefers arbitrage motivé over sur-clarification. Quand une décision est inf
 > **Bad** : « Veux-tu que je préserve la numérotation existante VLT-BUG-001…021 (3 chiffres) ou que je renumérote en 4 chiffres comme les nouveaux ? »
 > **Good** : « Je préserve VLT-BUG-001…021 en 3 chiffres (no-renumber per SD-ADR-008 §existing IDs) ; les nouveaux suivent 4 chiffres. Conteste si non. »
 
-## 2. Read bootstrap before writing artifacts — actually read, not just affirm
+## 2. Read bootstrap before writing artifacts — cache-aware
 
-`[[AI Bootstrap]]` est canonique pour OS, naming, vault paths, system config, MCP wrapper version. Avant de drafter une fiche qui mentionne ces faits, **lire effectivement** via `get_vault_file('99 - Méta/AI/AI Bootstrap.md')`, pas affirmer la valeur de mémoire. Pour les ADRs qui réfèrent à des incidents/évents spécifiques, **également lire** les VLT-* notes mentionnées (VLT-BUG, VLT-INC, mémoires de session) — leur historique de versions et dates précises rendent la fiche substantiellement meilleure que ce que le training peut produire.
+`[[AI Bootstrap]]` est canonique pour OS, naming, vault paths, system config, MCP wrapper version. Avant de drafter une fiche qui mentionne ces faits, **lire effectivement** le Bootstrap — mais via le cache projet si disponible et valide.
+
+**Protocole cache (P7.1)** :
+1. Lire `memory/skill_cache_manifest.json` (projet Cowork memory space).
+2. Si présent : bash `sha256sum "/sessions/.../mnt/Organon/99 - Méta/AI/AI Bootstrap.md"` et comparer au champ `ai_bootstrap.sha256`.
+3. **Cache hit** (sha256 identique) : charger `memory/cache_ai_bootstrap.md` au lieu de `get_vault_file`. Économie : ~300 tok.
+4. **Cache miss ou manifeste absent** : `get_vault_file('99 - Méta/AI/AI Bootstrap.md')`, puis mettre à jour `skill_cache_manifest.json` et `cache_ai_bootstrap.md` avec le nouveau sha256 et le contenu.
+5. **Session multi-artefact** : une seule vérification sha256 suffit par session — mémoriser « Bootstrap vérifié à [timestamp] » pour les appels suivants dans la même conversation.
+
+Pour les ADRs qui réfèrent à des incidents/évents spécifiques, **également lire** les VLT-* notes mentionnées (VLT-BUG, VLT-INC, mémoires de session) — leur historique de versions et dates précises rendent la fiche substantiellement meilleure que ce que le training peut produire.
 
 > **Bad** : drafter une note mentionnant « macOS 15 Sequoia » par défaut depuis training.
 > **Bad** : drafter une note disant « v0.3.12 » sans avoir lu le bootstrap pour confirmer la version exacte.
-> **Good** : `get_vault_file('99 - Méta/AI/AI Bootstrap.md')` → confirme `macOS Tahoe 26.x` + `mcp-tools-istefox v0.3.12` → drafte avec les valeurs lues (et non recall). Pour ADR sur fork/upgrade : lire aussi `[[mcp_tools_istefox_brat_upgrade_restart]]` ou notes équivalentes pour récupérer les dates et numéros de release précis. (Burnt 2026-04-28.)
+> **Good** : vérifier manifeste sha256 → cache hit → charger `cache_ai_bootstrap.md` → confirme `macOS Tahoe 26.x` + `mcp-tools-istefox v0.3.12` → drafte avec les valeurs lues. (Burnt 2026-04-28.)
 
 ## 3. No in-fiche redundancy
 
