@@ -5,7 +5,7 @@ description: Apply when composing or editing frontmatter in an Organon Obsidian 
 
 # organon-frontmatter
 
-Authoritative source : `[[Registre des clés de frontmatter]]` (vault). Pour vocabularies complets ou edge cases, **read** `references/VOCABULARIES.md` (chargé à la demande, pas avec ce SKILL.md). Syntaxe YAML générique → cascade `obsidian-markdown` (kepano) §Properties.
+Authoritative source : `[[Registre des clés de frontmatter]]` (vault). Pour vocabularies complets ou edge cases, **read** `references/VOCABULARIES.md` (chargé à la demande, pas avec ce SKILL.md). Syntaxe YAML générique et reference complète des property types → `references/PROPERTIES.md` (verbatim absorption depuis kepano `obsidian-skills` @ sha:fa1e131 ; cf. `kepano-sync.json` au repo root).
 
 ## Ordre Linter
 

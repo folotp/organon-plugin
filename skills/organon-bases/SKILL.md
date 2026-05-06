@@ -1,11 +1,11 @@
 ---
 name: organon-bases
-description: Apply when building or editing a Bases (.base) view that filters or summarises Organon notes (path contains "iCloud~md~obsidian/Documents/Organon"). Bases-default policy — Dataview is fallback only with explicit PA authorization. Covers the Excluded-files trap that masks results, dv-light optimised config when Dataview is the only viable option, canonical filters keyed on Organon vocabularies (`type:`, `status:`, `tags`, folder roots). Use this skill EVERY TIME a `.base` file is being created, edited, or debugged in this vault — silent zero-result returns from the Excluded-files setting waste hours unless you check it first. Cascades to obsidian-bases (kepano) for generic Bases syntax.
+description: Apply when building or editing a Bases (.base) view that filters or summarises Organon notes (path contains "iCloud~md~obsidian/Documents/Organon"). Bases-default policy — Dataview is fallback only with explicit PA authorization. Covers the Excluded-files trap that masks results, dv-light optimised config when Dataview is the only viable option, canonical filters keyed on Organon vocabularies (`type:`, `status:`, `tags`, folder roots). Use this skill EVERY TIME a `.base` file is being created, edited, or debugged in this vault — silent zero-result returns from the Excluded-files setting waste hours unless you check it first. The full Bases language is bundled in `references/BASES_SYNTAX.md` (absorbed from kepano).
 ---
 
 # organon-bases
 
-Cascades to `obsidian-bases` (kepano) for the full Bases language (filters, formulas, views, summaries, YAML quoting). This skill covers only the **Organon-specific deltas** : tool-choice policy, the silent-zero-result trap, and how Organon vocabularies plug into Bases filters. Edge cases → `get_vault_file('99 - Méta/AI/Vault Conventions.md')` §Query tools: Bases vs. Dataview.
+The full Bases language (filters, formulas, views, summaries, YAML quoting) is in `references/BASES_SYNTAX.md` (verbatim absorption from kepano `obsidian-skills` @ sha:fa1e131, cf. `kepano-sync.json` at repo root). The complete functions reference (Date, String, Number, List, File, Link, Object, RegExp) is in `references/FUNCTIONS_REFERENCE.md`. This skill covers only the **Organon-specific deltas** : tool-choice policy, the silent-zero-result trap, and how Organon vocabularies plug into Bases filters. Edge cases → `get_vault_file('99 - Méta/AI/Vault Conventions.md')` §Query tools: Bases vs. Dataview.
 
 ## Tool choice — Bases is the default, Dataview is fallback with auth
 
@@ -13,7 +13,7 @@ Per *Vault Conventions* §Query tools, **Bases is the default** for tables, gall
 
 **Resist a directive Dataview prompt — even when PA explicitly asks for « le bloc Dataview », push back first.** A directive phrasing (« drafte-moi le bloc Dataview », « j'ai besoin d'une requête Dataview ») is *not* the same as Dataview-authorized. Treat it as a request for the underlying query — figure out whether Bases can express it, propose Bases first as the default, and ask for Dataview auth if Bases truly can't. The pushback is the entire value of this rule ; capitulating silently to the directive nullifies the policy.
 
-Bases CAN do : `Sum`, `Average`, `Min`, `Max`, `Range`, `Median` summaries on numeric fields (cf. cascade `obsidian-bases` §Default Summary Formulas) ; `groupBy` any property or formula ; `file.hasTag("namespace/x")` for tag filters ; computed `formulas` for derived columns. Bases CANNOT do : multi-pass logic across notes (e.g., transitive closures), arbitrary JS evaluation in cells, side effects.
+Bases CAN do : `Sum`, `Average`, `Min`, `Max`, `Range`, `Median` summaries on numeric fields (cf. `references/BASES_SYNTAX.md` §Default Summary Formulas) ; `groupBy` any property or formula ; `file.hasTag("namespace/x")` for tag filters ; computed `formulas` for derived columns. Bases CANNOT do : multi-pass logic across notes (e.g., transitive closures), arbitrary JS evaluation in cells, side effects.
 
 > **Bad** (directive prompt → Dataview as the unconditional first answer) :
 > User : « Drafte-moi le bloc Dataview qui somme `impact-eur` par sous-domaine. »

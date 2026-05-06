@@ -5,7 +5,7 @@ description: Apply when writing prose body for an Organon Obsidian vault note (p
 
 # organon-markdown-style
 
-Cascades to `obsidian-markdown` (kepano) for generic Obsidian syntax (wikilinks, callouts, embeds, block refs, tables, footnotes, math, Mermaid). Edge cases → `get_vault_file('99 - Méta/AI/Vault Conventions.md')`.
+Generic Obsidian syntax (wikilinks, callouts, embeds, block refs, tables, footnotes, math, Mermaid) → `references/MARKDOWN_SYNTAX.md` (verbatim absorption from kepano `obsidian-skills` @ sha:fa1e131, cf. `kepano-sync.json` at repo root). Detailed embed types and callout types are in `references/EMBEDS.md` and `references/CALLOUTS.md`. Edge cases → `get_vault_file('99 - Méta/AI/Vault Conventions.md')`.
 
 ## Headings
 
