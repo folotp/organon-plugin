@@ -1,0 +1,107 @@
+{
+  "upstream": {
+    "url": "https://github.com/kepano/obsidian-skills",
+    "default_branch": "main"
+  },
+  "sections": [
+    {
+      "kepano_skill": "json-canvas",
+      "kepano_section_path": "skills/json-canvas/SKILL.md",
+      "kepano_section_heading": "(full body)",
+      "synced_at_sha": "fa1e131a014576ff8f8919f191a7ca8d8fded39b",
+      "synced_at_date": "2026-05-05",
+      "body_sha256": "6ae3c5db93b667a80272b808d59a748ccce4f76aeea88e64917252f64e4b7bfd",
+      "target_skill": "organon-canvas",
+      "target_file": "skills/organon-canvas/references/CANVAS_SPEC.md",
+      "drift_status": "in-sync"
+    },
+    {
+      "kepano_skill": "json-canvas",
+      "kepano_section_path": "skills/json-canvas/references/EXAMPLES.md",
+      "kepano_section_heading": "(full file)",
+      "synced_at_sha": "fa1e131a014576ff8f8919f191a7ca8d8fded39b",
+      "synced_at_date": "2026-05-05",
+      "body_sha256": "f5ce15a4b74643122396265e8c37c828874a4005794de2aee7030662968768eb",
+      "target_skill": "organon-canvas",
+      "target_file": "skills/organon-canvas/references/EXAMPLES.md",
+      "drift_status": "in-sync"
+    },
+    {
+      "kepano_skill": "obsidian-markdown",
+      "kepano_section_path": "skills/obsidian-markdown/references/PROPERTIES.md",
+      "kepano_section_heading": "(full file)",
+      "synced_at_sha": "fa1e131a014576ff8f8919f191a7ca8d8fded39b",
+      "synced_at_date": "2026-05-05",
+      "body_sha256": "392953b5838c3ab3df135b5a914f100ae7b95e4501b6a2e5c8dc63da3ac7558b",
+      "target_skill": "organon-frontmatter",
+      "target_file": "skills/organon-frontmatter/references/PROPERTIES.md",
+      "drift_status": "in-sync"
+    },
+    {
+      "kepano_skill": "obsidian-markdown",
+      "kepano_section_path": "skills/obsidian-markdown/SKILL.md",
+      "kepano_section_heading": "(full body)",
+      "synced_at_sha": "fa1e131a014576ff8f8919f191a7ca8d8fded39b",
+      "synced_at_date": "2026-05-05",
+      "body_sha256": "b77893e2efa33cfe2fea3ce1c5fc6cf823bd7bb682759aa9c9ad7414097d822d",
+      "target_skill": "organon-markdown-style",
+      "target_file": "skills/organon-markdown-style/references/MARKDOWN_SYNTAX.md",
+      "drift_status": "in-sync"
+    },
+    {
+      "kepano_skill": "obsidian-markdown",
+      "kepano_section_path": "skills/obsidian-markdown/references/EMBEDS.md",
+      "kepano_section_heading": "(full file)",
+      "synced_at_sha": "fa1e131a014576ff8f8919f191a7ca8d8fded39b",
+      "synced_at_date": "2026-05-05",
+      "body_sha256": "cd7e3a7d27e9d8315870182f73e8fc8735143a16cefb6902d3f456624e93c3ee",
+      "target_skill": "organon-markdown-style",
+      "target_file": "skills/organon-markdown-style/references/EMBEDS.md",
+      "drift_status": "in-sync"
+    },
+    {
+      "kepano_skill": "obsidian-markdown",
+      "kepano_section_path": "skills/obsidian-markdown/references/CALLOUTS.md",
+      "kepano_section_heading": "(full file)",
+      "synced_at_sha": "fa1e131a014576ff8f8919f191a7ca8d8fded39b",
+      "synced_at_date": "2026-05-05",
+      "body_sha256": "9912ec2e3f8711f65b8ceb82cc19cbffc5e6f8ccf2ab627e18926c522c383d8b",
+      "target_skill": "organon-markdown-style",
+      "target_file": "skills/organon-markdown-style/references/CALLOUTS.md",
+      "drift_status": "in-sync"
+    },
+    {
+      "kepano_skill": "obsidian-markdown",
+      "kepano_section_path": "skills/obsidian-markdown/SKILL.md",
+      "kepano_section_heading": "Diagrams (Mermaid)",
+      "synced_at_sha": "fa1e131a014576ff8f8919f191a7ca8d8fded39b",
+      "synced_at_date": "2026-05-05",
+      "body_sha256": "b1df62ffb53a41d362972e1cc0401872d729f770d1f7a26e88129eeb4cff6722",
+      "target_skill": "organon-diagramming",
+      "target_file": "skills/organon-diagramming/SKILL.md",
+      "drift_status": "in-sync"
+    },
+    {
+      "kepano_skill": "obsidian-bases",
+      "kepano_section_path": "skills/obsidian-bases/SKILL.md",
+      "kepano_section_heading": "(full body)",
+      "synced_at_sha": "fa1e131a014576ff8f8919f191a7ca8d8fded39b",
+      "synced_at_date": "2026-05-05",
+      "body_sha256": "46cb5fd5478dd2a75981acfa62221d9f1540fc830a7abee90905017c3f903d96",
+      "target_skill": "organon-bases",
+      "target_file": "skills/organon-bases/references/BASES_SYNTAX.md",
+      "drift_status": "in-sync"
+    },
+    {
+      "kepano_skill": "obsidian-bases",
+      "kepano_section_path": "skills/obsidian-bases/references/FUNCTIONS_REFERENCE.md",
+      "kepano_section_heading": "(full file)",
+      "synced_at_sha": "fa1e131a014576ff8f8919f191a7ca8d8fded39b",
+      "synced_at_date": "2026-05-05",
+      "body_sha256": "208fd63aead9bca1975626fea52605e6ab9434dc0529d923feb36b18b8877d3b",
+      "target_skill": "organon-bases",
+      "target_file": "skills/organon-bases/references/FUNCTIONS_REFERENCE.md",
+      "drift_status": "in-sync"
+    }
+  ]
+}

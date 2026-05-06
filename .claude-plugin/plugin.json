@@ -1,7 +1,7 @@
 {
   "name": "organon",
-  "version": "0.3.0",
-  "description": "Organon vault conventions for Claude — MCP write discipline, frontmatter schema, body markdown style, session-discipline behavioral rules, plus aux skills for Bases views, JSON Canvas cartography, and Mermaid/Excalidraw diagramming. Cascades to kepano obsidian skills for generic Obsidian syntax.",
+  "version": "0.4.0",
+  "description": "Organon vault conventions for Claude — MCP write discipline, frontmatter schema, body markdown style, session-discipline behavioral rules, plus aux skills for Bases views, JSON Canvas cartography, and Mermaid/Excalidraw diagramming. Bundles absorbed kepano obsidian-skills content (verbatim, drift-tracked) for generic Obsidian syntax — no runtime cascade required.",
   "author": {
     "name": "Pierre-André Folot"
   },

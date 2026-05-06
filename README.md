@@ -16,12 +16,14 @@ Seven description-triggered skills that load automatically when working with the
 ### Aux (3 skills, new in v0.2.0 — chat 1.B)
 
 - **organon-bases** — Bases-default policy (Dataview is fallback only with explicit auth, even against directive prompts), Excluded-files trap diagnostic, dv-light optimised config, Organon vocabulary filters.
-- **organon-canvas** — Purpose discriminator (cartography of existing notes vs. freeform sketches), placement beside the domain, file-node filename-only paths for vault-move robustness, language by folder for labels, ID convention (kepano 16-char hex via cascade).
+- **organon-canvas** — Purpose discriminator (cartography of existing notes vs. freeform sketches), placement beside the domain, file-node filename-only paths for vault-move robustness, language by folder for labels, ID convention (kepano 16-char hex).
 - **organon-diagramming** — Tool-selection decision tree (Mermaid for code-expressible flows, Canvas for note-cartography, Excalidraw via connector+bridge for freeform, SVG for throwaways), Excalidraw bridge skeleton, plugin compression-OFF invariant, preview-before-persist pattern.
 
-## Cascade with kepano/obsidian-skills
+## Absorbed kepano content (since v0.4.0)
 
-Each Organon skill cascades to the [kepano `obsidian-skills` plugin](https://github.com/kepano/obsidian-skills) (already installed via Claude Desktop) for generic Obsidian syntax. Organon-specific deltas only — single source of truth, no duplication.
+This plugin used to **cascade at runtime** to the upstream [kepano `obsidian-skills`](https://github.com/kepano/obsidian-skills) plugin for generic Obsidian syntax. Since v0.4.0 it **absorbs** the relevant kepano content verbatim into per-skill `references/` files (with HTML provenance markers and a `body_sha256` fingerprint tracked in `kepano-sync.json`). Net effect: when an `organon-*` skill triggers, the kepano cascade no longer needs to load — content lives locally and is read on-demand thanks to progressive disclosure (lean SKILL.md ≤ 1 200 words, bundled refs loaded only when the task requires them).
+
+Drift detection: `./scripts/sync-kepano.sh` compares stored `body_sha256` snapshots against current upstream HEAD and reports per-section status. Re-sync workflow: see [`docs/syncing-kepano.md`](docs/syncing-kepano.md). The script never auto-edits files or commits — review obligatory.
 
 ## Empirical validation
 
@@ -38,6 +40,18 @@ Each Organon skill cascades to the [kepano `obsidian-skills` plugin](https://git
 ### v0.2.1 (chat 1.B feedback patch)
 - `organon-canvas` : explicit ID convention (kepano 16-char hex via cascade) + anti-pattern note on semantic IDs.
 - `organon-diagramming` : preview-in-chat-before-persist pattern made explicit on the Excalidraw bridge.
+
+### v0.2.2 (closure Phase 5)
+- `organon-frontmatter` : Touch-on-edit refined (≤ 3 keys/edit threshold, canonical journal entry, explicit skip if edit > 10 lines).
+
+### v0.3.0 (P7.1 — session-discipline cache)
+- `organon-session-discipline` rule #2 made cache-aware: sha256 manifest + cached AI Bootstrap snapshot in project memory space, ~300 tok saved per cache hit.
+
+### v0.4.0 (VLT-BL-0063 — kepano absorption B4-complet)
+- Absorbed verbatim kepano `obsidian-skills` content (commit `fa1e131`) into 5 organon skills via HTML provenance markers and per-skill `references/` files.
+- Added `kepano-sync.json` (drift fingerprints), `scripts/sync-kepano.sh` (drift detection — read-only), `docs/syncing-kepano.md` (re-sync runbook).
+- Removed runtime cascade to kepano plugin — eliminates the additive cascade load (~1.1k–3.4k tokens saved per session depending on task shape).
+- Regression eval: 50/51 (98 %) on representative tasks, matching chat 1.B baseline.
 
 ## Installation
 

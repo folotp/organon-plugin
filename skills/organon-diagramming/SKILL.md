@@ -5,7 +5,7 @@ description: Apply when producing a Mermaid, Excalidraw, JSON Canvas, or one-sho
 
 # organon-diagramming
 
-No kepano cascade — there is no equivalent kepano skill for diagram tool-selection. The canonical authority is `[[Diagramming conventions]]` in the vault ; this skill encodes its actionable rules. For JSON Canvas spec details, cascade to `json-canvas` (kepano). For Mermaid syntax inside a markdown body, cascade to `obsidian-markdown` (kepano). Edge cases → `get_vault_file('99 - Méta/AI/Diagramming conventions.md')`.
+No kepano cascade — there is no equivalent kepano skill for diagram tool-selection. The canonical authority is `[[Diagramming conventions]]` in the vault ; this skill encodes its actionable rules. For JSON Canvas spec details, see `organon-canvas` (which now bundles the absorbed json-canvas SKILL.md spec in `references/CANVAS_SPEC.md`). Generic Mermaid syntax is now bundled inline below in §Mermaid in Organon notes (verbatim absorption from kepano `obsidian-markdown` SKILL.md §Diagrams (Mermaid) @ sha:fa1e131; cf. `kepano-sync.json` at repo root). Edge cases → `get_vault_file('99 - Méta/AI/Diagramming conventions.md')`.
 
 ## Tool-selection decision tree
 
@@ -58,6 +58,26 @@ The Obsidian Excalidraw plugin in this vault is configured with **« Compress Ex
 ## Mermaid in Organon notes
 
 Embed in the host markdown note with a fenced ` ```mermaid ` block. The host note follows Organon body conventions (no H1, language by folder, etc. — see `organon-markdown-style`). No special placement — the diagram lives where the prose lives.
+
+Generic Mermaid syntax (kepano-absorbed):
+
+<!-- KEPANO-BEGIN: obsidian-markdown SKILL.md §Diagrams (Mermaid) @sha:fa1e131 -->
+<!-- kepano-sync: see kepano-sync.json for body_sha256 + drift status -->
+
+## Diagrams (Mermaid)
+
+````markdown
+```mermaid
+graph TD
+    A[Start] --> B{Decision}
+    B -->|Yes| C[Do this]
+    B -->|No| D[Do that]
+```
+````
+
+To link Mermaid nodes to Obsidian notes, add `class NodeName internal-link;`.
+
+<!-- KEPANO-END: obsidian-markdown SKILL.md §Diagrams (Mermaid) -->
 
 ## File placement and naming
 

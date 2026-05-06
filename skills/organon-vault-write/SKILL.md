@@ -5,7 +5,7 @@ description: Apply BEFORE any patch_vault_file, create_vault_file, append_to_vau
 
 # organon-vault-write
 
-Cascades to `obsidian-markdown` (kepano) for generic Obsidian syntax. Edge cases → `get_vault_file('99 - Méta/AI/Vault Conventions.md')`.
+Edge cases → `get_vault_file('99 - Méta/AI/Vault Conventions.md')`. (No kepano cascade — this skill is purely about MCP wire-format and write discipline; generic Obsidian syntax is not a content dependency.)
 
 **Note de langue** : ce qui suit décrit le **wire-format MCP** et le **routage**, pas le contenu d'artefacts vault. Pour les réponses chat (plans, analyses, garde-fous explicatifs comme cette skill produit), la langue suit le prompt PA, pas le folder de la note ciblée. Si PA prompt en français pour expliquer un patch, la réponse est en français même si la note ciblée est sous `99 - Méta/AI/`.
 

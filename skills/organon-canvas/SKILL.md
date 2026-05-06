@@ -1,11 +1,11 @@
 ---
 name: organon-canvas
-description: Apply when creating or editing a JSON Canvas (`.canvas`) file in the Organon Obsidian vault (path contains "iCloud~md~obsidian/Documents/Organon"). Organon-specific canvas conventions — purpose discriminator (cartography of *existing* vault notes vs. freeform sketch — sketches go to Excalidraw instead), placement beside the domain the canvas serves, file-node `file:` paths must resolve via Obsidian's filename-based wiki resolution, language by folder for labels and group titles. Use this skill EVERY TIME a `.canvas` file is being authored — picking the wrong tool (canvas when Excalidraw fits, or vice versa) creates artifacts that don't belong in the vault. Cascades to json-canvas (kepano) for the JSON Canvas 1.0 spec itself.
+description: Apply when creating or editing a JSON Canvas (`.canvas`) file in the Organon Obsidian vault (path contains "iCloud~md~obsidian/Documents/Organon"). Organon-specific canvas conventions — purpose discriminator (cartography of *existing* vault notes vs. freeform sketch — sketches go to Excalidraw instead), placement beside the domain the canvas serves, file-node `file:` paths must resolve via Obsidian's filename-based wiki resolution, language by folder for labels and group titles. Use this skill EVERY TIME a `.canvas` file is being authored — picking the wrong tool (canvas when Excalidraw fits, or vice versa) creates artifacts that don't belong in the vault. JSON Canvas 1.0 spec is bundled in `references/CANVAS_SPEC.md` (absorbed from kepano).
 ---
 
 # organon-canvas
 
-Cascades to `json-canvas` (kepano) for the full JSON Canvas 1.0 spec — node types (`text`, `file`, `link`, `group`), edge attributes, ID generation, layout guidelines, validation. This skill covers only the **Organon-specific deltas** : when a `.canvas` is the right artifact, where it lives, and how its content references vault notes coherently. Edge cases → `get_vault_file('99 - Méta/AI/Diagramming conventions.md')`.
+The full JSON Canvas 1.0 spec — node types (`text`, `file`, `link`, `group`), edge attributes, ID generation, layout guidelines, validation — lives in `references/CANVAS_SPEC.md` (verbatim absorption from kepano `obsidian-skills`, cf. `kepano-sync.json` at repo root for sync metadata and `scripts/sync-kepano.sh` for the re-sync workflow). Complete worked examples (mind maps, project boards, research canvases, flowcharts) are in `references/EXAMPLES.md`. This skill covers only the **Organon-specific deltas** : when a `.canvas` is the right artifact, where it lives, and how its content references vault notes coherently. Edge cases → `get_vault_file('99 - Méta/AI/Diagramming conventions.md')`.
 
 ## Purpose discriminator — canvas is for cartography of existing notes
 
@@ -70,7 +70,7 @@ Common label translations to keep ready when drafting :
 
 ## Node and edge IDs — the kepano convention, not an Organon rule
 
-JSON Canvas 1.0 spec only requires `id` to be a string ; there is no formal Obsidian standard. The **kepano `json-canvas` skill recommends 16-character lowercase hexadecimal strings** (64-bit random value, e.g. `"6f0ad84f44ce9c17"`), which is the convention Organon follows by cascade. Use `secrets.token_hex(8)` in Python or equivalent to generate.
+JSON Canvas 1.0 spec only requires `id` to be a string ; there is no formal Obsidian standard. The kepano-recommended convention (now absorbed in `references/CANVAS_SPEC.md` §ID Generation) is **16-character lowercase hexadecimal strings** (64-bit random value, e.g. `"6f0ad84f44ce9c17"`). Use `secrets.token_hex(8)` in Python or equivalent to generate.
 
 Don't substitute semantic IDs (`"vlt-bug-014"`, `"root-cause"`) — even though they parse as valid JSON Canvas, they collide more readily across canvases and break the kepano-recommended uniqueness budget. The deterministic readability gain isn't worth the convention drift. If you need a human-readable handle on a node, put it in the node's `text:` (text node) or accompanying `label:` (file/group node), not in the `id:`.
 
