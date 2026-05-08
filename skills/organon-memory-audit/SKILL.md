@@ -67,14 +67,36 @@ Read:
 
 **Integrity gate:**
 
+Distinguish three outcomes per script — clean (exit 0), drift (exit 1, informational), gate-unavailable (exit ≥ 2, real error: missing deps, clone/fetch failure, malformed config). Conflating gate-unavailable into drift would halt the audit with a misleading "run /kepano-resync" recommendation when the actual problem is, e.g., transient network failure on the upstream fetch.
+
 ```bash
-"${PLUGIN_ROOT}/scripts/sync-kepano.sh" || KEPANO_DRIFT=1
-"${PLUGIN_ROOT}/scripts/sync-vault.sh" || VAULT_DRIFT=1
+set +e
+"${PLUGIN_ROOT}/scripts/sync-kepano.sh"
+KEPANO_RC=$?
+"${PLUGIN_ROOT}/scripts/sync-vault.sh"
+VAULT_RC=$?
+set -e
+
+case "$KEPANO_RC" in
+    0) ;;                                # clean
+    1) KEPANO_DRIFT=1 ;;                 # informational drift
+    *) KEPANO_GATE_FAILED=$KEPANO_RC ;;  # network/config/clone error
+esac
+
+case "$VAULT_RC" in
+    0) ;;                                # clean
+    1) VAULT_DRIFT=1 ;;                  # informational drift
+    *) VAULT_GATE_FAILED=$VAULT_RC ;;    # missing deps / vault path / config error
+esac
 ```
 
 The kepano script fetches upstream every run by default — that fetch is the whole point of the integrity gate (catch upstream drift before continuing). Do **not** pass `--no-fetch` here; on a stale cache the gate would silently report clean even when upstream has moved. The audit runs on cadence rather than in tight loops, so the per-run fetch cost is acceptable. The vault script reads the local filesystem directly, so no fetch flag applies.
 
-If either reports drift (exit 1), the audit emits a Bucket-0 finding ("plugin internal drift detected") and recommends running `/kepano-resync` or following `docs/syncing-vault.md` *before* continuing alignment work. Do not proceed to pole-3 reads until pole 1 itself is consistent.
+**Result handling:**
+
+- If `KEPANO_DRIFT` or `VAULT_DRIFT` is set, the audit emits a Bucket-0 finding ("plugin internal drift detected") and recommends running `/kepano-resync` or following `docs/syncing-vault.md` *before* continuing alignment work.
+- If `KEPANO_GATE_FAILED` or `VAULT_GATE_FAILED` is set, the audit emits a **separate** report-header note ("integrity gate unavailable: kepano rc=N / vault rc=N") with a one-line diagnostic (e.g., "first-run clone failed — check network and rerun"). This is **not** a drift finding; do not recommend re-sync. Pole-3 reads can still proceed if the user accepts the degraded confidence.
+- Do not proceed to pole-3 reads while drift is unresolved. Gate-unavailable is degraded but not blocking — call it out, then continue if the user opts in.
 
 On Cowork / Chat (filesystem not available the same way): infer pole 1 from the harness's published skill list and the canonical vault note's "Plugin name canonicalisation" section. The integrity gate is unavailable on those surfaces — note that limitation in the report header.
 
