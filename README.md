@@ -8,7 +8,7 @@ Seven description-triggered skills that load automatically when working with the
 
 ### Core (4 skills, validated in chat 1.A)
 
-- **organon-vault-write** — MCP write discipline via `mcp-tools-istefox` 0.3.12+. Covers Voie B routing (two-step / one-step `execute_template`), YAML scalar quoting, `tags:` array shape, heading patch safety, NFC normalization, footguns.
+- **organon-vault-write** — MCP write discipline via `mcp-tools-istefox` 0.4.5+. Covers Templater-first routing for structured notes (two-step render-then-create / one-step render-and-create via `execute_template`), YAML scalar quoting, frontmatter array vs scalar semantics, `tags:` array shape, heading patch safety, NFC normalization, footguns.
 - **organon-frontmatter** — Schema, key ordering, controlled vocabularies, ULID forward-only, `creator:` dual-mode (UI vs MCP), archive/supersession, alias-only versioning, ADR/BL/BUG/INC field requirements. Vocabularies externalized to `references/VOCABULARIES.md` (loaded on-demand).
 - **organon-markdown-style** — Body conventions: no H1 in body, language by folder (`99 - Méta/AI/` in EN, rest in FR), typographic apostrophes, no trailing whitespace, no systematic block anchors, table+block-ref pitfall.
 - **organon-session-discipline** — 7 behavioral rules: arbitrate over over-clarify, read bootstrap before drafting, no in-fiche redundancy, confirm inferred mappings, propose generalizations, check meta-skills before producing typed artifacts, language coherence by folder.
@@ -52,6 +52,21 @@ Drift detection: `./scripts/sync-kepano.sh` compares stored `body_sha256` snapsh
 - Added `kepano-sync.json` (drift fingerprints), `scripts/sync-kepano.sh` (drift detection — read-only), `docs/syncing-kepano.md` (re-sync runbook).
 - Removed runtime cascade to kepano plugin — eliminates the additive cascade load (~1.1k–3.4k tokens saved per session depending on task shape).
 - Regression eval: 50/51 (98 %) on representative tasks, matching chat 1.B baseline.
+
+### v0.4.1 (automation runbooks)
+- New user-only skills `kepano-resync` and `plugin-release` (both `disable-model-invocation: true`) — end-to-end runbooks for drift resolution and release cuts.
+
+### v0.4.2 (slash-command wrappers)
+- New `/kepano-resync` and `/plugin-release` thin slash-command wrappers — make the v0.4.1 runbooks reachable from the picker. No skill content changes.
+
+### v0.4.3 (istefox 0.4.0–0.4.5 alignment)
+- Min `mcp-tools-istefox` floor bumped 0.3.12+ → 0.4.5+ (in-process MCP, auto-mkdirp, fail-loud rejects for upstream #80/#81/#84). Min Obsidian: 1.7.2 (transitive).
+- **Renamed "Voie B routing" → "Templater-first routing"** across SKILL/README/docs/token-harness — the design-era label was meaningless to readers; the new name describes what the routing actually does. Variants relabeled: "Two-step render-then-create" (BL/BUG/INC/ADR sequential IDs) and "One-step render-and-create" (Note/Concept/Person/etc. — domain-folder-mapped).
+- `organon-vault-write` — heading-patch safety **rewritten** based on smoke-test ground truth on istefox 0.4.5: `createTargetIfMissing: false` is **incompatible with Organon's H2-root convention** (triggers istefox 0.4.2 #80 reject on every heading patch since every Organon note is H2-root by design); default `true` silently appends to EOF on missing target. Correct discipline: pre-verify the heading exists with `get_vault_file` before patching. The previous skill text recommending `false` is reversed.
+- `organon-vault-write` — also documents 0.4.0 frontmatter array semantics (`replace`-with-scalar on array fields now errors; `append`/`prepend` JSON-decode + auto-wrap), notes 0.4.5 auto-mkdirp on `create_vault_file`/`append_to_vault_file`/`execute_template`, refreshes block-target rejects (0.4.2 #81 table-cell, 0.4.3 #84 fenced-code).
+- `organon-markdown-style` — VLT-BUG-015 reframed: table+block-ref + fenced-code-boundary cases are now structural fail-loud rejects (not HTTP 400 footguns), workaround language updated.
+- `organon-session-discipline` — rule #2 cache-example refreshed `v0.3.12` → `v0.4.5` to match the new floor.
+- Breaking: yes (version pin bumped + heading-patch discipline reversed; callers passing `createTargetIfMissing: false` to Organon notes will now see fail-loud rejects).
 
 ## Installation
 

@@ -28,8 +28,8 @@ PA prefers arbitrage motivé over sur-clarification. Quand une décision est inf
 Pour les ADRs qui réfèrent à des incidents/évents spécifiques, **également lire** les VLT-* notes mentionnées (VLT-BUG, VLT-INC, mémoires de session) — leur historique de versions et dates précises rendent la fiche substantiellement meilleure que ce que le training peut produire.
 
 > **Bad** : drafter une note mentionnant « macOS 15 Sequoia » par défaut depuis training.
-> **Bad** : drafter une note disant « v0.3.12 » sans avoir lu le bootstrap pour confirmer la version exacte.
-> **Good** : vérifier manifeste sha256 → cache hit → charger `cache_ai_bootstrap.md` → confirme `macOS Tahoe 26.x` + `mcp-tools-istefox v0.3.12` → drafte avec les valeurs lues. (Burnt 2026-04-28.)
+> **Bad** : drafter une note disant « v0.4.5 » sans avoir lu le bootstrap pour confirmer la version exacte.
+> **Good** : vérifier manifeste sha256 → cache hit → charger `cache_ai_bootstrap.md` → confirme `macOS Tahoe 26.x` + `mcp-tools-istefox v0.4.5` → drafte avec les valeurs lues. (Burnt 2026-04-28.)
 
 ## 3. No in-fiche redundancy
 

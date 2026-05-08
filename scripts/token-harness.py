@@ -116,7 +116,7 @@ SESSIONS: list[dict] = [
     },
     {
         "id": "S02",
-        "name": "Structured note creation (ADR via Voie B)",
+        "name": "Structured note creation (ADR via Templater-first routing)",
         "skills": [
             "organon-frontmatter",
             "organon-vault-write",

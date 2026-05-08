@@ -16,7 +16,7 @@
 
 ## Compat
 
-- Min `mcp-tools-istefox`: <version, e.g. 0.3.12>
+- Min `mcp-tools-istefox`: <version, e.g. 0.4.5>
 - Breaking: <yes/no — if yes, what>
 
 ## Install / update
