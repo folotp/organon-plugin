@@ -103,7 +103,7 @@ re-runs the measurement.
 | ID | Session shape | Triggered skills | Refs needed (post) |
 |---|---|---|---|
 | S01 | Frontmatter touch (1-2 keys, no schema lookup) | frontmatter, vault-write | (none) |
-| S02 | Structured note creation (ADR via Voie B) | frontmatter, vault-write, session-discipline | PROPERTIES.md, VOCABULARIES.md |
+| S02 | Structured note creation (ADR via Templater-first routing) | frontmatter, vault-write, session-discipline | PROPERTIES.md, VOCABULARIES.md |
 | S03 | Body markdown style edit (typographic, no H1) | markdown-style | (none) |
 | S04 | Bases simple filter add | bases | (none) |
 | S05 | Bases deep schema (formula columns + custom views) | bases | BASES_SYNTAX.md, FUNCTIONS_REFERENCE.md |
