@@ -25,6 +25,14 @@ This plugin used to **cascade at runtime** to the upstream [kepano `obsidian-ski
 
 Drift detection: `./scripts/sync-kepano.sh` compares stored `body_sha256` snapshots against current upstream HEAD and reports per-section status. Re-sync workflow: see [`docs/syncing-kepano.md`](docs/syncing-kepano.md). The script never auto-edits files or commits — review obligatory.
 
+## Absorbed vault content (since v0.5.0)
+
+The plugin also **absorbs Organon vault content** into `organon-frontmatter/references/`: the canonical frontmatter key registry (`REGISTRE_KEYS.md`), ID prefix registry (`PREFIXES.md`), and 12 controlled vocabularies (sectioned inside `VOCABULARIES.md`) — all verbatim, all drift-tracked via `vault-sync.json`. Two distilled methodology references (`METHODOLOGY_ADR.md` and `METHODOLOGY_INC_BUG_BL.md`) carry Claude-actionable subsets of the vault methodologies (no markers — re-derive manually after material changes).
+
+Net effect: when `organon-frontmatter` triggers (e.g., drafting an ADR / VLT-BUG / FIN-DEC), the schema, vocab, and methodology are already loaded — no MCP round-trip to the vault registre needed. The vault remains authoritative on disagreement (banner in each absorbed file).
+
+Drift detection: `./scripts/sync-vault.sh` compares stored `body_sha256` snapshots against the live vault, with `mktemp` snapshotting for atomicity (Obsidian/Linter can rewrite files mid-script). Re-sync workflow: see [`docs/syncing-vault.md`](docs/syncing-vault.md). Mechanism is parallel to and independent of kepano absorption.
+
 ## Empirical validation
 
 - **Chat 1.A — 4 core skills** : 3 iterations of skill-creator eval workflow. iter-3 final pass-rate **94 %** with_skill vs 82 % baseline (delta +12 pp).
@@ -58,6 +66,19 @@ Drift detection: `./scripts/sync-kepano.sh` compares stored `body_sha256` snapsh
 
 ### v0.4.2 (slash-command wrappers)
 - New `/kepano-resync` and `/plugin-release` thin slash-command wrappers — make the v0.4.1 runbooks reachable from the picker. No skill content changes.
+
+### v0.5.0 (vault absorption)
+- **Tier 1 — Verbatim absorption with drift tracking** under `skills/organon-frontmatter/references/`:
+  - `REGISTRE_KEYS.md` ← full body of vault `[[Registre des clés de frontmatter]]` (~400 lines: global keys, per-type tables, per-domain tables, Tri Linter canonique, retired/in-migration keys).
+  - `PREFIXES.md` ← full body of vault `[[Préfixes d'identifiants]]` (FIN/VLT/SD/SPA + reserved + sub-types + protocols).
+  - `VOCABULARIES.md` refactored: Organon-curated framing prose for `type`/`status`/`content-model` (cross-linking to `REGISTRE_KEYS.md`) + 12 absorbed sections wrapping verbatim `## Valeurs` tables from each vault `Vocabulaire — <key>.md` (markers + per-section drift tracking).
+- **Tier 2 — Distilled Claude-actionable references** (no drift markers; provenance banner only — re-derive manually after material methodology changes):
+  - `METHODOLOGY_ADR.md` (~150 lines from vault's 206 — lifecycle, immutability, supersession, callout, anti-patterns).
+  - `METHODOLOGY_INC_BUG_BL.md` (~140 lines from vault's 152 — atomic types, Phase A/B/C, promotion criteria, MCP write discipline).
+- **Drift machinery** paralleling kepano: new `vault-sync.json` (14 entries), `scripts/sync-vault.sh` (live-FS read with `mktemp` atomic snapshot, parallel exit-code contract), `docs/syncing-vault.md`. Both `vault-sync` and `kepano-sync` mechanisms remain independent.
+- **`organon-frontmatter/SKILL.md`** updated: references list expanded with cascade triggers ("read METHODOLOGY_ADR.md when drafting an ADR or transitioning its `status:`", etc.). Inline `type:` enum corrected from 9 values to 16 (post-FIN-BL-0107 promotion 2026-05-05). Supersession discipline rewritten to permit ADR/FIN-DEC `supersedes:` frontmatter and reference the `[!warning] Superseded` callout. `amends:` / `amended-by:` flagged as deprecated (SD-ADR-011).
+- Fixes the silent drift between plugin VOCABULARIES.md and vault registre that had accumulated since v0.4.0 (plugin had 9 `type:` values, vault had 16).
+- Breaking: no — additive. Existing skills unchanged in behavior; new references load on-demand.
 
 ### v0.4.3 (istefox 0.4.0–0.4.5 alignment)
 - Min `mcp-tools-istefox` floor bumped 0.3.12+ → 0.4.5+ (in-process MCP, auto-mkdirp, fail-loud rejects for upstream #80/#81/#84). Min Obsidian: 1.7.2 (transitive).
