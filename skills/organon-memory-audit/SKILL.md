@@ -41,7 +41,7 @@ Parse from the user's invocation string (the slash-command wrapper forwards them
 
 Probe in order, log each result in the report header:
 
-1. Read `/Users/pierreandre/.claude/projects/` — if it exists and lists project dirs, surface = **Code**.
+1. Read `~/.claude/projects/` — if it exists and lists project dirs, surface = **Code**. (Use `~` / `$HOME` so the probe works on remote Code agents and other macOS users, not just PA's local account.)
 2. Else, attempt to read `/` via the Read tool — if a Cowork-style mount is visible (typically `/mnt/...` or `/workspace/...`), surface = **Cowork**.
 3. Else, surface = **Chat**. Probe MCP availability via `mcp__mcp-tools-istefox__get_server_info`. If absent → web/mobile (paste-only mode); if present → Desktop Chat.
 
@@ -52,7 +52,7 @@ If `--surface=` is passed, skip probes.
 On Code (filesystem available):
 
 ```bash
-PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-/Users/pierreandre/Developer/organon-plugin}"
+PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$HOME/Developer/organon-plugin}"
 ```
 
 Read:
@@ -68,9 +68,11 @@ Read:
 **Integrity gate:**
 
 ```bash
-"${PLUGIN_ROOT}/scripts/sync-kepano.sh" --no-fetch || KEPANO_DRIFT=1
+"${PLUGIN_ROOT}/scripts/sync-kepano.sh" || KEPANO_DRIFT=1
 "${PLUGIN_ROOT}/scripts/sync-vault.sh" || VAULT_DRIFT=1
 ```
+
+The kepano script fetches upstream every run by default — that fetch is the whole point of the integrity gate (catch upstream drift before continuing). Do **not** pass `--no-fetch` here; on a stale cache the gate would silently report clean even when upstream has moved. The audit runs on cadence rather than in tight loops, so the per-run fetch cost is acceptable. The vault script reads the local filesystem directly, so no fetch flag applies.
 
 If either reports drift (exit 1), the audit emits a Bucket-0 finding ("plugin internal drift detected") and recommends running `/kepano-resync` or following `docs/syncing-vault.md` *before* continuing alignment work. Do not proceed to pole-3 reads until pole 1 itself is consistent.
 
