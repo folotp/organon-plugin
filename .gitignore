@@ -19,5 +19,8 @@ snippets/
 # Backups
 *.bak
 
+# Claude Code per-user settings (personal permission allowlist, never shared)
+.claude/settings.local.json
+
 # Fichier temporaire zip résiduel
 zibn6G7I
