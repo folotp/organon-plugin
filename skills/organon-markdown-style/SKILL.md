@@ -43,9 +43,11 @@ Préserver la VO d'une citation/source en anglais ; traduire au besoin en regard
 - **Pas d'anchor systématique** post-frontmatter. N'injecte pas `^<id>` après les frontmatter des nouvelles notes — c'était une convention Organon abandonnée 2026-04-28 (PA arbitré). Sweep wave 3 nettoie le legacy vault-wide.
 - Anchor `^<token>` autorisée **en dernier recours** quand un heading même nesté est insuffisant pour pointer un bloc spécifique. **Token descriptif** (ex. `^cas-1`, `^exemple-route`, `^def-canonical`), **pas** l'ID de la note.
 
-## Pitfall — tables + block refs
+## Pitfall — tables + block refs (et fenced code)
 
-Une cellule de table contenant un block ref `^id` cause un fail-loud HTTP 400 sur `patch_vault_file targetType: block` (VLT-BUG-015 S2 ; cause = `markdown-patch` upstream non corrigé). Pour ces sections : préférer `create_vault_file` complet, pas de patch ciblé sur la cellule. Tu peux laisser le block ref dans la table — c'est juste l'opération de patch qui est cassée.
+`patch_vault_file targetType: block` est rejeté fail-loud par istefox 0.4.2+ (#81) si le block ref `^id` ciblé se trouve dans une cellule de table — cause upstream = `markdown-patch` ne parse pas correctement les tables. istefox 0.4.3 (#84) étend le même reject aux block refs sur la frontière d'un fenced-code (les délimiteurs ``` ``` `` ne peuvent pas être splicés). Pas de corruption silencieuse, pas d'HTTP 400 obscur — un reject MCP structuré (VLT-BUG-015).
+
+Le block ref reste valide pour la résolution Obsidian (lecture, lien, embed) ; c'est uniquement l'opération de patch ciblée qui est interdite. Pour éditer ce contenu : `patch_vault_file targetType: heading` sur la section parente, ou `create_vault_file` complet en dernier recours. Ne pas tenter de contourner le reject en supprimant temporairement le block ref — la perte de référentialité downstream coûte plus cher que la voie heading.
 
 ## Préférer wikilinks intra-vault
 
