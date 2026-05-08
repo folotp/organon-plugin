@@ -1,0 +1,128 @@
+# Report template — organon-memory-audit
+
+The skill renders this skeleton inline in the conversation. Do not write the report to a file unless PA explicitly asks — the conversation is the persistence.
+
+The `Stable run hash` in the header is the sha256 of the concatenation `(plugin.json content + kepano-sync.json content + vault-sync.json content + canonical vault note body + companion matrix body)`. Two consecutive runs with the same hash means pole 1 + pole 2 are unchanged — useful for scheduled runs (PA can scan the hash to know whether anything moved).
+
+```markdown
+# Organon memory & instructions audit — <YYYY-MM-DD HH:MM>
+
+## Run
+- Surface: <Code | Cowork | Chat-Desktop | Chat-web | Chat-mobile>
+- Scope: <global | project=<slug> | all>
+- Mode: <interactive | report-only>
+- Plugin source: <readable at <path> | inferred from harness skill list>
+- Canonical vault note: <read at <vault path> | not reachable (no MCP) | paste-driven>
+- Integrity gate: <kepano-sync exit 0, vault-sync exit 0 | DRIFT — see Bucket 0>
+
+## Sources of truth
+- Plugin v<X.Y.Z> @ <git short SHA> (<commit date>)
+- Skills (<N>): <comma-separated names, with `(user-only)` annotation for disable-model-invocation: true>
+- Commands (<N>): <comma-separated names>
+- MCP server floor: mcp-tools-istefox >= <X.Y.Z>
+- kepano-sync: <N>/<N> in-sync (or list drifted sections with their drift_status)
+- vault-sync: <N>/<N> in-sync (or list drifted entries)
+- Canonical snippets last synced: <date from each per-surface bloc>
+- Stable run hash: <sha256 short>
+
+## Findings
+
+### Bucket 0 — Plugin internal drift (<N>)
+
+For each drifted entry:
+
+- **Source**: kepano-sync | vault-sync
+- **Section**: <name>
+- **Status**: <upstream-changed | heading-removed | vault-changed | section-missing | vault-file-missing>
+- **Routing**: Run /kepano-resync | Follow docs/syncing-vault.md
+- **Why**: pole 1 must be self-consistent before pole 3 can be audited against it.
+
+If Bucket 0 is non-empty, the audit halts here. PA fixes pole-1 drift first, then re-runs.
+
+### Bucket 1 — Memory edits (<N>)
+
+For each finding:
+
+- **File**: <absolute path>
+- **Lines**: <range>
+- **Current**:
+  ```
+  <verbatim>
+  ```
+- **Proposed**:
+  ```
+  <verbatim>
+  ```
+- **Why**: <citation — file:line of the authoritative source in pole 1 or pole 2>
+
+### Bucket 2 — Instructions edits (<N>)
+
+For each finding:
+
+- **Store**: <~/.claude/CLAUDE.md | <repo>/CLAUDE.md | Settings → General | Cowork → Global | Cowork folder | Cowork project | claude.ai project>
+- **Location**: <path | "paste-only — skill cannot write">
+- **Current**:
+  ```
+  <verbatim>
+  ```
+- **Proposed**:
+  ```
+  <verbatim>
+  ```
+- **Why**: <citation>
+
+### Bucket 3 — Plugin-update candidates (<N>)
+
+For each finding:
+
+- **Source memory**: <file path>
+- **Pattern**: <one-line summary of the recurring rule the memory documents>
+- **Proposed target skill**: <existing skill name | "new skill: <proposed-name>">
+- **Proposed rule shape**:
+  ```
+  <draft text suitable for the target skill>
+  ```
+- **Rationale**: why this belongs in plugin source rather than memory.
+
+Recommendation only — actual plugin work goes through the normal `/plugin-release` flow on a feature branch.
+
+### Bucket 4 — Canonical-snippets edits (<N>)
+
+For each finding:
+
+- **Vault path**: 99 - Méta/AI/Claude/<file>
+- **Section**: <heading>
+- **Current**:
+  ```
+  <verbatim>
+  ```
+- **Proposed**:
+  ```
+  <verbatim>
+  ```
+- **Why**: <citation against pole 1 or pole 3>
+
+## Out of scope (not audited)
+
+- <N> memory entries did not match organon keywords (see `references/AUDIT_KEYWORDS.md`):
+  - <list paths, one per line; max 20 lines, then "and <M> more">
+
+## Recommended next step
+
+- Bucket 0 (if any): resolve before continuing the audit.
+- Bucket 1: walk per-finding `apply / skip / defer` (interactive mode) or apply manually after triage (report-only).
+- Bucket 2: edit ~/.claude/CLAUDE.md and project CLAUDE.md directly; for Settings → General and Cowork → Global, copy the proposed text and paste on the matching surface.
+- Bucket 4: patch the canonical vault note via mcp__mcp-tools-istefox__patch_vault_file (consult organon-vault-write for wire-format invariants).
+- Bucket 3: open a tracking issue at folotp/organon-plugin for any candidate you want to act on.
+
+## Empty-report short form
+
+If all buckets are 0:
+
+```markdown
+# Organon memory & instructions audit — <YYYY-MM-DD HH:MM>
+- Surface / scope / mode: <…>
+- All four buckets empty. Stable run hash: <sha>.
+- Pole 1 ↔ pole 2 ↔ pole 3 aligned. Next scheduled run: <if known>.
+```
+```
