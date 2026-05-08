@@ -5,7 +5,16 @@ description: Apply when composing or editing frontmatter in an Organon Obsidian 
 
 # organon-frontmatter
 
-Authoritative source : `[[Registre des clés de frontmatter]]` (vault). Pour vocabularies complets ou edge cases, **read** `references/VOCABULARIES.md` (chargé à la demande, pas avec ce SKILL.md). Syntaxe YAML générique et reference complète des property types → `references/PROPERTIES.md` (verbatim absorption depuis kepano `obsidian-skills` @ sha:fa1e131 ; cf. `kepano-sync.json` au repo root).
+**Authoritative source** : `[[Registre des clés de frontmatter]]` (vault). The plugin carries a drift-tracked snapshot of the vault registre and prefixes registry; **vault wins on disagreement**. Run `./scripts/sync-vault.sh` to detect drift; cf. `docs/syncing-vault.md` for the re-sync workflow.
+
+**References** (chargées à la demande, pas avec ce SKILL.md) :
+
+- `references/VOCABULARIES.md` — vocabulaires fermés (12 enums absorbés verbatim + Organon-curated lookup pour `type`, `status`, `content-model`).
+- `references/REGISTRE_KEYS.md` — schéma frontmatter complet (clés globales, per-type, per-domain, Tri Linter canonique). Verbatim absorption du vault registre. **Lire quand** une fiche structurée est composée (ADR, BL, BUG, INC, FIN-DEC) ou qu'une clé inhabituelle/ambiguë est nécessaire.
+- `references/PREFIXES.md` — registre des préfixes d'identifiants (`<DOMAIN>-<TYPE>-NNNN`). Verbatim absorption du vault. **Lire quand** un nouvel ID doit être généré (vérification de collision + sous-types autorisés).
+- `references/METHODOLOGY_ADR.md` — workflow ADR (lifecycle, immutabilité, supersession, anti-patterns). **Lire quand** un ADR (VLT-ADR / SD-ADR / FIN-DEC) est créé ou que son `status:` change.
+- `references/METHODOLOGY_INC_BUG_BL.md` — workflow incidents/bugs/backlog (Phase A/B/C, promotion criteria, MCP write discipline). **Lire quand** un INC, BUG, ou BL est créé ou que son `status:` change.
+- `references/PROPERTIES.md` — syntaxe YAML générique et reference complète des property types. Verbatim absorption depuis kepano `obsidian-skills` @ sha:fa1e131 ; cf. `kepano-sync.json`.
 
 ## Ordre Linter
 
@@ -21,11 +30,11 @@ Trois faits à aligner :
 
 Cas de conflit (prompt en langue X mais convention de folder différente) : la convention de folder l'emporte pour les artefacts vault structurés (ADR, BL, BUG, INC, Concept, Note, etc.). Le prompt-language gouverne uniquement le ton de la conversation chat, pas le contenu vault. Si PA prompt en anglais à propos d'un VLT-ADR sous `99 - Méta/Outils/Accès à Obsidian par Claude/` (folder français), l'ADR reste en français.
 
-## Vocabularies (essentiels — détail dans references/VOCABULARIES.md)
+## Vocabularies (essentiels — détail dans references/VOCABULARIES.md, schéma complet dans references/REGISTRE_KEYS.md)
 
-- **`type:`** : `note | concept | person | book | quote | index | organization | journal | ai`. Mappe folder canonique.
-- **`status:` (essentiels par usage courant)** : général → `active | draft`. Backlog → `open | in-progress | planned | done | abandoned`. Bugs → `open | investigating | root-cause-known | fix-designed | fix-deployed | verified | closed`. ADRs → `proposed | accepted | rejected | superseded | deprecated`. **Pour la liste complète des 18 valeurs et sous-ensembles par domaine** : read `references/VOCABULARIES.md`.
-- **Tag namespaces** : `source/*`, `domain/*`, `topic/*`, `notetype/*` (legacy → `type:`), `statut/*` (legacy → `status:`). Tag réservé sans namespace (allowlist) : `mcp-tools-prompt`.
+- **`type:`** (16 valeurs) : `note | concept | person | book | quote | index | organization | journal | ai | hypothesis | rule | tool | template | runbook | reference | plan`. Mappe folder canonique. Les 7 dernières valeurs ont été promues 2026-05-05 ([[FIN-BL-0107]]) — **ne jamais inventer** une nouvelle valeur sans entrée registre vault.
+- **`status:` (essentiels par usage courant)** : général/standards → `active | draft`. Backlog → `open | in-progress | planned | done | verified | abandoned`. Bugs → `open | investigating | root-cause-known | fix-designed | fix-deployed | verified | closed`. Incidents → `recorded | assigned | superseded`. ADRs / FIN-DEC → `proposed | accepted | rejected | superseded | deprecated`. **Pour les 12 vocabulaires absorbés (avec descriptions par valeur) et le sous-ensemble per-domain** : read `references/VOCABULARIES.md`.
+- **Tag namespaces** : `source/*`, `domain/*`, `topic/*`, `notetype/*` (legacy → `type:`), `statut/*` (legacy → `status:`). Tag réservé sans namespace (allowlist) : `mcp-tools-prompt`. Pour la liste autoritaire des valeurs `topic/*` (~25 valeurs) : voir `references/VOCABULARIES.md` §`topic`.
 
   **Important — les namespaces sont des préfixes DANS le tableau `tags:`, pas des clés top-level séparées.** Forme correcte :
 
@@ -58,18 +67,19 @@ Cas de conflit (prompt en langue X mais convention de folder différente) : la c
 - **`creator:` dual-mode** — UI → `Pierre-André Folot` sans tag `source/ia`. MCP → `Claude` avec tag `source/ia`. Détection via `tp.mcpTools` dans le prelude.
 - **`creator` vs `author`** : `creator` = auteur de la note Organon. `author` = auteur de l'œuvre externe décrite (réservé aux `type: book` et similaires).
 - **Archive** : `archived: true` + `archived-date: YYYY-MM-DD` (paire requise, orthogonal à `status:`).
-- **Supersession** : `status: superseded` + `superseded-by: "[[…]]"`. Pas de `supersedes:` field.
+- **Supersession** : sur la fiche superseded, `status: superseded` + `superseded-by: "[[…]]"` + callout `> [!warning] Superseded` en tête de corps (cf. `references/METHODOLOGY_ADR.md` §Marking superseded fiches). Sur la nouvelle fiche, `supersedes: "[[…]]"` est un champ frontmatter conditionnel pour les ADR/FIN-DEC ; pour les notes canoniques générales, le `supersedes:` frontmatter est en migration vers un lien typé dans le corps (cf. `references/REGISTRE_KEYS.md` §Clés en migration). Les clés `amends:` / `amended-by:` sont **dépréciées** (2026-05-05, [[SD-ADR-011]]) — toujours superséder complètement.
 - **Alias-only versioning** (notes-pivots, VLT-ADR-008) — alias court stable transféré entre versions. Pas de note-pointeur.
 
 ## Frontmatter shape-specific (champs additionnels selon `type:` ou famille)
 
-Au-delà du frontmatter de base, certains shapes structurés exigent des champs additionnels. **Ne pas omettre** ces fields, même si la skill les présente comme "optionnels" — ils sont attendus par le template canonique correspondant.
+Au-delà du frontmatter de base, certains shapes structurés exigent des champs additionnels. **Ne pas omettre** ces fields, même si la skill les présente comme "optionnels" — ils sont attendus par le template canonique correspondant. Pour le **schéma complet par-domaine** (avec toutes les clés conditionnelles et leurs vocabulaires) : `references/REGISTRE_KEYS.md`.
 
-- **ADR (VLT-ADR, SD-ADR)** — exiger : `date-decided: YYYY-MM-DD`, `references:` (liste de wikilinks vers notes citées dans Contexte/Décision), `up: ["[[Index — VLT-ADR]]"]` ou équivalent.
-- **Backlog (VLT-BL, SD-BL)** — exiger : `priority:`, `effort:` (si connu), `up: ["[[Index — VLT-BL]]"]`.
-- **Bug (VLT-BUG)** — exiger : `severity:`, `surface:`, `layer:`, `operation:`, `upstream-issue:` (si applicable), `up: ["[[Index — VLT-BUG]]"]`.
-- **Incident (VLT-INC)** — exiger : `severity:`, `surface:`, `up: ["[[Index — VLT-INC]]"]`.
-- **Person, Book, Quote** — voir `references/VOCABULARIES.md` §Person fields / Book fields.
+- **ADR (VLT-ADR, SD-ADR, FIN-DEC)** — exiger : `date-decided: YYYY-MM-DD`, `references:` (liste de wikilinks vers notes citées dans Contexte/Décision), `up: ["[[Index — VLT-ADR]]"]` ou équivalent. **Cascade obligatoire** : read `references/METHODOLOGY_ADR.md` quand un ADR est créé ou que son `status:` change (lifecycle, immutabilité, supersession, callout `[!warning] Superseded`, anti-patterns).
+- **Backlog (VLT-BL, SD-BL)** — exiger : `priority:`, `origin:`, `effort:` (si connu), `linked-bug:` si `origin: bug`, `up: ["[[Index — VLT-BL]]"]`. **Cascade obligatoire** : read `references/METHODOLOGY_INC_BUG_BL.md` quand un BL est créé ou que son `status:` change (lifecycle, Phase A/B/C, MCP write discipline).
+- **Bug (VLT-BUG)** — exiger : `severity:`, optional `component:`, `first-incident:`, `last-occurrence:`, `up: ["[[Index — VLT-BUG]]"]`. **Cascade obligatoire** : read `references/METHODOLOGY_INC_BUG_BL.md` (promotion criteria incident → bug, lifecycle transitions, lesson learned conversion).
+- **Incident (VLT-INC)** — exiger : `date:`, `surface:`, `layer:`, `tool:`, `operation:`, `status: recorded` (default), optional `bug:` wikilink, `up: ["[[Index — VLT-INC]]"]`. **Cascade obligatoire** : read `references/METHODOLOGY_INC_BUG_BL.md` (Phase A discipline — pas de hypothèse de cause dans la fiche incident, append-only).
+- **Nouveau ID `<DOMAIN>-<TYPE>-NNN(N)`** — avant de proposer un nouvel identifiant : read `references/PREFIXES.md` (vérification de collision, sous-types autorisés, protocole de création).
+- **Person, Book, Quote** — voir `references/VOCABULARIES.md` §Person fields / Book fields ; schéma complet dans `references/REGISTRE_KEYS.md`.
 - **Toute note** : `up:` (parent navigation, généralement un Index thématique) reste fortement recommandé pour la routabilité du vault.
 
 Pour le frontmatter complet d'un ADR (exemple canonique) : référer à `[[VLT-ADR-002]]` ou tout VLT-ADR existant comme template avant de drafter de novo.
