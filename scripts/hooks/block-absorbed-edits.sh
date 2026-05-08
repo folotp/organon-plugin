@@ -30,9 +30,12 @@ input="$(cat)"
 file_path="$(printf '%s' "$input" | jq -r '.tool_input.file_path // empty')"
 [[ -n "$file_path" ]] || exit 0
 
-# Normalize: strip the repo root prefix if present, so we compare in the same
-# space as the relative `target_file` paths in the sync JSONs.
+# Normalize: strip the repo root prefix if present, then strip a leading ./
+# so we compare in the same space as the relative `target_file` paths in
+# the sync JSONs (which never carry a ./ prefix). Both kepano and vault
+# matching depend on this canonical form.
 rel_path="${file_path#${REPO_ROOT}/}"
+rel_path="${rel_path#./}"
 
 # Match against kepano-sync.json (.sections[].target_file).
 if [[ -f "$KEPANO_JSON" ]] && \
