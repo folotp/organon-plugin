@@ -48,15 +48,20 @@ if ! jq -e '
 fi
 
 # 3. Drift detector parses cleanly (no fetch — operates on cached upstream).
+# Exit 1 from the script means drift detected — that is INFORMATIONAL, not a
+# validation failure. Any other non-zero is a real error.
+#
+# Capture the real exit status: under `set -e`, `if ! cmd; then rc=$?` reads
+# $? as the negation's exit code (always 0), not the underlying command's.
+# Use `set +e` around the call instead.
 if [[ -x "$SYNC_SCRIPT" ]]; then
-    if ! "$SYNC_SCRIPT" --no-fetch --json >/dev/null 2>&1; then
-        # Exit 1 from the script means drift detected — that is INFORMATIONAL,
-        # not a validation failure. Any other non-zero is a real error.
-        rc=$?
-        if [[ "$rc" -ne 1 ]]; then
-            echo "scripts/sync-kepano.sh failed with code $rc after the edit — kepano-sync.json may be malformed." >&2
-            exit 2
-        fi
+    set +e
+    "$SYNC_SCRIPT" --no-fetch --json >/dev/null 2>&1
+    rc=$?
+    set -e
+    if [[ "$rc" -gt 1 ]]; then
+        echo "scripts/sync-kepano.sh failed with code $rc after the edit — kepano-sync.json may be malformed." >&2
+        exit 2
     fi
 fi
 

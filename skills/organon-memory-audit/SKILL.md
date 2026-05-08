@@ -41,7 +41,7 @@ Parse from the user's invocation string (the slash-command wrapper forwards them
 
 Probe in order, log each result in the report header:
 
-1. Read `/Users/pierreandre/.claude/projects/` — if it exists and lists project dirs, surface = **Code**.
+1. Read `~/.claude/projects/` — if it exists and lists project dirs, surface = **Code**. (Use `~` / `$HOME` so the probe works on remote Code agents and other macOS users, not just PA's local account.)
 2. Else, attempt to read `/` via the Read tool — if a Cowork-style mount is visible (typically `/mnt/...` or `/workspace/...`), surface = **Cowork**.
 3. Else, surface = **Chat**. Probe MCP availability via `mcp__mcp-tools-istefox__get_server_info`. If absent → web/mobile (paste-only mode); if present → Desktop Chat.
 
@@ -52,7 +52,7 @@ If `--surface=` is passed, skip probes.
 On Code (filesystem available):
 
 ```bash
-PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-/Users/pierreandre/Developer/organon-plugin}"
+PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$HOME/Developer/organon-plugin}"
 ```
 
 Read:
@@ -67,12 +67,36 @@ Read:
 
 **Integrity gate:**
 
+Distinguish three outcomes per script — clean (exit 0), drift (exit 1, informational), gate-unavailable (exit ≥ 2, real error: missing deps, clone/fetch failure, malformed config). Conflating gate-unavailable into drift would halt the audit with a misleading "run /kepano-resync" recommendation when the actual problem is, e.g., transient network failure on the upstream fetch.
+
 ```bash
-"${PLUGIN_ROOT}/scripts/sync-kepano.sh" --no-fetch || KEPANO_DRIFT=1
-"${PLUGIN_ROOT}/scripts/sync-vault.sh" || VAULT_DRIFT=1
+set +e
+"${PLUGIN_ROOT}/scripts/sync-kepano.sh"
+KEPANO_RC=$?
+"${PLUGIN_ROOT}/scripts/sync-vault.sh"
+VAULT_RC=$?
+set -e
+
+case "$KEPANO_RC" in
+    0) ;;                                # clean
+    1) KEPANO_DRIFT=1 ;;                 # informational drift
+    *) KEPANO_GATE_FAILED=$KEPANO_RC ;;  # network/config/clone error
+esac
+
+case "$VAULT_RC" in
+    0) ;;                                # clean
+    1) VAULT_DRIFT=1 ;;                  # informational drift
+    *) VAULT_GATE_FAILED=$VAULT_RC ;;    # missing deps / vault path / config error
+esac
 ```
 
-If either reports drift (exit 1), the audit emits a Bucket-0 finding ("plugin internal drift detected") and recommends running `/kepano-resync` or following `docs/syncing-vault.md` *before* continuing alignment work. Do not proceed to pole-3 reads until pole 1 itself is consistent.
+The kepano script fetches upstream every run by default — that fetch is the whole point of the integrity gate (catch upstream drift before continuing). Do **not** pass `--no-fetch` here; on a stale cache the gate would silently report clean even when upstream has moved. The audit runs on cadence rather than in tight loops, so the per-run fetch cost is acceptable. The vault script reads the local filesystem directly, so no fetch flag applies.
+
+**Result handling:**
+
+- If `KEPANO_DRIFT` or `VAULT_DRIFT` is set, the audit emits a Bucket-0 finding ("plugin internal drift detected") and recommends running `/kepano-resync` or following `docs/syncing-vault.md` *before* continuing alignment work.
+- If `KEPANO_GATE_FAILED` or `VAULT_GATE_FAILED` is set, the audit emits a **separate** report-header note ("integrity gate unavailable: kepano rc=N / vault rc=N") with a one-line diagnostic (e.g., "first-run clone failed — check network and rerun"). This is **not** a drift finding; do not recommend re-sync. Pole-3 reads can still proceed if the user accepts the degraded confidence.
+- Do not proceed to pole-3 reads while drift is unresolved. Gate-unavailable is degraded but not blocking — call it out, then continue if the user opts in.
 
 On Cowork / Chat (filesystem not available the same way): infer pole 1 from the harness's published skill list and the canonical vault note's "Plugin name canonicalisation" section. The integrity gate is unavailable on those surfaces — note that limitation in the report header.
 
