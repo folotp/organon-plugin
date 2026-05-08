@@ -4,7 +4,7 @@ Organon vault conventions for Claude — packaged as a Cowork/Claude Code plugin
 
 ## What this plugin provides
 
-Seven description-triggered skills that load automatically when working with the Organon Obsidian vault (`~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Organon`):
+Ten skills total: seven description-triggered (load automatically when working with the Organon Obsidian vault at `~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Organon`) plus three user-only skills invoked via slash command.
 
 ### Core (4 skills, validated in chat 1.A)
 
@@ -18,6 +18,12 @@ Seven description-triggered skills that load automatically when working with the
 - **organon-bases** — Bases-default policy (Dataview is fallback only with explicit auth, even against directive prompts), Excluded-files trap diagnostic, dv-light optimised config, Organon vocabulary filters.
 - **organon-canvas** — Purpose discriminator (cartography of existing notes vs. freeform sketches), placement beside the domain, file-node filename-only paths for vault-move robustness, language by folder for labels, ID convention (kepano 16-char hex).
 - **organon-diagramming** — Tool-selection decision tree (Mermaid for code-expressible flows, Canvas for note-cartography, Excalidraw via connector+bridge for freeform, SVG for throwaways), Excalidraw bridge skeleton, plugin compression-OFF invariant, preview-before-persist pattern.
+
+### User-only (3 skills, invoked via slash command — `disable-model-invocation: true`)
+
+- **kepano-resync** (`/kepano-resync`, since v0.4.1) — End-to-end runbook for resolving drift detected by `scripts/sync-kepano.sh`. Re-sync workflow, marker invariants, hash recomputation, divergence handling.
+- **plugin-release** (`/plugin-release`, since v0.4.1) — Cut releases: bump version in `plugin.json`, package the `.plugin` archive, tag, create the GitHub Release with the archive uploaded as a Release asset.
+- **organon-memory-audit** (`/organon-memory-audit`, since v0.5.0) — Three-pole drift audit aligning plugin/skill/tool reality, the canonical-snippets vault note, and per-surface implementations (Code / Cowork / Chat). Two scope modes (`--scope=global|project|all`) and two interaction modes (`--mode=interactive|report-only`). Edits never auto-applied — drifts and staleness are raised for human-in-the-loop approval.
 
 ## Absorbed kepano content (since v0.4.0)
 
@@ -67,6 +73,15 @@ Drift detection: `./scripts/sync-vault.sh` compares stored `body_sha256` snapsho
 ### v0.4.2 (slash-command wrappers)
 - New `/kepano-resync` and `/plugin-release` thin slash-command wrappers — make the v0.4.1 runbooks reachable from the picker. No skill content changes.
 
+### v0.4.3 (istefox 0.4.0–0.4.5 alignment)
+- Min `mcp-tools-istefox` floor bumped 0.3.12+ → 0.4.5+ (in-process MCP, auto-mkdirp, fail-loud rejects for upstream #80/#81/#84). Min Obsidian: 1.7.2 (transitive).
+- **Renamed "Voie B routing" → "Templater-first routing"** across SKILL/README/docs/token-harness — the design-era label was meaningless to readers; the new name describes what the routing actually does. Variants relabeled: "Two-step render-then-create" (BL/BUG/INC/ADR sequential IDs) and "One-step render-and-create" (Note/Concept/Person/etc. — domain-folder-mapped).
+- `organon-vault-write` — heading-patch safety **rewritten** based on smoke-test ground truth on istefox 0.4.5: `createTargetIfMissing: false` is **incompatible with Organon's H2-root convention** (triggers istefox 0.4.2 #80 reject on every heading patch since every Organon note is H2-root by design); default `true` silently appends to EOF on missing target. Correct discipline: pre-verify the heading exists with `get_vault_file` before patching. The previous skill text recommending `false` is reversed.
+- `organon-vault-write` — also documents 0.4.0 frontmatter array semantics (`replace`-with-scalar on array fields now errors; `append`/`prepend` JSON-decode + auto-wrap), notes 0.4.5 auto-mkdirp on `create_vault_file`/`append_to_vault_file`/`execute_template`, refreshes block-target rejects (0.4.2 #81 table-cell, 0.4.3 #84 fenced-code).
+- `organon-markdown-style` — VLT-BUG-015 reframed: table+block-ref + fenced-code-boundary cases are now structural fail-loud rejects (not HTTP 400 footguns), workaround language updated.
+- `organon-session-discipline` — rule #2 cache-example refreshed `v0.3.12` → `v0.4.5` to match the new floor.
+- Breaking: yes (version pin bumped + heading-patch discipline reversed; callers passing `createTargetIfMissing: false` to Organon notes will now see fail-loud rejects).
+
 ### v0.5.0 (vault absorption)
 - **Tier 1 — Verbatim absorption with drift tracking** under `skills/organon-frontmatter/references/`:
   - `REGISTRE_KEYS.md` ← full body of vault `[[Registre des clés de frontmatter]]` (~400 lines: global keys, per-type tables, per-domain tables, Tri Linter canonique, retired/in-migration keys).
@@ -77,21 +92,18 @@ Drift detection: `./scripts/sync-vault.sh` compares stored `body_sha256` snapsho
   - `METHODOLOGY_INC_BUG_BL.md` (~140 lines from vault's 152 — atomic types, Phase A/B/C, promotion criteria, MCP write discipline).
 - **Drift machinery** paralleling kepano: new `vault-sync.json` (14 entries), `scripts/sync-vault.sh` (live-FS read with `mktemp` atomic snapshot, parallel exit-code contract), `docs/syncing-vault.md`. Both `vault-sync` and `kepano-sync` mechanisms remain independent.
 - **`organon-frontmatter/SKILL.md`** updated: references list expanded with cascade triggers ("read METHODOLOGY_ADR.md when drafting an ADR or transitioning its `status:`", etc.). Inline `type:` enum corrected from 9 values to 16 (post-FIN-BL-0107 promotion 2026-05-05). Supersession discipline rewritten to permit ADR/FIN-DEC `supersedes:` frontmatter and reference the `[!warning] Superseded` callout. `amends:` / `amended-by:` flagged as deprecated (SD-ADR-011).
+- **New skill `organon-memory-audit`** (PR #7) — three-pole drift audit aligning plugin/skill/tool reality, canonical-snippets vault note, and per-surface implementations. Surface-aware (Code / Cowork / Chat), two scope modes, two interaction modes, edits never auto-applied. Invoked via `/organon-memory-audit`. Adds a third user-only skill alongside `kepano-resync` and `plugin-release`.
+- **Hook hardening** (PRs #6, #8, post-Codex review):
+  - `scripts/sync-vault.sh` and `scripts/sync-kepano.sh` — fixed `sha256sum`/`shasum` fallback that was unreachable on macOS without coreutils (`require_tool` exit-2 short-circuit before the fallback).
+  - `scripts/hooks/block-absorbed-edits.sh` — extended to also scan `vault-sync.json` (previously only blocked kepano-absorbed files; vault-absorbed `REGISTRE_KEYS.md` / `PREFIXES.md` / `VOCABULARIES.md` were unprotected). Added leading-`./` path canonicalization (also fixed pre-existing kepano blind spot).
+  - `scripts/hooks/validate-sync-json.sh` — fixed `if ! cmd; rc=$?` pattern that always read `$?` as the negation's exit code (always 0); informational drift exit 1 from `sync-kepano.sh` no longer falsely escalates to a validation block.
+  - `organon-memory-audit/SKILL.md` — surface-detection probe and `PLUGIN_ROOT` default switched from hard-coded `/Users/pierreandre/...` to `~` / `$HOME` (portable to remote Code agents and other macOS users). Integrity gate dropped `--no-fetch` (stale cache was defeating the gate) and rewrote the gate to distinguish drift (`rc=1` → recommends re-sync) from gate-unavailable (`rc≥2` → separate report-header note, doesn't block pole-3 reads).
 - Fixes the silent drift between plugin VOCABULARIES.md and vault registre that had accumulated since v0.4.0 (plugin had 9 `type:` values, vault had 16).
 - Breaking: no — additive. Existing skills unchanged in behavior; new references load on-demand.
 
-### v0.4.3 (istefox 0.4.0–0.4.5 alignment)
-- Min `mcp-tools-istefox` floor bumped 0.3.12+ → 0.4.5+ (in-process MCP, auto-mkdirp, fail-loud rejects for upstream #80/#81/#84). Min Obsidian: 1.7.2 (transitive).
-- **Renamed "Voie B routing" → "Templater-first routing"** across SKILL/README/docs/token-harness — the design-era label was meaningless to readers; the new name describes what the routing actually does. Variants relabeled: "Two-step render-then-create" (BL/BUG/INC/ADR sequential IDs) and "One-step render-and-create" (Note/Concept/Person/etc. — domain-folder-mapped).
-- `organon-vault-write` — heading-patch safety **rewritten** based on smoke-test ground truth on istefox 0.4.5: `createTargetIfMissing: false` is **incompatible with Organon's H2-root convention** (triggers istefox 0.4.2 #80 reject on every heading patch since every Organon note is H2-root by design); default `true` silently appends to EOF on missing target. Correct discipline: pre-verify the heading exists with `get_vault_file` before patching. The previous skill text recommending `false` is reversed.
-- `organon-vault-write` — also documents 0.4.0 frontmatter array semantics (`replace`-with-scalar on array fields now errors; `append`/`prepend` JSON-decode + auto-wrap), notes 0.4.5 auto-mkdirp on `create_vault_file`/`append_to_vault_file`/`execute_template`, refreshes block-target rejects (0.4.2 #81 table-cell, 0.4.3 #84 fenced-code).
-- `organon-markdown-style` — VLT-BUG-015 reframed: table+block-ref + fenced-code-boundary cases are now structural fail-loud rejects (not HTTP 400 footguns), workaround language updated.
-- `organon-session-discipline` — rule #2 cache-example refreshed `v0.3.12` → `v0.4.5` to match the new floor.
-- Breaking: yes (version pin bumped + heading-patch discipline reversed; callers passing `createTargetIfMissing: false` to Organon notes will now see fail-loud rejects).
-
 ## Installation
 
-Click "Install plugin" when this `.plugin` file appears in Cowork chat. The 7 skills become available description-triggered.
+Click "Install plugin" when this `.plugin` file appears in Cowork chat. The 7 description-triggered skills load automatically when working with the Organon vault; the 3 user-only skills (`/kepano-resync`, `/plugin-release`, `/organon-memory-audit`) are invoked explicitly via slash command.
 
 ## Author
 
