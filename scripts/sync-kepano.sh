@@ -44,7 +44,10 @@ require_tool() {
 }
 require_tool git
 require_tool jq
-require_tool sha256sum || require_tool shasum
+command -v sha256sum >/dev/null 2>&1 || command -v shasum >/dev/null 2>&1 || {
+    echo "error: neither sha256sum nor shasum on PATH" >&2
+    exit 2
+}
 
 sha256_of() {
     if command -v sha256sum >/dev/null 2>&1; then
