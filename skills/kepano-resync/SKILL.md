@@ -39,13 +39,33 @@ Status values and routing (full table in `references/RESOLUTION_CHECKLIST.md` §
 For each section reported as drifted, work the steps in `references/RESOLUTION_CHECKLIST.md`. Summary of the load-bearing invariants:
 
 1. **Inspect the upstream change first.** Some upstream edits conflict with Organon-specific deltas in the surrounding `organon-*/SKILL.md` and should *not* be absorbed — divergence is a valid outcome (see §Divergence below).
-2. **Replace the absorbed body between the markers**, never outside them. Framing prose outside the `<!-- KEPANO-BEGIN -->`/`<!-- KEPANO-END -->` markers is Organon-owned and stays put.
-3. **Update the marker comment's `@sha:<short>`** to the new upstream short SHA. The marker form is fixed (Option D — heading + `body_sha256`); do not improvise alternative marker shapes.
-4. **Recompute `body_sha256` using the same extraction the script uses.** Any other extraction will produce a sha that the script reports as still drifted. Commands per absorption shape are in `references/RESOLUTION_CHECKLIST.md` §Hash recomputation. The trailing-newline footgun: bash command substitution strips trailing newlines — use the temp-file pattern (`extract … > "$tmp"; sha256_of < "$tmp"`).
-5. **Update `kepano-sync.json`** entry: bump `synced_at_sha`, `synced_at_date` (today, ISO-8601), `body_sha256`, set `drift_status: "in-sync"`.
-6. **Re-run `./scripts/sync-kepano.sh`** — must report `in-sync` for the touched section. If it doesn't, your sha computation didn't match the script (almost always trailing-newline).
-7. **Test the affected `organon-*` skill** before committing — minimum: load the skill in a fresh chat and confirm the absorbed content reads coherently with the surrounding SKILL.md. The framing prose may now contradict the new content.
-8. **Bundle the commit**: absorbed file + `kepano-sync.json` in the same commit. Use the message form in `references/commit-template.txt`.
+2. **Authorize the absorbed-side edit via the resync token.** The PreToolUse hook (`scripts/hooks/block-absorbed-edits.sh`) blocks Edit/Write/MultiEdit on every `target_file` registered in `kepano-sync.json`. The legitimate path is to drop a `.organon-resync-token` at repo root listing the rel_path you intend to edit. See §Token lifecycle below.
+3. **Replace the absorbed body between the markers**, never outside them. Framing prose outside the `<!-- KEPANO-BEGIN -->`/`<!-- KEPANO-END -->` markers is Organon-owned and stays put.
+4. **Update the marker comment's `@sha:<short>`** to the new upstream short SHA. The marker form is fixed (Option D — heading + `body_sha256`); do not improvise alternative marker shapes.
+5. **Revoke the token immediately after the edit batch** — `rm -f .organon-resync-token`. The pre-commit hook refuses to commit while the token exists.
+6. **Recompute `body_sha256` using the same extraction the script uses.** Any other extraction will produce a sha that the script reports as still drifted. Commands per absorption shape are in `references/RESOLUTION_CHECKLIST.md` §Hash recomputation. The trailing-newline footgun: bash command substitution strips trailing newlines — use the temp-file pattern (`extract … > "$tmp"; sha256_of < "$tmp"`).
+7. **Update `kepano-sync.json`** entry (the ledger is not blocked — only `target_file` paths are): bump `synced_at_sha`, `synced_at_date` (today, ISO-8601), `body_sha256`, set `drift_status: "in-sync"`.
+8. **Re-run `./scripts/sync-kepano.sh`** — must report `in-sync` for the touched section. If it doesn't, your sha computation didn't match the script (almost always trailing-newline).
+9. **Test the affected `organon-*` skill** before committing — minimum: load the skill in a fresh chat and confirm the absorbed content reads coherently with the surrounding SKILL.md. The framing prose may now contradict the new content.
+10. **Bundle the commit**: absorbed file + `kepano-sync.json` in the same commit. Use the message form in `references/commit-template.txt`.
+
+## Token lifecycle (`scripts/hooks/block-absorbed-edits.sh` bypass)
+
+Format: `.organon-resync-token` at repo root, one rel_path per line. Blank lines and `# comments` are tolerated. The hook permits Edit/Write/MultiEdit only on listed paths and emits an audit line to stderr per allowed call. The token is `.gitignored`; the pre-commit hook refuses to commit while it exists.
+
+```bash
+# Authorize:
+echo "skills/organon-markdown-style/references/EMBEDS.md" > .organon-resync-token
+
+# Apply Edit / MultiEdit on the listed file(s).
+
+# Revoke (always, even on error path):
+rm -f .organon-resync-token
+```
+
+Multi-section batch (e.g. several drifted sections sharing one target file): list the path once.
+
+The token is *scoped* (only the listed paths) and *short-lived* (skill removes it before verification). If a flow aborts mid-edit and the token leaks, the next commit attempt fails loud (pre-commit refuses) — silent leakage is impossible.
 
 ## Divergence (intentional non-absorption)
 
@@ -59,7 +79,8 @@ Some upstream changes shouldn't be absorbed — e.g. kepano renames a section co
 ## Anti-patterns
 
 - **Bumping `synced_at_sha` without recomputing `body_sha256`** — the script reports `in-sync` because the stored sha matches the absorbed body, but the actual upstream content has drifted. Silent staleness.
-- **Editing absorbed content outside this skill's flow** — drops the marker invariants and corrupts the sync ledger. The PreToolUse hook on `target_file` paths exists to fail-loud on this; don't override it.
+- **Leaving `.organon-resync-token` in place after the edit batch** — pre-commit will refuse the commit, but worse, a forgotten token allows further unintended edits to the listed paths until removed. Always `rm -f .organon-resync-token` immediately after the edit batch, ideally in a `trap` if you're scripting.
+- **Editing absorbed content outside this skill's flow** — drops the marker invariants and corrupts the sync ledger. The PreToolUse hook on `target_file` paths exists to fail-loud on this; the token bypass is the *legitimate* path. Using it for a non-resync edit defeats the protection.
 - **Auto-resolving `heading-removed` by guessing the new heading** — kepano sometimes renames AND restructures; a guess can absorb the wrong section. Always `grep -n '^#' <upstream-file>` first.
 - **Single combined commit covering re-sync + an unrelated content edit to the surrounding `SKILL.md`** — makes future audits of "what came from upstream vs what is Organon-owned" impossible. Split.
 

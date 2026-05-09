@@ -257,14 +257,14 @@ Type fonctionnel de l'opération technique au moment de l'incident. L'outil exac
 
 Co-source de vérité avec `PREFIXES.md` §Registre des domaines (niveau 1). Toute valeur ici doit avoir un préfixe d'identifiants correspondant et inversement.
 
-<!-- VAULT-BEGIN: 99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — domain.md §Valeurs @synced:2026-05-08 -->
+<!-- VAULT-BEGIN: 99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — domain.md §Valeurs @synced:2026-05-09 -->
 <!-- vault-sync: see vault-sync.json for body_sha256 + drift status -->
 
 | Valeur | Description |
 |---|---|
 | `VLT` | Interface Claude × Organon — gouvernance opérationnelle de l’accès agent au vault. Folder racine: `99 - Méta/Outils/Accès à Obsidian par Claude/`. |
 | `SD` | Système documentaire — structure du vault comme artefact de connaissance. Folder racine: `99 - Méta/Système documentaire/`. |
-| `FIN` | Finances et patrimoine. Folder racine: `01 - Finances et patrimoine/`. Préfixe d’identifiants actif (cf. [[Préfixes d'identifiants]]); pas (encore) de flux Templater dual-mode. La clé `domain:` peut être utilisée en frontmatter d’une note FIN même si Templater ne l’instancie pas. |
+| `FIN` | Finances et patrimoine. Folder racine: `01 - Finances et patrimoine/`. Préfixe d’identifiants actif (cf. [[Préfixes d'identifiants]]); flux Templater dual-mode actif depuis 2026-05-08, **BL uniquement** (pas de FIN-BUG, FIN-INC, FIN-ADR à date — ces shapes n’existent pas dans le domaine finance). |
 
 <!-- VAULT-END: 99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — domain.md §Valeurs -->
 

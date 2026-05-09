@@ -28,7 +28,22 @@ Operational checklist for resolving a single drifted entry reported by `./script
 
 3. **Decide: absorb or diverge.** Most vault changes are improvements (PA owns both ends). If the change conflicts with plugin-specific framing prose surrounding the markers, choose §Divergence below instead.
 
-4. **Pull the new content into `target_file`**, replacing only the bytes between `<!-- VAULT-BEGIN -->` and `<!-- VAULT-END -->`. The marker form:
+4. **Authorize the absorbed-side edit via the resync token.** The PreToolUse hook blocks Edit/Write/MultiEdit on every `target_file` registered in `vault-sync.json`. Drop a token listing the paths you intend to edit:
+
+   ```bash
+   # Single-file:
+   echo "<target_file>" > .organon-resync-token
+
+   # Multi-file batch (e.g. coupled Vocabulaire + Registre):
+   cat > .organon-resync-token <<'EOF'
+   skills/organon-frontmatter/references/VOCABULARIES.md
+   skills/organon-frontmatter/references/REGISTRE_KEYS.md
+   EOF
+   ```
+
+   The hook will allow Edit/Write/MultiEdit on listed paths and emit an audit line to stderr per call. The token is `.gitignored` and pre-commit refuses if it leaks.
+
+5. **Pull the new content into `target_file`**, replacing only the bytes between `<!-- VAULT-BEGIN -->` and `<!-- VAULT-END -->`. The marker form:
 
    ```
    <!-- VAULT-BEGIN: <vault_path> [§<heading>] @synced:<new-date> -->
@@ -41,18 +56,26 @@ Operational checklist for resolving a single drifted entry reported by `./script
 
    Update the `@synced:` date on the BEGIN marker to today's ISO-8601 date (`date -u +%F`).
 
-5. **Recompute `body_sha256`** — see §Hash recomputation. Use the same `extract_mode` the script uses for that entry. Always extract to a temp file (the script uses `mktemp`; bash command substitution strips trailing newlines and produces a different sha).
+6. **Revoke the token.** As soon as the edit batch on absorbed files is complete:
 
-6. **Update `vault-sync.json`** entry:
+   ```bash
+   rm -f .organon-resync-token
+   ```
+
+   This is mandatory before commit. The pre-commit hook refuses while the token exists.
+
+7. **Recompute `body_sha256`** — see §Hash recomputation. Use the same `extract_mode` the script uses for that entry. Always extract to a temp file (the script uses `mktemp`; bash command substitution strips trailing newlines and produces a different sha).
+
+8. **Update `vault-sync.json`** entry (the ledger is not blocked — only `target_file` paths are):
    - `synced_at_date`: today, ISO-8601 (`date -u +%F`).
-   - `body_sha256`: new sha from step 5.
+   - `body_sha256`: new sha from step 7.
    - `drift_status`: `"in-sync"`.
 
-7. **Re-run** `./scripts/sync-vault.sh` — confirm `in-sync` for this entry. If it still reports drift, the sha computation didn't match — almost always a trailing-newline mismatch from forgetting the temp-file pattern.
+9. **Re-run** `./scripts/sync-vault.sh` — confirm `in-sync` for this entry. If it still reports drift, the sha computation didn't match — almost always a trailing-newline mismatch from forgetting the temp-file pattern.
 
-8. **Test the affected `organon-frontmatter` skill** — load it in a fresh chat, confirm the absorbed content reads coherently with the surrounding `SKILL.md`. If a vocabulary value was added/removed/renamed, the framing prose may now contradict the absorbed list — update the framing prose in a *separate* commit so the re-sync commit stays "absorbed file + sync.json only".
+10. **Test the affected `organon-frontmatter` skill** — load it in a fresh chat, confirm the absorbed content reads coherently with the surrounding `SKILL.md`. If a vocabulary value was added/removed/renamed, the framing prose may now contradict the absorbed list — update the framing prose in a *separate* commit so the re-sync commit stays "absorbed file + sync.json only".
 
-9. **Commit** using the form in `commit-template.txt`. The re-sync commit must contain *only* the absorbed file + `vault-sync.json` change. Coupled entries (Vocabulaire + Registre) bundle in the same commit — they are one logical unit per the vault governance rule.
+11. **Commit** using the form in `commit-template.txt`. The re-sync commit must contain *only* the absorbed file + `vault-sync.json` change. Coupled entries (Vocabulaire + Registre) bundle in the same commit — they are one logical unit per the vault governance rule. The pre-commit hook will (a) verify token absence, then (b) re-run `sync-vault.sh` to confirm in-sync.
 
 ## Hash recomputation
 

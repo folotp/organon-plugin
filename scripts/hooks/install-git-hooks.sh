@@ -63,10 +63,11 @@ fi
 cat > "$HOOK_PATH" <<'HOOK'
 #!/usr/bin/env bash
 # managed-by: organon-plugin install-git-hooks.sh
-# pre-commit — drift gate. Runs sync-kepano.sh --no-fetch and sync-vault.sh.
-# Block the commit on rc=1 (drift). Pass through rc≥2 (gate-unavailable) as
-# a warning rather than a block — the SessionStart and release-readiness
-# gates already cover that surface.
+# pre-commit — drift gate + token-presence guard.
+# 1. Refuse if .organon-resync-token exists at repo root (a leaked
+#    edit-bypass token must never reach a commit).
+# 2. Run sync-kepano.sh --no-fetch and sync-vault.sh; block on rc=1
+#    (drift), pass through rc≥2 (gate-unavailable) as a warning.
 #
 # Bypass for an emergency commit: git commit --no-verify
 
@@ -75,6 +76,24 @@ set -u
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 KEPANO="${REPO_ROOT}/scripts/sync-kepano.sh"
 VAULT="${REPO_ROOT}/scripts/sync-vault.sh"
+TOKEN="${REPO_ROOT}/.organon-resync-token"
+
+if [[ -f "$TOKEN" ]]; then
+    cat <<MSG >&2
+✗ Commit blocked: .organon-resync-token exists at repo root.
+
+This token grants Claude a scoped Edit bypass on absorbed-content files
+during a re-sync flow. It must be removed before commit. Its presence
+implies the resync flow was interrupted before cleanup.
+
+Resolve:
+  rm "$TOKEN"
+  git commit ...   # the drift gate below will still validate sync correctness
+
+Bypass (use sparingly): git commit --no-verify
+MSG
+    exit 1
+fi
 
 drift=0
 warn=0

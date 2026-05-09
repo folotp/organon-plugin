@@ -21,3 +21,8 @@ snippets/
 
 # Claude Code per-user settings (personal permission allowlist, never shared)
 .claude/settings.local.json
+
+# Scoped-token bypass for absorbed-content re-sync flows. Created by the
+# kepano-resync / vault-resync skills mid-flow, removed after the edit
+# batch. The pre-commit hook refuses to commit while it exists.
+.organon-resync-token

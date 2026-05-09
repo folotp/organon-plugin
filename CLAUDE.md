@@ -57,8 +57,20 @@ If you need to update content in `skills/*/references/PROPERTIES.md`, `MARKDOWN_
 
 The legitimate paths:
 - **kepano-absorbed**: invoke `/kepano-resync` (or the `kepano-drift-resolver` subagent for fan-out across drifted sections).
-- **vault-absorbed**: follow `docs/syncing-vault.md`.
+- **vault-absorbed**: invoke `/vault-resync` (since the v0.6.x flow fix), or follow `docs/syncing-vault.md` manually.
 - **Intentional de-absorption**: delete the `kepano-sync.json` / `vault-sync.json` entry first, then edit as Organon-owned content.
+
+### Resync token (`.organon-resync-token`)
+
+Both re-sync skills (and the `kepano-drift-resolver` subagent) need the model to Edit absorbed files mid-flow — but the PreToolUse hook would block. The legitimate bypass is a **scoped, short-lived, audit-logged** token at repo root:
+
+- File: `.organon-resync-token` (repo root, `.gitignored`).
+- Format: one rel_path per line; blank lines and `# comments` tolerated.
+- Hook behavior: `block-absorbed-edits.sh` allows Edit/Write/MultiEdit *only* on listed paths and writes one stderr audit line per allowed call.
+- Cleanup: skill removes the token immediately after the edit batch (`rm -f .organon-resync-token`).
+- Safety net: the pre-commit hook **refuses to commit while the token exists** — silent leakage is impossible.
+
+Don't bypass `block-absorbed-edits.sh` with `--dangerously-skip-hooks`, sed/python via Bash, or any other "or similar" route. The token is the legitimate path; using it for a non-resync edit defeats the protection.
 
 ## Tooling floor
 

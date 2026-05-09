@@ -26,7 +26,18 @@ Operational checklist for resolving a single drifted section reported by `./scri
 
 3. **Decide: absorb or diverge.** If the upstream edit conflicts with an Organon-specific convention or framing in the surrounding `organon-*/SKILL.md`, choose §Divergence below instead.
 
-4. **Pull the new content into `target_file`**, replacing only the bytes between `<!-- KEPANO-BEGIN -->` and `<!-- KEPANO-END -->`. The marker form:
+4. **Authorize the absorbed-side edit via the resync token.** The PreToolUse hook blocks Edit/Write/MultiEdit on every `target_file` registered in `kepano-sync.json`. Drop a token listing the paths you intend to edit:
+
+   ```bash
+   # Single-file:
+   echo "<target_file>" > .organon-resync-token
+
+   # Multi-section batch sharing one target file: list the path once.
+   ```
+
+   The hook will allow Edit/Write/MultiEdit on listed paths and emit an audit line to stderr per call. The token is `.gitignored` and pre-commit refuses if it leaks.
+
+5. **Pull the new content into `target_file`**, replacing only the bytes between `<!-- KEPANO-BEGIN -->` and `<!-- KEPANO-END -->`. The marker form:
 
    ```
    <!-- KEPANO-BEGIN: <kepano-skill> <section_path> [§<heading>] @sha:<new-short-sha> -->
@@ -39,19 +50,27 @@ Operational checklist for resolving a single drifted section reported by `./scri
 
    Update the `@sha:` short SHA on the BEGIN marker.
 
-5. **Recompute `body_sha256`** — see §Hash recomputation. Use the same extraction shape the script uses for that entry.
+6. **Revoke the token.** As soon as the edit batch on absorbed files is complete:
 
-6. **Update `kepano-sync.json`** entry:
+   ```bash
+   rm -f .organon-resync-token
+   ```
+
+   This is mandatory before commit. The pre-commit hook refuses while the token exists.
+
+7. **Recompute `body_sha256`** — see §Hash recomputation. Use the same extraction shape the script uses for that entry.
+
+8. **Update `kepano-sync.json`** entry (the ledger is not blocked — only `target_file` paths are):
    - `synced_at_sha`: new upstream HEAD full SHA.
    - `synced_at_date`: today, ISO-8601 (`date -u +%F`).
-   - `body_sha256`: new sha from step 5.
+   - `body_sha256`: new sha from step 7.
    - `drift_status`: `"in-sync"`.
 
-7. **Re-run** `./scripts/sync-kepano.sh` — confirm `in-sync` for this section.
+9. **Re-run** `./scripts/sync-kepano.sh` — confirm `in-sync` for this section.
 
-8. **Test the affected `organon-*` skill** — load it in a fresh chat, confirm the absorbed content reads coherently with the surrounding `SKILL.md`. If the upstream edit changed terminology that the framing prose references, update the framing prose in a separate commit.
+10. **Test the affected `organon-*` skill** — load it in a fresh chat, confirm the absorbed content reads coherently with the surrounding `SKILL.md`. If the upstream edit changed terminology that the framing prose references, update the framing prose in a separate commit.
 
-9. **Commit** using the form in `commit-template.txt`. The re-sync commit must contain *only* the absorbed file + `kepano-sync.json` change.
+11. **Commit** using the form in `commit-template.txt`. The re-sync commit must contain *only* the absorbed file + `kepano-sync.json` change. The pre-commit hook will (a) verify token absence, then (b) re-run `sync-kepano.sh --no-fetch` to confirm in-sync.
 
 ## Hash recomputation
 
