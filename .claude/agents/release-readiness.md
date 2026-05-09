@@ -1,6 +1,6 @@
 ---
 name: release-readiness
-description: Use this agent before invoking `/plugin-release` to run all the pre-flight gates listed in `skills/plugin-release/SKILL.md` §Pre-flight as a single read-only sweep. Trigger when the user asks to "check release readiness", "is this ready to release", or proactively at the start of a `/plugin-release` invocation. The agent runs `git status`, `./scripts/sync-kepano.sh`, `./scripts/sync-vault.sh`, and `python3 scripts/token-harness.py --no-write`, plus dispatches the `plugin-dev:plugin-validator` agent. Reports one go/no-go verdict per gate with one-line diagnostics. Read-only — never bumps version, never commits, never tags. Distinguishes drift (rc=1, blocks release) from gate-unavailable (rc≥2, degraded confidence) per the same contract as `/organon-memory-audit`.
+description: Use this agent before invoking `/plugin-release` to run all the pre-flight gates listed in `skills/plugin-release/SKILL.md` §Pre-flight as a single read-only sweep. Trigger when the user asks to "check release readiness", "is this ready to release", or proactively at the start of a `/plugin-release` invocation. The agent runs `git status`, `./scripts/sync-kepano.sh`, `./scripts/sync-vault.sh`, and `python3 scripts/token-harness.py --no-write`, plus dispatches the `plugin-dev:plugin-validator` and `markdown-link-validator` agents. Reports one go/no-go verdict per gate with one-line diagnostics. Read-only — never bumps version, never commits, never tags. Distinguishes drift (rc=1, blocks release) from gate-unavailable (rc≥2, degraded confidence) per the same contract as `/organon-memory-audit`.
 tools: Bash, Read, Grep, Glob, Agent
 ---
 
@@ -26,7 +26,7 @@ If the repo root is missing, stop and ask. Do not guess.
 
 ## Gates to run
 
-Run all six in parallel where possible (the bash invocations are independent). Use `Bash` with `run_in_background` for the slow ones (token harness, plugin-validator agent dispatch).
+Run all seven in parallel where possible (the bash invocations are independent). Use `Bash` with `run_in_background` for the slow ones (token harness, plugin-validator + markdown-link-validator agent dispatches).
 
 ### Gate 1 — Working tree clean on `main`
 
@@ -90,6 +90,18 @@ bash "$REPO_ROOT/skills/plugin-release/scripts/package.sh" --dry
 PASS: dry run completes, the listed contents include `.claude-plugin/plugin.json`, `skills/**`, `scripts/**`, `docs/**`, `README.md`, `kepano-sync.json`, AND exclude `.git/`, `eval-workspace*/`, `evals/iteration-*/`, `__pycache__/`, `.DS_Store`, prior `*.plugin` archives.
 FAIL: missing required content OR includes excluded content.
 
+### Gate 7 — Markdown link integrity
+
+Dispatch the `markdown-link-validator` agent against the repo. Catches drift in cross-references between SKILL.md, references/, command files, docs/, and agent definitions where a single rename silently rots the link — complement to `readme-inventory-checker` (which checks the public surface enumerated in README) and to Gate 4's plugin-validator (which checks manifest/structure, not prose links).
+
+```text
+Use the Agent tool with subagent_type="markdown-link-validator", prompt="Validate Markdown links + bare-path mentions across <REPO_ROOT>. Scope: all. Report under 500 words."
+```
+
+PASS: validator reports `CONSISTENT`.
+FAIL: validator reports `DRIFT-FOUND` with one or more dead explicit links (highest severity).
+DEGRADED: validator reports drift confined to `BARE-PATH-DRIFT` lines only (lower-severity heuristic mentions). Surface the count, defer the call to PA.
+
 ## Report format
 
 Render inline, compact. Single-screen if all gates pass.
@@ -107,12 +119,13 @@ Branch: <branch>  Tree: <clean|dirty>
 | 4. Plugin validator                   | PASS / FAIL            | <one-line> |
 | 5. Token harness regression           | PASS / FAIL / DEGRADED | <one-line> |
 | 6. .plugin archive build dry-run      | PASS / FAIL            | <one-line> |
+| 7. Markdown link integrity            | PASS / FAIL / DEGRADED | <one-line> |
 
 Verdict: GO | NO-GO | GO-WITH-DEGRADED-GATES
 
 Next step:
 - GO → run /plugin-release
-- NO-GO → fix gate <N>: <route> (e.g., /kepano-resync, docs/syncing-vault.md)
+- NO-GO → fix gate <N>: <route> (e.g., /kepano-resync, docs/syncing-vault.md, manual link fix for Gate 7)
 - GO-WITH-DEGRADED-GATES → user decides whether to ship anyway
 ```
 
