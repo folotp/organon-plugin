@@ -80,10 +80,10 @@ For each merge, capture:
 For each merge SHA, list the skills whose `SKILL.md` or `references/` were touched:
 
 ```bash
-git -C "$REPO_ROOT" diff-tree -m --no-commit-id --name-only -r <sha> -- 'skills/*/SKILL.md' 'skills/*/references/*'
+git -C "$REPO_ROOT" diff --name-only <sha>^1..<sha> -- 'skills/*/SKILL.md' 'skills/*/references/*'
 ```
 
-`-m` is required for merge commits — without it, `git diff-tree` collapses the merge and emits no paths, leaving "Skills affected" silently empty for every PR merge in this repo.
+Use the `<sha>^1..<sha>` form rather than bare `git diff-tree <sha>`. Without parent selection, `diff-tree` collapses merge commits and emits no paths (the original failure mode). With `-m` it over-emits — `-m` shows diffs against **all** parents, so a long-lived PR branch that lagged `main` would bleed unrelated mainline changes into "Skills affected" via the second-parent diff. `<sha>^1..<sha>` selects the first-parent diff only — the canonical "what did this PR add to mainline" form. It also handles squash/rebase merges naturally: when `<sha>` has only one parent, the range is just the single-commit diff.
 
 Aggregate across the range. Each unique `skills/<name>/...` path → `<name>` in the "Skills affected" section. Include a one-line "what changed" derived from the bullet text of the merges that touched it.
 
