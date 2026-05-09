@@ -62,10 +62,12 @@ abs_path="${REPO_ROOT}/${rel_path}"
 #   -bn    → omitted intentionally; existing scripts put `&& \` at line end,
 #            and -bn would break that pattern by moving binops to next line.
 #
-# -d emits the diff that -w would apply. Empty diff → file already conforms,
-# stay silent. Non-empty diff → surface to stderr; the model can decide
-# whether to apply `shfmt -i 4 -ci -w <file>` itself.
-diff_out="$(shfmt -i 4 -ci -d "$abs_path" 2>/dev/null)" || exit 0
+# -d emits the diff that -w would apply on stdout, and uses rc=1 to signal
+# "diff found" (not error). rc≥2 is a real failure (parse error, missing
+# file). Use `|| true` to keep rc=1 from short-circuiting the script; if
+# shfmt errored hard, stderr is suppressed and stdout will be empty, which
+# the next check catches.
+diff_out="$(shfmt -i 4 -ci -d "$abs_path" 2>/dev/null || true)"
 [[ -n "$diff_out" ]] || exit 0
 
 {
