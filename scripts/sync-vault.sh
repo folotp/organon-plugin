@@ -256,7 +256,8 @@ else
     printf '  %-65s %-22s %-10s %-19s\n' "vault_path" "section" "synced" "status"
     printf '  %-65s %-22s %-10s %-19s\n' "----------" "-------" "------" "------"
     for row in "${REPORT_ROWS[@]}"; do
-        IFS='|' read -r vp sh sd st tf <<< "$row"
+        # _tf: target_file is stored in the row but not surfaced here.
+        IFS='|' read -r vp sh sd st _tf <<< "$row"
         # Truncate vault_path to keep table readable
         if [[ ${#vp} -gt 65 ]]; then
             vp_display="…${vp: -64}"

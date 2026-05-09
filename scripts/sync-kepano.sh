@@ -180,7 +180,6 @@ for i in $(seq 0 $((n_sections - 1))); do
     synced_at_date="$(jq -r ".sections[$i].synced_at_date" "$SYNC_JSON")"
     stored_sha256="$(jq -r ".sections[$i].body_sha256" "$SYNC_JSON")"
     target_file="$(jq -r ".sections[$i].target_file" "$SYNC_JSON")"
-    stored_status="$(jq -r ".sections[$i].drift_status" "$SYNC_JSON")"
 
     src_file="${CACHE_DIR}/${section_path}"
     detected_status="unknown"
@@ -295,7 +294,9 @@ else
     printf '  %-20s %-50s %-25s %-9s %-19s\n' "skill" "section_path" "heading" "synced" "status"
     printf '  %-20s %-50s %-25s %-9s %-19s\n' "-----" "------------" "-------" "------" "------"
     for row in "${REPORT_ROWS[@]}"; do
-        IFS='|' read -r ks sp sh sa sd st tf <<< "$row"
+        # _sd / _tf: synced_at_date and target_file are stored in the
+        # row but not surfaced in the text report.
+        IFS='|' read -r ks sp sh sa _sd st _tf <<< "$row"
         printf '  %-20s %-50s %-25s %-9s %-19s\n' \
             "$ks" "$sp" "$sh" "${sa:0:7}" "$st"
     done
