@@ -21,7 +21,7 @@ EMIT_JSON=0
 for arg in "$@"; do
     case "$arg" in
         --json) EMIT_JSON=1 ;;
-        -h|--help)
+        -h | --help)
             sed -n '2,11p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
             exit 0
             ;;
@@ -127,8 +127,8 @@ extract_target_marker_body_vault() {
 
 # --- Per-entry drift check --------------------------------------------------
 
-REPORT_ROWS=()    # human-readable report rows
-JSON_ROWS=()      # JSON report rows
+REPORT_ROWS=() # human-readable report rows
+JSON_ROWS=()   # JSON report rows
 EXIT_DRIFT=0
 
 n_entries="$(jq '.entries | length' "$SYNC_JSON")"
@@ -155,10 +155,10 @@ for i in $(seq 0 $((n_entries - 1))); do
         body_file="$(mktemp)"
         case "$extract_mode" in
             "full-body")
-                extract_full_body "$snapshot" > "$body_file"
+                extract_full_body "$snapshot" >"$body_file"
                 ;;
             "section-body")
-                extract_section_body "$snapshot" "$section_heading" > "$body_file"
+                extract_section_body "$snapshot" "$section_heading" >"$body_file"
                 ;;
             *)
                 echo "error: unknown extract_mode: $extract_mode (entry $i)" >&2
@@ -170,7 +170,7 @@ for i in $(seq 0 $((n_entries - 1))); do
         if [[ ! -s "$body_file" ]]; then
             detected_status="section-missing"
         else
-            detected_sha256="$(sha256_of < "$body_file")"
+            detected_sha256="$(sha256_of <"$body_file")"
             if [[ "$detected_sha256" == "$stored_sha256" ]]; then
                 detected_status="in-sync"
             else
@@ -198,11 +198,11 @@ for i in $(seq 0 $((n_entries - 1))); do
         detected_target_status="target-file-missing"
     else
         target_body_file="$(mktemp)"
-        extract_target_marker_body_vault "$target_full_path" "$vault_path" > "$target_body_file"
+        extract_target_marker_body_vault "$target_full_path" "$vault_path" >"$target_body_file"
         if [[ ! -s "$target_body_file" ]]; then
             detected_target_status="target-marker-missing"
         else
-            detected_target_sha256="$(sha256_of < "$target_body_file")"
+            detected_target_sha256="$(sha256_of <"$target_body_file")"
             if [[ "$detected_target_sha256" == "$stored_sha256" ]]; then
                 detected_target_status="in-sync"
             else
@@ -257,7 +257,7 @@ else
     printf '  %-65s %-22s %-10s %-19s\n' "----------" "-------" "------" "------"
     for row in "${REPORT_ROWS[@]}"; do
         # _tf: target_file is stored in the row but not surfaced here.
-        IFS='|' read -r vp sh sd st _tf <<< "$row"
+        IFS='|' read -r vp sh sd st _tf <<<"$row"
         # Truncate vault_path to keep table readable
         if [[ ${#vp} -gt 65 ]]; then
             vp_display="…${vp: -64}"
