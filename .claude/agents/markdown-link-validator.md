@@ -60,6 +60,20 @@ The repo's docs frequently mention files inline by path, without Markdown link s
 
 Heuristic: a token matching `^[a-z0-9._-]+/[A-Za-z0-9._/-]+\.(md|sh|py|json|toml|yaml|yml)$` (or wrapped in single backticks) that appears anywhere in the body.
 
+#### Repo-root file allowlist
+
+The path heuristic above requires at least one `/` before the extension, so root-level files mentioned by name in prose (e.g. `kepano-sync.json` in `CLAUDE.md:30`) are not extracted by it. To close that coverage gap without inviting unbounded false positives, also extract any token matching one of these exact root-level filenames:
+
+```text
+kepano-sync.json
+vault-sync.json
+plugin.json
+README.md
+CLAUDE.md
+```
+
+Resolve each as `<REPO_ROOT>/<filename>` and apply the same multi-base resolution rules below. Add a new entry to this allowlist only when a new root-level file actually starts being mentioned by name in prose — the list is small on purpose, since the false-positive risk grows with breadth.
+
 #### Multi-base resolution (calibrated 2026-05)
 
 A bare-path mention is considered RESOLVED if **any** of the following resolve to an existing on-disk path:
@@ -86,20 +100,23 @@ The previous regex (`[\`/]?(organon-[a-z-]+|kepano-[a-z]+|vault-[a-z]+|plugin-[a
 Replace with a **whitelist-driven** check:
 
 ```bash
-# Build the authoritative list of real skills + commands.
+# Build the authoritative list of real skills + commands + agents.
 SKILLS="$(ls -d "$REPO_ROOT"/skills/*/ 2>/dev/null | xargs -n1 basename)"
 COMMANDS="$(ls "$REPO_ROOT"/commands/*.md 2>/dev/null | xargs -n1 basename | sed 's/\.md$//')"
+AGENTS="$(ls "$REPO_ROOT"/.claude/agents/*.md 2>/dev/null | xargs -n1 basename | sed 's/\.md$//')"
 ```
 
-A prose token is a skill-name claim only if it appears in one of these forms:
+A prose token is a component-name claim only if it appears in one of these forms:
 
-- Backtick-wrapped: `` `organon-frontmatter` ``, `` `kepano-resync` ``.
+- Backtick-wrapped: `` `organon-frontmatter` ``, `` `kepano-resync` ``, `` `kepano-drift-resolver` ``.
 - Slash-prefixed: `/kepano-resync`, `/organon-memory-audit` (slash-command form).
-- Quoted with the literal word "skill" or "subagent" in the same sentence: `"the kepano-resync skill"`, `"the markdown-link-validator subagent"`.
+- Quoted with the literal word "skill", "subagent", or "agent" in the same sentence: `"the kepano-resync skill"`, `"the markdown-link-validator subagent"`, `"the release-readiness agent"`.
 
-Match the matched token against `$SKILLS` and `$COMMANDS` and skip the rest. Compound nouns (`vault-side`, `plugin-dev`, `kepano-absorbed`) miss all three forms and are not considered claims.
+Match the captured token against the union of `$SKILLS`, `$COMMANDS`, and `$AGENTS`. The slash-prefixed form matches `$COMMANDS` only (slash commands map to `commands/*.md`); the other two forms can match any of the three sets. Compound nouns (`vault-side`, `plugin-dev`, `kepano-absorbed`) miss all three forms and are not considered claims.
 
-DRIFT: a token in one of the three forms doesn't appear in `$SKILLS` or `$COMMANDS`. Could be a typo or a removed component still referenced in prose.
+DRIFT: a token in one of the three forms doesn't appear in any whitelist. Could be a typo or a removed component still referenced in prose.
+
+Why include `$AGENTS`: the spec's own example uses `"the markdown-link-validator subagent"`, and `CLAUDE.md` / `README.md` mention `kepano-drift-resolver` in backticks. Without the agent whitelist, every agent name in prose is reported as drift on a clean tree.
 
 ## Resolution rules
 

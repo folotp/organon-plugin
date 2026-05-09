@@ -80,19 +80,25 @@ For each merge, capture:
 For each merge SHA, list the skills whose `SKILL.md` or `references/` were touched:
 
 ```bash
-git -C "$REPO_ROOT" diff-tree --no-commit-id --name-only -r <sha> -- 'skills/*/SKILL.md' 'skills/*/references/*'
+git -C "$REPO_ROOT" diff-tree -m --no-commit-id --name-only -r <sha> -- 'skills/*/SKILL.md' 'skills/*/references/*'
 ```
+
+`-m` is required for merge commits — without it, `git diff-tree` collapses the merge and emits no paths, leaving "Skills affected" silently empty for every PR merge in this repo.
 
 Aggregate across the range. Each unique `skills/<name>/...` path → `<name>` in the "Skills affected" section. Include a one-line "what changed" derived from the bullet text of the merges that touched it.
 
 ### Step 5 — Kepano / vault re-syncs
 
+The ledgers don't have `section_id` / `entry_id` fields — they key on `kepano_section_path` (kepano) and `vault_path` + optional `target_section` (vault). Use those:
+
 ```bash
-git -C "$REPO_ROOT" diff "${PREV_TAG}..HEAD" -- kepano-sync.json | grep -E '^\+.*"section_id"' || true
-git -C "$REPO_ROOT" diff "${PREV_TAG}..HEAD" -- vault-sync.json | grep -E '^\+.*"entry_id"' || true
+git -C "$REPO_ROOT" diff "${PREV_TAG}..HEAD" -- kepano-sync.json | grep -E '^\+.*"kepano_section_path"' || true
+git -C "$REPO_ROOT" diff "${PREV_TAG}..HEAD" -- vault-sync.json  | grep -E '^\+.*"vault_path"'          || true
 ```
 
-Any new or changed entries → list under "Kepano absorption" / "Vault absorption" with the section/entry IDs.
+Any added entries → list under "Kepano absorption" / "Vault absorption" by their `kepano_section_path` / `vault_path` (and `target_section` when present, for vault).
+
+Limitation: this cheap-form diff catches *added* entries but not in-place re-syncs that only refresh `body_sha256` / `synced_at_sha` / `synced_at_date` without changing the entry shape. If the maintainer says a re-sync happened in the range and this section says "none", fall back to a structural comparison (`jq` over the file at `${PREV_TAG}` vs HEAD, comparing on `target_file` for kepano and `target_file`+`target_section` for vault).
 
 ## Heading synthesis
 
