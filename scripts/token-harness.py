@@ -53,7 +53,11 @@ SKILLS: dict[str, dict[str, list[str]]] = {
     "organon-frontmatter": {
         "core": ["SKILL.md"],
         "absorbed_refs": ["references/PROPERTIES.md"],
-        "own_refs": ["references/VOCABULARIES.md"],
+        # SHAPES_QUICKREF split out from core in v0.6.0 (perf trim).
+        "own_refs": [
+            "references/VOCABULARIES.md",
+            "references/SHAPES_QUICKREF.md",
+        ],
     },
     "organon-vault-write": {
         "core": ["SKILL.md"],
@@ -83,18 +87,29 @@ SKILLS: dict[str, dict[str, list[str]]] = {
             "references/CANVAS_SPEC.md",
             "references/EXAMPLES.md",
         ],
-        "own_refs": [],
+        # LABEL_TRANSLATIONS split out from core in v0.6.0 (perf trim).
+        "own_refs": [
+            "references/LABEL_TRANSLATIONS.md",
+        ],
     },
     "organon-diagramming": {
-        # Absorbed inline into SKILL.md, no separate references/ file.
+        # MERMAID_SYNTAX (kepano-absorbed) and EXCALIDRAW_SKELETON
+        # split out from core in v0.6.0 (perf trim).
         "core": ["SKILL.md"],
-        "absorbed_refs": [],
-        "own_refs": [],
+        "absorbed_refs": [
+            "references/MERMAID_SYNTAX.md",
+        ],
+        "own_refs": [
+            "references/EXCALIDRAW_SKELETON.md",
+        ],
     },
     "organon-session-discipline": {
         "core": ["SKILL.md"],
         "absorbed_refs": [],
-        "own_refs": [],
+        # BOOTSTRAP_CACHE split out from core in v0.6.0 (perf trim).
+        "own_refs": [
+            "references/BOOTSTRAP_CACHE.md",
+        ],
     },
 }
 
@@ -125,6 +140,8 @@ SESSIONS: list[dict] = [
         "needs": [
             ("organon-frontmatter", "references/PROPERTIES.md"),
             ("organon-frontmatter", "references/VOCABULARIES.md"),
+            ("organon-frontmatter", "references/SHAPES_QUICKREF.md"),
+            ("organon-session-discipline", "references/BOOTSTRAP_CACHE.md"),
         ],
     },
     {
@@ -155,6 +172,7 @@ SESSIONS: list[dict] = [
         "needs": [
             ("organon-canvas", "references/CANVAS_SPEC.md"),
             ("organon-canvas", "references/EXAMPLES.md"),
+            ("organon-canvas", "references/LABEL_TRANSLATIONS.md"),
         ],
     },
     {
@@ -168,6 +186,8 @@ SESSIONS: list[dict] = [
         "needs": [
             ("organon-frontmatter", "references/PROPERTIES.md"),
             ("organon-frontmatter", "references/VOCABULARIES.md"),
+            ("organon-frontmatter", "references/SHAPES_QUICKREF.md"),
+            ("organon-session-discipline", "references/BOOTSTRAP_CACHE.md"),
         ],
     },
     {

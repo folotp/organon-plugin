@@ -1,6 +1,6 @@
 ---
 name: organon-vault-write
-description: Apply BEFORE any patch_vault_file, create_vault_file, append_to_vault_file, or execute_template call on the Organon Obsidian vault (path contains "iCloud~md~obsidian/Documents/Organon"). MCP write discipline via mcp-tools-istefox 0.4.5+ — YAML quoting, frontmatter array semantics, tags shape, heading patch safety, NFC, Templater-first routing for structured shapes (two-step render-then-create for sequential IDs / one-step render-and-create for domain-folder-mapped notes). Use this skill EVERY TIME a write op is about to touch an Organon note, even for a single-line patch — silent corruption from frontmatter quoting bugs and table+block-ref pitfalls is the recurring failure mode this skill prevents.
+description: Apply BEFORE any patch_vault_file, create_vault_file, append_to_vault_file, or execute_template call on the Organon vault (path contains `Organon`). MCP write discipline via mcp-tools-istefox 0.4.5+ — YAML quoting, frontmatter array semantics, tags shape, heading patch safety, NFC, Templater-first routing for structured shapes. Use every time a write op touches an Organon note.
 ---
 
 # organon-vault-write

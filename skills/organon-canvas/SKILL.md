@@ -1,11 +1,11 @@
 ---
 name: organon-canvas
-description: Apply when creating or editing a JSON Canvas (`.canvas`) file in the Organon Obsidian vault (path contains "iCloud~md~obsidian/Documents/Organon"). Organon-specific canvas conventions — purpose discriminator (cartography of *existing* vault notes vs. freeform sketch — sketches go to Excalidraw instead), placement beside the domain the canvas serves, file-node `file:` paths must resolve via Obsidian's filename-based wiki resolution, language by folder for labels and group titles. Use this skill EVERY TIME a `.canvas` file is being authored — picking the wrong tool (canvas when Excalidraw fits, or vice versa) creates artifacts that don't belong in the vault. JSON Canvas 1.0 spec is bundled in `references/CANVAS_SPEC.md` (absorbed from kepano).
+description: Apply when creating or editing a JSON Canvas (`.canvas`) file in the Organon vault (path contains `Organon`). Purpose discriminator (cartography of *existing* vault notes — sketches go to Excalidraw instead), placement beside the domain the canvas serves, file-node `file:` paths must resolve via Obsidian's filename-based wiki resolution, language by folder for labels and group titles.
 ---
 
 # organon-canvas
 
-The full JSON Canvas 1.0 spec — node types (`text`, `file`, `link`, `group`), edge attributes, ID generation, layout guidelines, validation — lives in `references/CANVAS_SPEC.md` (verbatim absorption from kepano `obsidian-skills`, cf. `kepano-sync.json` at repo root for sync metadata and `scripts/sync-kepano.sh` for the re-sync workflow). Complete worked examples (mind maps, project boards, research canvases, flowcharts) are in `references/EXAMPLES.md`. This skill covers only the **Organon-specific deltas** : when a `.canvas` is the right artifact, where it lives, and how its content references vault notes coherently. Edge cases → `get_vault_file('99 - Méta/AI/Diagramming conventions.md')`.
+The full JSON Canvas 1.0 spec — node types (`text`, `file`, `link`, `group`), edge attributes, ID generation, layout guidelines, validation — lives in `references/CANVAS_SPEC.md` (verbatim absorption from kepano `obsidian-skills`, cf. `kepano-sync.json`). Complete worked examples (mind maps, project boards, research canvases, flowcharts) are in `references/EXAMPLES.md`. Translation table EN↔FR for labels (most-missed rule when drafting in EN chat for a FR-folder canvas) lives in `references/LABEL_TRANSLATIONS.md` — load when authoring labels. This skill covers only the **Organon-specific deltas**. Edge cases → `get_vault_file('99 - Méta/AI/Diagramming conventions.md')`.
 
 ## Purpose discriminator — canvas is for cartography of existing notes
 
@@ -35,34 +35,9 @@ For Organon notes with reference codes (`VLT-BUG-018`, `FIN-DEC-090`, etc.) : th
 
 ## Language for labels and group titles — folder default beats prompt language
 
-Text nodes, group `label:`, edge `label:`, and any natural-language string inside the `.canvas` JSON follow the **language-by-folder** rule from *Vault Conventions* / `organon-markdown-style` : a canvas under `99 - Méta/AI/` uses English labels ; **every other folder uses French**. The prompt language governs the conversation tone, not the artifact content. A French-folder canvas with English labels is a fail even if the chat was in English.
+Text nodes, group `label:`, edge `label:`, and any natural-language string inside the `.canvas` JSON follow the **language-by-folder** rule (canonical home : `organon-markdown-style` §Langue par dossier). Canvas under `99 - Méta/AI/` → English ; every other folder → French. The prompt language governs the conversation tone, not the artifact content.
 
-This is the most-missed rule on canvases — when drafting in an English chat session, the default-English instinct slips into the JSON labels even though the artifact will live in a French folder. Translate every label before writing.
-
-> **Bad** (canvas under `99 - Méta/Outils/Accès à Obsidian par Claude/`, French folder, but English labels in JSON) :
-> ```json
-> {"text": "Common root cause: YAML schema drift", "label": "causes"}
-> ```
->
-> **Good** (same folder, French labels) :
-> ```json
-> {"text": "Cause racine commune : dérive de schéma YAML", "label": "cause"}
-> ```
-
-Common label translations to keep ready when drafting :
-
-| English (default instinct) | French (folder default) |
-|---|---|
-| `cause`, `causes`, `causal link` | `cause`, `lien causal` |
-| `root cause` | `cause racine` |
-| `related to`, `related` | `relié à`, `connexe` |
-| `parent`, `child`, `sibling` | `parent`, `enfant`, `frère` |
-| `depends on`, `dependency` | `dépend de`, `dépendance` |
-| `supersedes`, `superseded by` | `remplace`, `remplacé par` |
-| `leads to`, `triggers` | `mène à`, `déclenche` |
-| `blocks`, `blocked by` | `bloque`, `bloqué par` |
-| `extends`, `refines` | `étend`, `affine` |
-| `Project Overview`, `Summary` | `Vue d'ensemble`, `Synthèse` |
+This is the most-missed rule on canvases — when drafting in an English chat session, the default-English instinct slips into the JSON labels even though the artifact will live in a French folder. **Load `references/LABEL_TRANSLATIONS.md` before authoring labels** — translate every label before writing.
 
 ## Embeds and `subpath:`
 

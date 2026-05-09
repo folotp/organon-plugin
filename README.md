@@ -47,6 +47,19 @@ Drift detection: `./scripts/sync-vault.sh` compares stored `body_sha256` snapsho
 
 ## Changes since v0.1.0
 
+### v0.6.0 (perf trim — token-efficiency pass)
+- **Core SKILL.md trim** (~−21.5 % across the 7 skills): bulky tables, skeletons, and verbose example blocks moved out of the always-loaded core into lazy-loaded `references/`. Net effect on the harness: `post_tokens_total` 67 257 → 61 080 (−9.2 %), `mean(ratio)` 1.464 → 1.509. Real-world per-session load drops 600–1700 tokens depending on how many skills trigger.
+- **Five new `references/` files** (lazy-loaded only when the task genuinely needs them):
+  - `organon-frontmatter/references/SHAPES_QUICKREF.md` — required-fields-by-shape (ADR/BL/BUG/INC/Person/Book/Quote/new ID).
+  - `organon-canvas/references/LABEL_TRANSLATIONS.md` — EN↔FR translation table for canvas labels (most-missed rule when drafting in EN chat for an FR-folder canvas).
+  - `organon-diagramming/references/MERMAID_SYNTAX.md` — kepano-absorbed Mermaid syntax (was inline in SKILL.md; `kepano-sync.json` `target_file` updated, `body_sha256` unchanged).
+  - `organon-diagramming/references/EXCALIDRAW_SKELETON.md` — verbatim `.excalidraw.md` file structure for the connector→bridge persist step.
+  - `organon-session-discipline/references/BOOTSTRAP_CACHE.md` — sha256-manifest cache protocol from rule 2.
+- **Cross-skill de-duplication**: the "language by folder" rule is now canonical in `organon-markdown-style` §Langue par dossier. `organon-frontmatter` and `organon-session-discipline` cross-ref instead of duplicating the rule.
+- **Tightened skill descriptions** (~400 chars each, down from ~700–850): dropped the `Use this skill EVERY TIME … is the recurring failure mode` boilerplate, simplified path discriminator from `iCloud~md~obsidian/Documents/Organon` to `Organon`. Discriminator keywords retained on all 7 skills.
+- **Token harness extended**: `scripts/token-harness.py` SESSIONS list updated so deep sessions correctly mark the new lazy refs as needed (S02, S06, S07). Methodology unchanged (cf. `docs/token-harness-methodology.md`).
+- Breaking: no — additive. Existing trigger keywords retained ; absorbed content paths/sha256 stable. Description path-pattern broadening is permissive (no false negatives expected).
+
 ### v0.2.0 (chat 1.B initial)
 - Added 3 aux skills : `organon-bases`, `organon-canvas`, `organon-diagramming`.
 - Fixed B1 : `organon-session-discipline` description bumped from "6 behavioral rules" to "7" (the iter-3 « language coherence » rule was added without the description being updated).

@@ -1,6 +1,6 @@
 ---
 name: organon-bases
-description: Apply when building or editing a Bases (.base) view that filters or summarises Organon notes (path contains "iCloud~md~obsidian/Documents/Organon"). Bases-default policy — Dataview is fallback only with explicit PA authorization. Covers the Excluded-files trap that masks results, dv-light optimised config when Dataview is the only viable option, canonical filters keyed on Organon vocabularies (`type:`, `status:`, `tags`, folder roots). Use this skill EVERY TIME a `.base` file is being created, edited, or debugged in this vault — silent zero-result returns from the Excluded-files setting waste hours unless you check it first. The full Bases language is bundled in `references/BASES_SYNTAX.md` (absorbed from kepano).
+description: Apply when building or editing a Bases (.base) view that filters or summarises Organon notes (path contains `Organon`). Bases-default policy — Dataview is fallback only with explicit PA authorization. Covers the Excluded-files trap that masks results, dv-light optimised config, canonical filters keyed on Organon vocabularies (`type:`, `status:`, `tags`, folder roots). Full Bases language in `references/BASES_SYNTAX.md` (absorbed from kepano).
 ---
 
 # organon-bases
