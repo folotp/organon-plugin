@@ -58,22 +58,48 @@ The repo's docs frequently mention files inline by path, without Markdown link s
 "`docs/syncing-vault.md` step-by-step"
 ```
 
-Heuristic: a token matching `^[a-z0-9._-]+/[A-Za-z0-9._/-]+\.(md|sh|py|json|toml|yaml|yml)$` (or wrapped in single backticks) that appears anywhere in the body. Resolve relative to **repo root**.
+Heuristic: a token matching `^[a-z0-9._-]+/[A-Za-z0-9._/-]+\.(md|sh|py|json|toml|yaml|yml)$` (or wrapped in single backticks) that appears anywhere in the body.
 
-This pattern produces false positives (e.g., a path inside a code block referring to a hypothetical file). Mitigations:
+#### Multi-base resolution (calibrated 2026-05)
+
+A bare-path mention is considered RESOLVED if **any** of the following resolve to an existing on-disk path:
+
+1. **Repo-root base.** `<REPO_ROOT>/<path>` exists.
+2. **Containing-file base.** `<dirname-of-mentioning-file>/<path>` exists. This catches absorbed-from-kepano references that preserve upstream's `references/X.md` link form, which resolves correctly in-place after absorption (sibling lookup) but not from repo root.
+3. **Basename fallback under `skills/`.** The path's *basename* exists anywhere under `skills/*/references/` or as a `skills/*/SKILL.md` — i.e. `find skills -name "<basename>" -path '*/references/*' -o -name '<basename>' -path '*/SKILL.md'` returns at least one hit. This catches prose mentions like "VOCABULARIES.md" or "MARKDOWN_SYNTAX.md" that name an absorbed file by basename without the full plugin path.
+
+Only if all three resolutions fail, surface as `BARE-PATH-DRIFT` (lower severity than explicit-link drift). The pre-calibration single-base resolver produced ~117 hits on a corpus with zero real drift; the calibrated form returns zero on that same corpus.
+
+This pattern still produces false positives — a path inside a code block referring to a hypothetical file is the residual class. Mitigations:
 - Only flag paths that look like real on-disk shapes (extensions in the allowlist above).
 - Skip lines inside fenced code blocks (` ``` … ``` `) when the language is `text`, `console`, `bash`, `sh`, or unspecified — those are example outputs, not claims.
 - Skip lines inside fenced code blocks tagged `diff` or `patch` — those cite removed paths.
-
-If a flagged "bare path" doesn't resolve, surface as `BARE-PATH-DRIFT` (lower severity than explicit-link drift) so PA can decide whether the mention is real or example.
 
 ### Pattern C — cross-skill references
 
 Skills reference siblings by name in prose: `the kepano-resync skill`, `organon-frontmatter`, `organon-vault-write`. These map 1:1 to `skills/<name>/SKILL.md`. If the prose mentions a skill name with a leading `/` (`/kepano-resync`) it's also a slash-command claim, mapping to `commands/<name>.md`.
 
-For mentions matching `[\`/]?(organon-[a-z-]+|kepano-[a-z]+|vault-[a-z]+|plugin-[a-z]+)\b`, verify the corresponding `skills/<name>/` or `commands/<name>.md` exists.
+#### Whitelist resolution (calibrated 2026-05)
 
-DRIFT: a name is mentioned but no skill/command file exists. Could be a typo or a removed component still referenced in prose.
+The previous regex (`[\`/]?(organon-[a-z-]+|kepano-[a-z]+|vault-[a-z]+|plugin-[a-z]+)\b`) over-matched compound nouns: `vault-side`, `plugin-dev`, `kepano-absorbed`, `kepano-resync` mid-sentence vs `kepano-resync` as-skill-name, etc. — produced 51 false positives on first calibration run with zero real drift.
+
+Replace with a **whitelist-driven** check:
+
+```bash
+# Build the authoritative list of real skills + commands.
+SKILLS="$(ls -d "$REPO_ROOT"/skills/*/ 2>/dev/null | xargs -n1 basename)"
+COMMANDS="$(ls "$REPO_ROOT"/commands/*.md 2>/dev/null | xargs -n1 basename | sed 's/\.md$//')"
+```
+
+A prose token is a skill-name claim only if it appears in one of these forms:
+
+- Backtick-wrapped: `` `organon-frontmatter` ``, `` `kepano-resync` ``.
+- Slash-prefixed: `/kepano-resync`, `/organon-memory-audit` (slash-command form).
+- Quoted with the literal word "skill" or "subagent" in the same sentence: `"the kepano-resync skill"`, `"the markdown-link-validator subagent"`.
+
+Match the matched token against `$SKILLS` and `$COMMANDS` and skip the rest. Compound nouns (`vault-side`, `plugin-dev`, `kepano-absorbed`) miss all three forms and are not considered claims.
+
+DRIFT: a token in one of the three forms doesn't appear in `$SKILLS` or `$COMMANDS`. Could be a typo or a removed component still referenced in prose.
 
 ## Resolution rules
 
