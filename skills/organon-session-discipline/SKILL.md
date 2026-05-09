@@ -1,11 +1,11 @@
 ---
 name: organon-session-discipline
-description: Apply at the start of any Claude session operating on the Organon Obsidian vault (path contains "iCloud~md~obsidian/Documents/Organon"), or before any multi-step Organon task (drafting an ADR, BL, BUG, INC, sweep, refactor wave, decision memo). 7 behavioral rules from PA-validated session patterns — arbitrate over over-clarify, read bootstrap before drafting, no in-fiche redundancy, confirm inferred mappings, propose generalizations, check meta-skills before producing typed artifacts, language coherence by folder. Use this skill EVERY TIME a new Organon-touching session starts or a multi-step task begins — these are recurring frictions PA has explicitly flagged, not nice-to-haves.
+description: Apply at the start of any Claude session operating on the Organon vault (path contains `Organon`), or before any multi-step Organon task (drafting an ADR, BL, BUG, INC, sweep, refactor wave). 7 behavioral rules — arbitrate over over-clarify, read bootstrap before drafting, no in-fiche redundancy, confirm inferred mappings, propose generalizations, check meta-skills before producing typed artifacts, language coherence by folder.
 ---
 
 # organon-session-discipline
 
-6 frictions Claude récurrentes (cf. VLT-ADR-012). Domaine purement behavioral — pas de cascade kepano. Pour conventions techniques, cascade vers `organon-vault-write`, `organon-frontmatter`, `organon-markdown-style`.
+7 frictions Claude récurrentes (cf. VLT-ADR-012). Domaine purement behavioral. Pour conventions techniques, cascade vers `organon-vault-write`, `organon-frontmatter`, `organon-markdown-style`.
 
 ## 1. Arbitrate, don't over-clarify
 
@@ -16,20 +16,10 @@ PA prefers arbitrage motivé over sur-clarification. Quand une décision est inf
 
 ## 2. Read bootstrap before writing artifacts — cache-aware
 
-`[[AI Bootstrap]]` est canonique pour OS, naming, vault paths, system config, MCP wrapper version. Avant de drafter une fiche qui mentionne ces faits, **lire effectivement** le Bootstrap — mais via le cache projet si disponible et valide.
+`[[AI Bootstrap]]` est canonique pour OS, naming, vault paths, system config, MCP wrapper version. Avant de drafter une fiche qui mentionne ces faits, **lire effectivement** le Bootstrap — mais via le cache projet si disponible et valide. Protocole détaillé (sha256 manifest, cache hit/miss, multi-artefact session memoization) : `references/BOOTSTRAP_CACHE.md`.
 
-**Protocole cache (P7.1)** :
-1. Lire `memory/skill_cache_manifest.json` (projet Cowork memory space).
-2. Si présent : bash `sha256sum "/sessions/.../mnt/Organon/99 - Méta/AI/AI Bootstrap.md"` et comparer au champ `ai_bootstrap.sha256`.
-3. **Cache hit** (sha256 identique) : charger `memory/cache_ai_bootstrap.md` au lieu de `get_vault_file`. Économie : ~300 tok.
-4. **Cache miss ou manifeste absent** : `get_vault_file('99 - Méta/AI/AI Bootstrap.md')`, puis mettre à jour `skill_cache_manifest.json` et `cache_ai_bootstrap.md` avec le nouveau sha256 et le contenu.
-5. **Session multi-artefact** : une seule vérification sha256 suffit par session — mémoriser « Bootstrap vérifié à [timestamp] » pour les appels suivants dans la même conversation.
-
-Pour les ADRs qui réfèrent à des incidents/évents spécifiques, **également lire** les VLT-* notes mentionnées (VLT-BUG, VLT-INC, mémoires de session) — leur historique de versions et dates précises rendent la fiche substantiellement meilleure que ce que le training peut produire.
-
-> **Bad** : drafter une note mentionnant « macOS 15 Sequoia » par défaut depuis training.
 > **Bad** : drafter une note disant « v0.4.5 » sans avoir lu le bootstrap pour confirmer la version exacte.
-> **Good** : vérifier manifeste sha256 → cache hit → charger `cache_ai_bootstrap.md` → confirme `macOS Tahoe 26.x` + `mcp-tools-istefox v0.4.5` → drafte avec les valeurs lues. (Burnt 2026-04-28.)
+> **Good** : vérifier manifeste sha256 → cache hit → charger `cache_ai_bootstrap.md` → confirme `mcp-tools-istefox v0.4.5` → drafte avec les valeurs lues. (Burnt 2026-04-28.)
 
 ## 3. No in-fiche redundancy
 
@@ -49,19 +39,10 @@ Quand on map des items entre systèmes (`VLT-BUG-NNN ↔ GitHub issue #N`, `ADR 
 
 Si 2+ artefacts similaires sont produits (sweeps, layers, prompts, BL templates, fiches avec structure parallèle), proposer un meta-pattern ou template. Ne pas attendre que PA demande.
 
-> **Good** : « Je vois qu'on vient de produire 3 sweeps avec la même structure (inventaire → cleanup → validation). Je propose un template Templater pour le 4e que je pressens. Veux-tu que je le drafte ? »
-
 ## 6. Check meta-skills before producing typed artifacts
 
-Avant de drafter un artefact d'un type spécifique (SKILL.md, ADR, plugin Cowork, MCP server, manifest, etc.), itérer sur `available_skills` pour identifier une skill méta qui code des best practices structurelles. Anchoring biases courants à neutraliser : (a) framing projet l'emporte sur framing artefact (« phase 5 wave 1 chat 1.A » → exécuter le step plutôt que reconnaître « créer un SKILL.md »), (b) sentiment d'avoir « toute l'info locale » via les exemples disponibles. Skill-creator note explicitement : Claude tend à *undertrigger* les skills utiles.
+Avant de drafter un artefact d'un type spécifique (SKILL.md, ADR, plugin Cowork, MCP server, manifest), itérer sur `available_skills` pour identifier une skill méta qui code des best practices structurelles. Anchoring biases courants à neutraliser : framing projet l'emporte sur framing artefact, sentiment d'avoir « toute l'info locale » via les exemples disponibles. Skill-creator note explicitement : Claude tend à *undertrigger* les skills utiles. (Burnt 2026-04-28 — drafter 4 SKILL.md sans consulter `skill-creator`.)
 
-> **Bad** : démarrer la rédaction de 4 SKILL.md sans consulter `skill-creator` parce qu'on a kepano sous la main comme exemple.
-> **Good** : avant de drafter le 1er SKILL.md, scanner `available_skills` pour « create / skill / X.md / artifact » → invoke skill-creator → suivre ses best practices. (Burnt 2026-04-28.)
+## 7. Language coherence — folder default beats prompt language
 
-## 7. Language coherence — folder default beats prompt language for vault artifacts
-
-Quand l'artefact est destiné au vault Organon (ADR, BL, BUG, INC, Concept, Note, etc.), la langue est gouvernée par le **folder** où la note vit, pas par la langue du prompt. Le prompt-language gouverne uniquement le ton de la conversation chat. Cohérence requise : `lang:` frontmatter, prose-fields (`description:`, `title:`), et body tous dans la même langue.
-
-> **Bad** : prompt en français → drafter un ADR sous `99 - Méta/Outils/...` (folder français) en anglais parce qu'on en discutait avec un terme anglais.
-> **Bad** : drafter un ADR avec `lang: fr` mais `description: Architectural decision record …` en anglais.
-> **Good** : ADR sous `99 - Méta/Outils/Accès à Obsidian par Claude/` → français complet (body, description, title-prose). ADR sous `99 - Méta/AI/Claude/` → anglais complet. Cf. `organon-markdown-style` §Langue par dossier.
+Pour les artefacts vault (ADR, BL, BUG, INC, Concept, Note, etc.), la langue est gouvernée par le folder, pas par le prompt. Règle complète et exemples : `organon-markdown-style` §Langue par dossier (canonical home).

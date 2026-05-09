@@ -78,7 +78,7 @@
       "synced_at_date": "2026-05-05",
       "body_sha256": "b1df62ffb53a41d362972e1cc0401872d729f770d1f7a26e88129eeb4cff6722",
       "target_skill": "organon-diagramming",
-      "target_file": "skills/organon-diagramming/SKILL.md",
+      "target_file": "skills/organon-diagramming/references/MERMAID_SYNTAX.md",
       "drift_status": "in-sync"
     },
     {
