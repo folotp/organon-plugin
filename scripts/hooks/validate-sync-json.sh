@@ -18,7 +18,7 @@ input="$(cat)"
 file_path="$(printf '%s' "$input" | jq -r '.tool_input.file_path // empty' 2>/dev/null || true)"
 [[ -n "$file_path" ]] || exit 0
 
-rel_path="${file_path#${REPO_ROOT}/}"
+rel_path="${file_path#"${REPO_ROOT}"/}"
 [[ "$rel_path" == "kepano-sync.json" ]] || exit 0
 
 # 1. JSON shape check.

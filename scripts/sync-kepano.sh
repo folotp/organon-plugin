@@ -130,7 +130,7 @@ extract_target_marker_body_kepano() {
     local kepano_skill="$2"
     local section_path="$3"      # full path "skills/<kepano_skill>/<relpath>"
     local section_heading="$4"   # "(full body)" | "(full file)" | "<heading>"
-    local relpath="${section_path#skills/${kepano_skill}/}"
+    local relpath="${section_path#skills/"${kepano_skill}"/}"
     local search_key="${kepano_skill} ${relpath}"
 
     local raw; raw="$(mktemp)"

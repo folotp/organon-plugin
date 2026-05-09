@@ -35,7 +35,7 @@ file_path="$(printf '%s' "$input" | jq -r '.tool_input.file_path // empty')"
 # so we compare in the same space as the relative `target_file` paths in
 # the sync JSONs (which never carry a ./ prefix). Both kepano and vault
 # matching depend on this canonical form.
-rel_path="${file_path#${REPO_ROOT}/}"
+rel_path="${file_path#"${REPO_ROOT}"/}"
 rel_path="${rel_path#./}"
 
 # Scoped-token bypass for legitimate re-sync flows.

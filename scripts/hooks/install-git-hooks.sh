@@ -139,6 +139,6 @@ exit 0
 HOOK
 
 chmod +x "$HOOK_PATH"
-echo "✓ installed managed pre-commit hook → ${HOOK_PATH#${REPO_ROOT}/}"
+echo "✓ installed managed pre-commit hook → ${HOOK_PATH#"${REPO_ROOT}"/}"
 echo "  bypass with: git commit --no-verify"
-echo "  uninstall with: ${BASH_SOURCE[0]#${REPO_ROOT}/} --uninstall"
+echo "  uninstall with: ${BASH_SOURCE[0]#"${REPO_ROOT}"/} --uninstall"
