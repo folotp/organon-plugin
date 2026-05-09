@@ -30,10 +30,12 @@ The script reads each entry's `vault_path`, snapshots the live vault file via `m
 
 Status values and routing (full table in `references/RESOLUTION_CHECKLIST.md` §Statuses):
 
-- `in-sync` — no action.
-- `vault-changed` — body differs ; review the vault diff, decide whether to absorb, follow §Re-sync below.
+- `in-sync` — no action. Both the vault-side AND the plugin target between markers match the stored sha (bilateral check, since v0.6.x).
+- `vault-changed` — vault body differs from stored ; review the vault diff, decide whether to absorb, follow §Re-sync below.
 - `section-missing` — section heading was renamed or removed in the vault file ; routing in `references/RESOLUTION_CHECKLIST.md` §Heading rename.
 - `vault-file-missing` — the source file is gone from the vault ; manual investigation, escalate to PA.
+- `target-corrupt` — vault matches stored, but the plugin target body inside `<!-- VAULT-* -->` markers diverges from stored. Implies a hand-edit (or other tooling) bypassed the resync flow. Routing: re-extract from vault and overwrite the corrupted bytes (uses the same flow as `vault-changed`).
+- `target-marker-missing` — vault matches stored, but the BEGIN/END markers can't be located in the plugin target file (markers were corrupted or removed). Manual fix: restore the marker pair before re-running.
 
 ## Re-sync flow (per drifted entry)
 

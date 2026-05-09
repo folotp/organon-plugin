@@ -5,7 +5,6 @@ Verbatim copy of the body of kepano `obsidian-skills` `skills/obsidian-markdown/
 <!-- KEPANO-BEGIN: obsidian-markdown SKILL.md (full body) @sha:fa1e131 -->
 <!-- kepano-sync: see kepano-sync.json for body_sha256 + drift status -->
 
-
 # Obsidian Flavored Markdown Skill
 
 Create and edit valid Obsidian Flavored Markdown. Obsidian extends CommonMark and GFM with wikilinks, embeds, callouts, properties, comments, and other syntax. This skill covers only Obsidian-specific extensions -- standard Markdown (headings, bold, italic, lists, quotes, code blocks, tables) is assumed knowledge.

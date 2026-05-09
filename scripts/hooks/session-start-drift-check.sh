@@ -36,7 +36,7 @@ kepano_summary() {
         0) echo "  kepano: ✓ all sections in-sync (cached upstream)" ;;
         1)
             local drifted
-            drifted="$(printf '%s\n' "$out" | awk '/[a-z-]+ +[a-z-]+ +.* +[a-f0-9]{7,} +(upstream-changed|heading-removed|heading-renamed|upstream-file-missing)/ {print $1"/"$2}' | head -3 | tr '\n' ' ')"
+            drifted="$(printf '%s\n' "$out" | awk '/[a-z-]+ +[a-z-]+ +.* +[a-f0-9]{7,} +(upstream-changed|heading-removed|heading-renamed|upstream-file-missing|target-corrupt|target-marker-missing|target-file-missing)/ {print $1"/"$2}' | head -3 | tr '\n' ' ')"
             echo "  kepano: ⚠ drift detected — run /kepano-resync (${drifted:-see ./scripts/sync-kepano.sh})"
             ;;
         *)

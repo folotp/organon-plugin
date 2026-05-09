@@ -4,12 +4,16 @@ Operational checklist for resolving a single drifted section reported by `./scri
 
 ## Statuses
 
+Bilateral check (since v0.6.x): the script verifies BOTH the upstream → stored sha chain AND the plugin target → stored sha chain. Upstream-side issues take priority; target-side statuses surface only when upstream is in-sync.
+
 | status | meaning | routing |
 |---|---|---|
-| `in-sync` | upstream body matches stored sha | nothing to do |
-| `upstream-changed` | body differs | §Re-sync (§Divergence if conflict) |
+| `in-sync` | upstream AND plugin target both match stored sha | nothing to do |
+| `upstream-changed` | upstream body differs from stored | §Re-sync (§Divergence if conflict) |
 | `heading-removed` | heading renamed/removed | §Heading rename |
 | `upstream-file-missing` | source file gone | escalate — manual investigation |
+| `target-corrupt` | plugin target body between markers differs from stored (upstream still matches) | §Target-corrupt below |
+| `target-marker-missing` | plugin target's BEGIN/END markers not found | escalate — markers were removed or corrupted; restore manually before re-running |
 
 ## Re-sync (status: `upstream-changed`)
 
@@ -114,6 +118,19 @@ awk 'BEGIN{n=0} /^---$/{n++; next} n>=2{print}' \
 shasum -a 256 < "$tmp" | awk '{print $1}'
 rm "$tmp"
 ```
+
+## Target-corrupt (status: `target-corrupt`)
+
+The upstream is in-sync with the stored sha, but the plugin target body between `<!-- KEPANO-BEGIN -->` / `<!-- KEPANO-END -->` markers does not. Cause: a direct edit landed in the plugin target without going through the resync flow.
+
+The fix is to **restore the absorbed copy from the upstream cache** — exactly the §Re-sync flow above, except `body_sha256`, `synced_at_sha`, and `synced_at_date` in `kepano-sync.json` do NOT change (the stored sha is correct; only the plugin target needs to be brought back into alignment).
+
+1. Authorize the absorbed-side edit via the resync token (see step 4 of §Re-sync).
+2. Re-extract from the upstream cache (using the appropriate extraction shape per §Hash recomputation) into the marker region of the plugin target. Preserve the surrounding framing layout.
+3. Revoke the token (`rm -f .organon-resync-token`).
+4. **Do not change `body_sha256`, `synced_at_sha`, or `synced_at_date`** — the stored fingerprint is already correct (upstream matches it). Updating them would mask the corruption history.
+5. Re-run `./scripts/sync-kepano.sh --no-fetch` — must report `in-sync` for this section. Both `detected_sha256` and `detected_target_sha256` should equal `stored_sha256`.
+6. Commit only the absorbed file (no `kepano-sync.json` change). Suggested message: `organon: restore <section> from kepano (target-corrupt repair)`.
 
 ## Heading rename (status: `heading-removed`)
 

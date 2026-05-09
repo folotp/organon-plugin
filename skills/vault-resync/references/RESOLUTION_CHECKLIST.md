@@ -4,12 +4,16 @@ Operational checklist for resolving a single drifted entry reported by `./script
 
 ## Statuses
 
+Bilateral check (since v0.6.x): the script verifies BOTH the live vault → stored sha chain AND the plugin target → stored sha chain. Vault-side issues take priority; target-side statuses surface only when vault is in-sync.
+
 | status | meaning | routing |
 |---|---|---|
-| `in-sync` | live vault body matches stored sha | nothing to do |
-| `vault-changed` | body differs | §Re-sync (§Divergence if conflict) |
+| `in-sync` | live vault AND plugin target both match stored sha | nothing to do |
+| `vault-changed` | vault body differs from stored | §Re-sync (§Divergence if conflict) |
 | `section-missing` | heading renamed/removed in vault | §Heading rename |
 | `vault-file-missing` | source file gone from vault | escalate — manual investigation |
+| `target-corrupt` | plugin target body between markers differs from stored (vault still matches) | §Target-corrupt below |
+| `target-marker-missing` | plugin target's BEGIN/END markers not found | escalate — markers were removed or corrupted; restore manually before re-running |
 
 ## Re-sync (status: `vault-changed`)
 
@@ -126,6 +130,21 @@ Bash command substitution `$(…)` strips trailing newlines. If you compute the 
 ### Footgun: NFC vs NFD on vault paths
 
 The vault uses non-ASCII paths (`99 - Méta/Système documentaire/...`). macOS APFS handles UTF-8 fine, but if you copy-pasted the path from a different source and see `vault-file-missing` on a path that visibly exists, suspect an NFC/NFD mismatch. Re-type the path or copy from `vault-sync.json` directly.
+
+## Target-corrupt (status: `target-corrupt`)
+
+The vault is in-sync with the stored sha, but the plugin target body between `<!-- VAULT-BEGIN -->` / `<!-- VAULT-END -->` markers does not. Cause: a direct edit landed in the plugin target without going through the resync flow (e.g., another editor, a tool that bypassed the PreToolUse hook, or a scripted `sed`/`python` rewrite).
+
+The fix is to **restore the absorbed copy from the vault** — exactly the §Re-sync flow above, except `body_sha256` and `synced_at_date` in `vault-sync.json` do NOT change (the stored sha is correct; only the plugin target needs to be brought back into alignment).
+
+1. Authorize the absorbed-side edit via the resync token (see step 4 of §Re-sync).
+2. Re-extract from the vault file (`extract_section_body` for section entries, `extract_full_body` for full-body entries) into the marker region of the plugin target. Preserve the surrounding framing layout (one blank between sync-comment and body, one blank before END marker).
+3. Revoke the token (`rm -f .organon-resync-token`).
+4. **Do not change `body_sha256` or `synced_at_date`** in `vault-sync.json` — the stored fingerprint is already correct (vault matches it). Updating them would mask the corruption history.
+5. Re-run `./scripts/sync-vault.sh` — must report `in-sync` for this entry. Both `detected_sha256` and `detected_target_sha256` should equal `stored_sha256`.
+6. Commit only the absorbed file (no `vault-sync.json` change). Suggested message: `organon: restore <entry> from vault (target-corrupt repair)`.
+
+If the corruption was intentional (e.g., a planned divergence from the vault), follow §Divergence instead — bump `synced_at_date`, leave `body_sha256` unchanged, add a `note`.
 
 ## Heading rename (status: `section-missing`)
 
