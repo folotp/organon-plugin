@@ -1,0 +1,19 @@
+organon: re-sync <vault-entry-label> from vault @<new-date>
+
+Source: <vault_path>[ §<section_heading>]
+Previous synced_at_date: <old-date>
+
+Vault path:      <vault_path>
+Section heading: <section_heading or "(full body)">
+Target file:     skills/organon-frontmatter/references/<NAME>.md[ §<target_section>]
+
+Why this re-sync absorbs the vault change:
+- <one-line rationale>
+
+Files changed:
+- skills/organon-frontmatter/references/<NAME>.md  — absorbed body updated
+- vault-sync.json                                   — entry: synced_at_date, body_sha256
+
+Verified:
+- ./scripts/sync-vault.sh reports in-sync for this entry
+- skill organon-frontmatter loads coherently with the new content
