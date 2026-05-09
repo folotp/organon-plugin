@@ -4,7 +4,7 @@ Organon vault conventions for Claude — packaged as a Cowork/Claude Code plugin
 
 ## What this plugin provides
 
-Ten skills total: seven description-triggered (load automatically when working with the Organon Obsidian vault at `~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Organon`) plus three user-only skills invoked via slash command.
+Eleven skills total: seven description-triggered (load automatically when working with the Organon Obsidian vault at `~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Organon`) plus four user-only skills invoked via slash command.
 
 ### Core (4 skills, validated in chat 1.A)
 
@@ -19,11 +19,12 @@ Ten skills total: seven description-triggered (load automatically when working w
 - **organon-canvas** — Purpose discriminator (cartography of existing notes vs. freeform sketches), placement beside the domain, file-node filename-only paths for vault-move robustness, language by folder for labels, ID convention (kepano 16-char hex).
 - **organon-diagramming** — Tool-selection decision tree (Mermaid for code-expressible flows, Canvas for note-cartography, Excalidraw via connector+bridge for freeform, SVG for throwaways), Excalidraw bridge skeleton, plugin compression-OFF invariant, preview-before-persist pattern.
 
-### User-only (3 skills, invoked via slash command — `disable-model-invocation: true`)
+### User-only (4 skills, invoked via slash command — `disable-model-invocation: true`)
 
 - **kepano-resync** (`/kepano-resync`, since v0.4.1) — End-to-end runbook for resolving drift detected by `scripts/sync-kepano.sh`. Re-sync workflow, marker invariants, hash recomputation, divergence handling.
 - **plugin-release** (`/plugin-release`, since v0.4.1) — Cut releases: bump version in `plugin.json`, package the `.plugin` archive, tag, create the GitHub Release with the archive uploaded as a Release asset.
 - **organon-memory-audit** (`/organon-memory-audit`, since v0.5.0) — Three-pole drift audit aligning plugin/skill/tool reality, the canonical-snippets vault note, and per-surface implementations (Code / Cowork / Chat). Two scope modes (`--scope=global|project|all`) and two interaction modes (`--mode=interactive|report-only`). Edits never auto-applied — drifts and staleness are raised for human-in-the-loop approval.
+- **vault-resync** (`/vault-resync`, since v0.6.1) — End-to-end runbook for resolving drift detected by `scripts/sync-vault.sh`. Mirror of `kepano-resync` adapted for vault semantics: `synced_at_date` instead of `synced_at_sha`, two `extract_mode` shapes (full-body / section-body), the two-entry coupling rule for vocabulary changes (Vocabulaire + Registre).
 
 ## Absorbed kepano content (since v0.4.0)
 
@@ -46,6 +47,20 @@ Drift detection: `./scripts/sync-vault.sh` compares stored `body_sha256` snapsho
 - Detailed results in `refactor-phase4/wave-1-skills-bootstrap/eval-workspace/` of the Organon project workspace.
 
 ## Changes since v0.1.0
+
+### v0.6.1 (resync flow hardening + automation tooling)
+
+- **Resync flow now works end-to-end without bypass tricks.** A new `.organon-resync-token` file (gitignored, audit-logged via stderr) lets the model edit absorbed-content `target_file` paths under the supervision of the existing PreToolUse `block-absorbed-edits.sh` hook. Pre-commit refuses to commit while the token exists — silent leakage is impossible. Both `kepano-resync` and `vault-resync` skills, plus the `kepano-drift-resolver` subagent, document the lifecycle.
+- **Bilateral drift verification.** `sync-kepano.sh` and `sync-vault.sh` now hash BOTH the source-side chain (vault/upstream extract → stored sha) AND the target-side chain (plugin target body inside `<!-- *-* -->` markers → stored sha). New statuses `target-corrupt`, `target-marker-missing`, `target-file-missing` surface when a hand-edit slipped past the hook. JSON output gains `detected_target_sha256` + `detected_target_status`.
+- **New `vault-resync` skill (`/vault-resync`)** — end-to-end runbook mirroring `kepano-resync` for vault-side absorption. User-only.
+- **CI: marketplace dispatch on release.** New `.github/workflows/notify-marketplace.yml` fires `repository_dispatch` at `folotp/claude-marketplace` on every `release: published`, triggering its `auto-bump-external-plugins` workflow within ~30 s instead of the up-to-30-min cron.
+- **Local tooling.**
+  - `scripts/hooks/install-git-hooks.sh` installs a managed `.git/hooks/pre-commit` that runs both drift detectors and refuses on token presence. Closes the asymmetry between Claude's PreToolUse hook (in-session edits only) and direct commits from other editors.
+  - `scripts/hooks/stop-shellcheck.sh` is a Stop hook that lints modified `scripts/**/*.sh` at session end. Works on macOS default bash 3.2 (no `mapfile` dependency).
+  - Two new subagents under `.claude/agents/` (dev-time only, not shipped in the plugin runtime): `readme-inventory-checker` (read-only consistency check between `README.md` and source-of-truth files) and `token-harness-regression` (PR-time harness diff against latest committed iteration).
+- **Vault re-sync.** `domain` vocabulary FIN row updated to reflect the 2026-05-08 FIN-BL Templater dual-mode rollout.
+- **Cleanup.** Shellcheck SC2034 + SC2295 findings silenced across all 7 bash scripts. `MARKDOWN_SYNTAX.md` had a stray extra blank line in its marker layout (caught by the new bilateral verifier; corrected).
+- Breaking: no — additive infrastructure. Existing skill descriptions, trigger keywords, and absorbed content shas stable.
 
 ### v0.6.0 (perf trim — token-efficiency pass)
 - **Core SKILL.md trim** (~−21.5 % across the 7 skills): bulky tables, skeletons, and verbose example blocks moved out of the always-loaded core into lazy-loaded `references/`. Net effect on the harness: `post_tokens_total` 67 257 → 61 080 (−9.2 %), `mean(ratio)` 1.464 → 1.509. Real-world per-session load drops 600–1700 tokens depending on how many skills trigger.
@@ -116,7 +131,7 @@ Drift detection: `./scripts/sync-vault.sh` compares stored `body_sha256` snapsho
 
 ## Installation
 
-Click "Install plugin" when this `.plugin` file appears in Cowork chat. The 7 description-triggered skills load automatically when working with the Organon vault; the 3 user-only skills (`/kepano-resync`, `/plugin-release`, `/organon-memory-audit`) are invoked explicitly via slash command.
+Click "Install plugin" when this `.plugin` file appears in Cowork chat. The 7 description-triggered skills load automatically when working with the Organon vault; the 4 user-only skills (`/kepano-resync`, `/vault-resync`, `/plugin-release`, `/organon-memory-audit`) are invoked explicitly via slash command.
 
 ## Author
 

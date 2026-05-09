@@ -41,9 +41,9 @@ A **SessionStart hook** runs both detectors with `--no-fetch` (kepano) for a pas
 | Path | Purpose |
 |---|---|
 | `.claude-plugin/plugin.json` | Plugin manifest (version, description, keywords). |
-| `skills/<name>/SKILL.md` | 10 skills total — 7 description-triggered, 3 user-only (`disable-model-invocation: true`). |
+| `skills/<name>/SKILL.md` | 11 skills total — 7 description-triggered, 4 user-only (`disable-model-invocation: true`). |
 | `skills/<name>/references/` | Lazy-loaded refs. Some absorbed (kepano/vault) with HTML markers, some Organon-owned. |
-| `commands/<name>.md` | 3 slash-command wrappers (`/kepano-resync`, `/plugin-release`, `/organon-memory-audit`). |
+| `commands/<name>.md` | 4 slash-command wrappers (`/kepano-resync`, `/vault-resync`, `/plugin-release`, `/organon-memory-audit`). |
 | `scripts/sync-kepano.sh` | kepano drift detector (exit 0 = in-sync, 1 = drift, ≥2 = gate-unavailable). |
 | `scripts/sync-vault.sh` | vault drift detector (same exit semantics). |
 | `scripts/hooks/` | PreToolUse + PostToolUse hooks. |
