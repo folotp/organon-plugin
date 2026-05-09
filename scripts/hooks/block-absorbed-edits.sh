@@ -23,6 +23,7 @@ set -euo pipefail
 REPO_ROOT="${CLAUDE_PROJECT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 KEPANO_JSON="${REPO_ROOT}/kepano-sync.json"
 VAULT_JSON="${REPO_ROOT}/vault-sync.json"
+TOKEN_FILE="${REPO_ROOT}/.organon-resync-token"
 
 command -v jq >/dev/null 2>&1 || exit 0
 
@@ -36,6 +37,30 @@ file_path="$(printf '%s' "$input" | jq -r '.tool_input.file_path // empty')"
 # matching depend on this canonical form.
 rel_path="${file_path#${REPO_ROOT}/}"
 rel_path="${rel_path#./}"
+
+# Scoped-token bypass for legitimate re-sync flows.
+#
+# The kepano-resync and vault-resync skills (and the kepano-drift-resolver
+# subagent) need to write inside <!-- KEPANO/VAULT-* --> markers on absorbed
+# target files. The legitimate flow drops a .organon-resync-token file at
+# repo root listing the rel_paths it intends to edit — one per line; blank
+# lines and # comments tolerated. If the requested rel_path appears, the
+# hook allows the edit and emits an audit line to stderr.
+#
+# The pre-commit hook refuses to commit while the token exists, so a leaked
+# token can't slip into history. The token is .gitignored.
+#
+# This bypass is scoped (specific paths only), auditable (stderr per call),
+# and short-lived (skill removes it after the edit batch). It does NOT
+# disable the hook globally — direct edits to absorbed paths NOT listed in
+# the token are still blocked.
+if [[ -f "$TOKEN_FILE" ]]; then
+    if grep -v '^[[:space:]]*\(#\|$\)' "$TOKEN_FILE" 2>/dev/null \
+         | grep -Fxq "$rel_path"; then
+        echo "block-absorbed-edits.sh: edit allowed by .organon-resync-token for: $rel_path" >&2
+        exit 0
+    fi
+fi
 
 # Match against kepano-sync.json (.sections[].target_file).
 if [[ -f "$KEPANO_JSON" ]] && \
@@ -54,6 +79,10 @@ To update absorbed content correctly, route through:
 If you intend to remove the file from kepano absorption (intentional
 de-absorption), delete the kepano-sync.json entry first, then edit the
 file as Organon-owned content.
+
+For a legitimate re-sync via the kepano-resync skill, drop a one-line
+.organon-resync-token at repo root scoping this path before editing.
+The skill body documents the lifecycle.
 EOF
     exit 2
 fi
@@ -82,6 +111,10 @@ workflow:
 If you intend to remove the file from vault absorption (intentional
 de-absorption), delete the vault-sync.json entry first, then edit the
 file as Organon-owned content.
+
+For a legitimate re-sync via the vault-resync skill, drop a one-line
+.organon-resync-token at repo root scoping this path before editing.
+The skill body documents the lifecycle.
 EOF
     exit 2
 fi

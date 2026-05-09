@@ -83,7 +83,17 @@ Use the same shape the script uses for that heading value. Always extract to a t
 NEW_SHA="$(shasum -a 256 < "$TMP" | awk '{print $1}')"
 ```
 
-### 6. Replace the body inside the markers in `target_file`
+### 6. Authorize the absorbed-side edit (resync token)
+
+The PreToolUse hook (`scripts/hooks/block-absorbed-edits.sh`) blocks Edit/Write/MultiEdit on every `target_file` registered in `kepano-sync.json`. Drop a scoped bypass token before editing:
+
+```bash
+echo "$TARGET_FILE" > "$REPO_ROOT/.organon-resync-token"
+```
+
+(`$TARGET_FILE` is the rel_path you captured in step 2.) The hook will then allow Edit/Write/MultiEdit on that path and emit an audit line to stderr per call. The token is `.gitignored` and the pre-commit hook refuses to commit while it exists, so a leaked token can't reach history.
+
+### 7. Replace the body inside the markers in `target_file`
 
 The marker form (Option D — heading + body_sha256):
 
@@ -104,7 +114,17 @@ NEW_SHORT="$(git -C "$CACHE" rev-parse --short HEAD)"
 
 The framing prose outside the markers is Organon-owned. Do not touch it.
 
-### 7. Update `kepano-sync.json` for this section
+### 8. Revoke the token
+
+As soon as the edit batch is complete (before any verification or commit):
+
+```bash
+rm -f "$REPO_ROOT/.organon-resync-token"
+```
+
+### 9. Update `kepano-sync.json` for this section
+
+`kepano-sync.json` is the ledger, not a `target_file` — the hook does not block it; no token needed for this step.
 
 Use `Edit` (preferred — surgical) or a `jq` rewrite (acceptable for atomicity). Update fields on this section's entry:
 
@@ -115,7 +135,7 @@ Use `Edit` (preferred — surgical) or a `jq` rewrite (acceptable for atomicity)
 
 Do **not** touch other sections' entries.
 
-### 8. Verify
+### 10. Verify
 
 ```bash
 ./scripts/sync-kepano.sh --no-fetch
@@ -123,7 +143,9 @@ Do **not** touch other sections' entries.
 
 The section you resolved must now appear `in-sync`. If it still reports drift on this section, your sha computation didn't match — almost always a trailing-newline issue. Re-do step 4 using a temp file.
 
-### 9. Stage but do not commit
+Also confirm `.organon-resync-token` is gone (`ls .organon-resync-token` should fail). If still present, `rm -f` it now — the pre-commit hook will refuse otherwise.
+
+### 11. Stage but do not commit
 
 ```bash
 git add <target_file> kepano-sync.json

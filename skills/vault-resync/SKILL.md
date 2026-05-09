@@ -40,13 +40,40 @@ Status values and routing (full table in `references/RESOLUTION_CHECKLIST.md` §
 For each entry reported as drifted, work the steps in `references/RESOLUTION_CHECKLIST.md`. Summary of the load-bearing invariants:
 
 1. **Inspect the vault change first.** Most vault edits are improvements (PA owns both ends), but some upstream edits may conflict with Organon-specific framing in the surrounding plugin reference file's prose. Divergence is a valid outcome (see §Divergence below).
-2. **Replace the absorbed body between the markers**, never outside them. Framing prose outside the `<!-- VAULT-BEGIN -->` / `<!-- VAULT-END -->` markers is Organon-owned and stays put.
-3. **Update the marker comment's `@synced:<date>`** to today's ISO-8601 date. The marker form is fixed (Option D — heading + `body_sha256`); do not improvise alternative marker shapes.
-4. **Recompute `body_sha256` using the same extraction the script uses.** Any other extraction will produce a sha that the script reports as still drifted. Commands per `extract_mode` are in `references/RESOLUTION_CHECKLIST.md` §Hash recomputation. The trailing-newline footgun: bash command substitution strips trailing newlines — use the temp-file pattern (`extract … > "$tmp"; sha256_of < "$tmp"`).
-5. **Update `vault-sync.json`** entry: bump `synced_at_date` (today, ISO-8601), `body_sha256`, set `drift_status: "in-sync"`.
-6. **Re-run `./scripts/sync-vault.sh`** — must report `in-sync` for the touched entry. If it doesn't, your sha computation didn't match the script (almost always trailing-newline).
-7. **Test the affected `organon-frontmatter` skill** before committing — minimum: load it in a fresh chat and confirm the absorbed content reads coherently with the surrounding `SKILL.md`. The framing prose may now contradict the new content (e.g., a vocabulary added or removed).
-8. **Bundle the commit**: absorbed file + `vault-sync.json` in the same commit. Use the message form in `references/commit-template.txt`.
+2. **Authorize the absorbed-side edit via the resync token.** The PreToolUse hook (`scripts/hooks/block-absorbed-edits.sh`) blocks Edit/Write/MultiEdit on every `target_file` registered in `vault-sync.json`. The legitimate path is to drop a `.organon-resync-token` at repo root listing the rel_path you intend to edit. See §Token lifecycle below.
+3. **Replace the absorbed body between the markers**, never outside them. Framing prose outside the `<!-- VAULT-BEGIN -->` / `<!-- VAULT-END -->` markers is Organon-owned and stays put.
+4. **Update the marker comment's `@synced:<date>`** to today's ISO-8601 date. The marker form is fixed (Option D — heading + `body_sha256`); do not improvise alternative marker shapes.
+5. **Revoke the token immediately after the edit batch** — `rm -f .organon-resync-token`. The pre-commit hook refuses to commit while the token exists.
+6. **Recompute `body_sha256` using the same extraction the script uses.** Any other extraction will produce a sha that the script reports as still drifted. Commands per `extract_mode` are in `references/RESOLUTION_CHECKLIST.md` §Hash recomputation. The trailing-newline footgun: bash command substitution strips trailing newlines — use the temp-file pattern (`extract … > "$tmp"; sha256_of < "$tmp"`).
+7. **Update `vault-sync.json`** entry: bump `synced_at_date` (today, ISO-8601), `body_sha256`, set `drift_status: "in-sync"`. (`vault-sync.json` is the ledger, not a `target_file` — the hook does not block it.)
+8. **Re-run `./scripts/sync-vault.sh`** — must report `in-sync` for the touched entry. If it doesn't, your sha computation didn't match the script (almost always trailing-newline).
+9. **Test the affected `organon-frontmatter` skill** before committing — minimum: load it in a fresh chat and confirm the absorbed content reads coherently with the surrounding `SKILL.md`. The framing prose may now contradict the new content (e.g., a vocabulary added or removed).
+10. **Bundle the commit**: absorbed file + `vault-sync.json` in the same commit. Use the message form in `references/commit-template.txt`.
+
+## Token lifecycle (`scripts/hooks/block-absorbed-edits.sh` bypass)
+
+Format: `.organon-resync-token` at repo root, one rel_path per line. Blank lines and `# comments` are tolerated. The hook permits Edit/Write/MultiEdit only on listed paths and emits an audit line to stderr per allowed call. The token is `.gitignored`; the pre-commit hook refuses to commit while it exists.
+
+```bash
+# Authorize:
+echo "skills/organon-frontmatter/references/VOCABULARIES.md" > .organon-resync-token
+
+# Apply Edit / MultiEdit on the listed file(s).
+
+# Revoke (always, even on error path):
+rm -f .organon-resync-token
+```
+
+Multi-file batch (e.g. coupled Vocabulaire + Registre): list both paths.
+
+```bash
+cat > .organon-resync-token <<'EOF'
+skills/organon-frontmatter/references/VOCABULARIES.md
+skills/organon-frontmatter/references/REGISTRE_KEYS.md
+EOF
+```
+
+The token is *scoped* (only the listed paths) and *short-lived* (skill removes it before verification). If a flow aborts mid-edit and the token leaks, the next commit attempt fails loud (pre-commit refuses) — silent leakage is impossible.
 
 ## Two-entry coupling for vocabulary changes
 
@@ -71,7 +98,8 @@ Note: vault-side divergence is rarer than kepano-side — PA owns both ends, so 
 ## Anti-patterns
 
 - **Bumping `synced_at_date` without recomputing `body_sha256`** — the script reports `in-sync` because the stored sha matches the live vault body, but if you forgot to update the absorbed copy in the plugin target, the plugin now silently lies. The script *cannot* catch this: it hashes only the live vault file, never the plugin target.
-- **Editing absorbed plugin content outside this skill's flow** — the PreToolUse hook (`scripts/hooks/block-absorbed-edits.sh`) blocks this for a reason: drops the marker invariants and corrupts the sync ledger silently. Don't override it.
+- **Leaving `.organon-resync-token` in place after the edit batch** — pre-commit will refuse the commit, but worse, a forgotten token allows further unintended edits to the listed paths until removed. Always `rm -f .organon-resync-token` immediately after the edit batch, ideally in a `trap` if you're scripting.
+- **Editing absorbed plugin content outside this skill's flow** — the PreToolUse hook (`scripts/hooks/block-absorbed-edits.sh`) blocks this for a reason: drops the marker invariants and corrupts the sync ledger silently. The token bypass is the *legitimate* path; using it for a non-resync edit defeats the protection.
 - **Auto-resolving `section-missing` by guessing the new heading** — the vault file may have been intentionally restructured; a guess can absorb the wrong section. Always `grep -n '^#' <vault-file>` first.
 - **Single combined commit covering re-sync + an unrelated content edit to the surrounding `SKILL.md`** — makes future audits of "what came from the vault vs what is plugin-owned" impossible. Split.
 
