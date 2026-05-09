@@ -1,0 +1,11 @@
+name: Notify marketplace
+on:
+  release:
+    types: [published]
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: folotp/claude-marketplace/.github/actions/notify-marketplace@main
+        with:
+          token: ${{ secrets.MARKETPLACE_DISPATCH_TOKEN }}
