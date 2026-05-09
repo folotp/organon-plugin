@@ -55,16 +55,16 @@ rel_path="${rel_path#./}"
 # disable the hook globally — direct edits to absorbed paths NOT listed in
 # the token are still blocked.
 if [[ -f "$TOKEN_FILE" ]]; then
-    if grep -v '^[[:space:]]*\(#\|$\)' "$TOKEN_FILE" 2>/dev/null \
-         | grep -Fxq "$rel_path"; then
+    if grep -v '^[[:space:]]*\(#\|$\)' "$TOKEN_FILE" 2>/dev/null |
+        grep -Fxq "$rel_path"; then
         echo "block-absorbed-edits.sh: edit allowed by .organon-resync-token for: $rel_path" >&2
         exit 0
     fi
 fi
 
 # Match against kepano-sync.json (.sections[].target_file).
-if [[ -f "$KEPANO_JSON" ]] && \
-   jq -e --arg p "$rel_path" '.sections[] | select(.target_file == $p)' \
+if [[ -f "$KEPANO_JSON" ]] &&
+    jq -e --arg p "$rel_path" '.sections[] | select(.target_file == $p)' \
         "$KEPANO_JSON" >/dev/null 2>&1; then
     cat >&2 <<EOF
 Blocked: $rel_path is an absorbed-kepano file tracked in kepano-sync.json.
@@ -91,8 +91,8 @@ fi
 # Note: sync-vault.sh hashes only the live vault file, not the plugin target,
 # so a direct edit here is silently invisible to the drift detector — making
 # the hook the *primary* protection for these files.
-if [[ -f "$VAULT_JSON" ]] && \
-   jq -e --arg p "$rel_path" '.entries[] | select(.target_file == $p)' \
+if [[ -f "$VAULT_JSON" ]] &&
+    jq -e --arg p "$rel_path" '.entries[] | select(.target_file == $p)' \
         "$VAULT_JSON" >/dev/null 2>&1; then
     cat >&2 <<EOF
 Blocked: $rel_path is an absorbed-vault file tracked in vault-sync.json.

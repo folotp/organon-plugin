@@ -28,9 +28,9 @@ MARKER="# managed-by: organon-plugin install-git-hooks.sh"
 MODE="install"
 for arg in "$@"; do
     case "$arg" in
-        --force)     MODE="install-force" ;;
+        --force) MODE="install-force" ;;
         --uninstall) MODE="uninstall" ;;
-        -h|--help)
+        -h | --help)
             sed -n '2,16p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
             exit 0
             ;;
@@ -60,7 +60,7 @@ if [[ -f "$HOOK_PATH" && "$MODE" != "install-force" ]]; then
     fi
 fi
 
-cat > "$HOOK_PATH" <<'HOOK'
+cat >"$HOOK_PATH" <<'HOOK'
 #!/usr/bin/env bash
 # managed-by: organon-plugin install-git-hooks.sh
 # pre-commit — drift gate + token-presence guard.

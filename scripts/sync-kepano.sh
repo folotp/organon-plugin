@@ -25,7 +25,7 @@ for arg in "$@"; do
     case "$arg" in
         --no-fetch) FETCH=0 ;;
         --json) EMIT_JSON=1 ;;
-        -h|--help)
+        -h | --help)
             sed -n '2,11p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
             exit 0
             ;;
@@ -128,12 +128,13 @@ extract_section() {
 extract_target_marker_body_kepano() {
     local target_file="$1"
     local kepano_skill="$2"
-    local section_path="$3"      # full path "skills/<kepano_skill>/<relpath>"
-    local section_heading="$4"   # "(full body)" | "(full file)" | "<heading>"
+    local section_path="$3"    # full path "skills/<kepano_skill>/<relpath>"
+    local section_heading="$4" # "(full body)" | "(full file)" | "<heading>"
     local relpath="${section_path#skills/"${kepano_skill}"/}"
     local search_key="${kepano_skill} ${relpath}"
 
-    local raw; raw="$(mktemp)"
+    local raw
+    raw="$(mktemp)"
     awk -v key="$search_key" '
         BEGIN { in_m = 0; skip_next = 0 }
         index($0, "<!-- KEPANO-BEGIN:") == 1 && index($0, key) > 0 {
@@ -145,7 +146,7 @@ extract_target_marker_body_kepano() {
             skip_next = 0
             print
         }
-    ' "$target_file" > "$raw"
+    ' "$target_file" >"$raw"
 
     case "$section_heading" in
         "(full body)")
@@ -154,8 +155,8 @@ extract_target_marker_body_kepano() {
             ;;
         "(full file)")
             # strip 1 leading + 1 trailing blank
-            awk 'NR==1 && /^$/ { next } { print }' "$raw" \
-              | awk '{ a[NR]=$0 } END { last=NR; if (a[last]=="") last--; for (i=1;i<=last;i++) print a[i] }'
+            awk 'NR==1 && /^$/ { next } { print }' "$raw" |
+                awk '{ a[NR]=$0 } END { last=NR; if (a[last]=="") last--; for (i=1;i<=last;i++) print a[i] }'
             ;;
         *)
             # section heading: strip 1 leading blank
@@ -167,8 +168,8 @@ extract_target_marker_body_kepano() {
 
 # --- Per-section drift check ------------------------------------------------
 
-REPORT_ROWS=()    # human-readable report rows
-JSON_ROWS=()      # JSON report rows
+REPORT_ROWS=() # human-readable report rows
+JSON_ROWS=()   # JSON report rows
 EXIT_DRIFT=0
 
 n_sections="$(jq '.sections | length' "$SYNC_JSON")"
@@ -193,20 +194,20 @@ for i in $(seq 0 $((n_sections - 1))); do
         body_file="$(mktemp)"
         case "$section_heading" in
             "(full body)")
-                extract_skill_body "$src_file" > "$body_file"
+                extract_skill_body "$src_file" >"$body_file"
                 ;;
             "(full file)")
-                cat "$src_file" > "$body_file"
+                cat "$src_file" >"$body_file"
                 ;;
             *)
-                extract_section "$src_file" "$section_heading" > "$body_file"
+                extract_section "$src_file" "$section_heading" >"$body_file"
                 ;;
         esac
 
         if [[ ! -s "$body_file" ]]; then
             detected_status="heading-removed"
         else
-            detected_sha256="$(sha256_of < "$body_file")"
+            detected_sha256="$(sha256_of <"$body_file")"
             if [[ "$detected_sha256" == "$stored_sha256" ]]; then
                 detected_status="in-sync"
             else
@@ -234,11 +235,11 @@ for i in $(seq 0 $((n_sections - 1))); do
         target_body_file="$(mktemp)"
         extract_target_marker_body_kepano \
             "$target_full_path" "$kepano_skill" "$section_path" "$section_heading" \
-            > "$target_body_file"
+            >"$target_body_file"
         if [[ ! -s "$target_body_file" ]]; then
             detected_target_status="target-marker-missing"
         else
-            detected_target_sha256="$(sha256_of < "$target_body_file")"
+            detected_target_sha256="$(sha256_of <"$target_body_file")"
             if [[ "$detected_target_sha256" == "$stored_sha256" ]]; then
                 detected_target_status="in-sync"
             else
@@ -296,7 +297,7 @@ else
     for row in "${REPORT_ROWS[@]}"; do
         # _sd / _tf: synced_at_date and target_file are stored in the
         # row but not surfaced in the text report.
-        IFS='|' read -r ks sp sh sa _sd st _tf <<< "$row"
+        IFS='|' read -r ks sp sh sa _sd st _tf <<<"$row"
         printf '  %-20s %-50s %-25s %-9s %-19s\n' \
             "$ks" "$sp" "$sh" "${sa:0:7}" "$st"
     done
