@@ -21,16 +21,18 @@ The script:
 3. For each entry, extracts the section body from upstream HEAD, hashes it, compares to the stored `body_sha256`.
 4. Prints a per-section status table.
 
-Possible statuses:
+Possible statuses (bilateral check since v0.6.x — both upstream-side and plugin-target-side are verified):
 
 | status | meaning |
 |---|---|
-| `in-sync` | upstream body matches the stored sha — no review needed |
-| `upstream-changed` | body differs — review and re-sync if appropriate |
+| `in-sync` | upstream body AND plugin target between markers both match stored sha — no review needed |
+| `upstream-changed` | upstream body differs from stored — review and re-sync if appropriate |
 | `heading-removed` | the section heading was renamed or removed upstream — manual investigation needed |
 | `upstream-file-missing` | the source file no longer exists upstream — manual investigation needed |
+| `target-corrupt` | upstream matches stored, but the plugin target body inside `<!-- KEPANO-* -->` markers diverges — implies a hand-edit bypassed the resync flow; restore from upstream cache |
+| `target-marker-missing` | upstream matches stored, but the BEGIN/END markers can't be located in the plugin target — markers were removed or corrupted, manual fix |
 
-Exit code is `0` when everything is `in-sync`, `1` if any drift is detected.
+Exit code is `0` when everything is `in-sync`, `1` if any drift is detected (either upstream-side or target-side).
 
 Useful flags:
 

@@ -96,6 +96,35 @@ extract_section_body() {
     ' "$file"
 }
 
+# Extract the absorbed body inside the matching <!-- VAULT-* --> markers of
+# the plugin target file. Skips the boilerplate "<!-- vault-sync: ... -->"
+# comment line that immediately follows BEGIN.
+#
+# The matching key is the vault_path substring on the BEGIN line. Within
+# any single target_file, each vault_path is unique (verified across
+# vault-sync.json), so substring match is sufficient.
+#
+# For vault entries, the raw between-markers bytes match the stored
+# body_sha256 directly (verified empirically across all 14 entries).
+# No further normalization is needed here. (Kepano targets need per-mode
+# trimming; that lives in sync-kepano.sh.)
+extract_target_marker_body_vault() {
+    local target_file="$1"
+    local vault_path="$2"
+    awk -v vp="$vault_path" '
+        BEGIN { in_m = 0; skip_next = 0 }
+        index($0, "<!-- VAULT-BEGIN:") == 1 && index($0, vp) > 0 {
+            if (!in_m) { in_m = 1; skip_next = 1; next }
+        }
+        in_m && index($0, "<!-- VAULT-END:") == 1 { exit }
+        in_m {
+            if (skip_next == 1 && $0 ~ /^<!-- vault-sync:.*-->$/) { skip_next = 0; next }
+            skip_next = 0
+            print
+        }
+    ' "$target_file"
+}
+
 # --- Per-entry drift check --------------------------------------------------
 
 REPORT_ROWS=()    # human-readable report rows
@@ -151,6 +180,42 @@ for i in $(seq 0 $((n_entries - 1))); do
         rm -f "$snapshot" "$body_file"
     fi
 
+    # --- Bilateral check: also hash the plugin target's between-markers
+    # body and compare to stored_sha256. Catches the silent-corruption
+    # case where the absorbed plugin copy is hand-edited (or otherwise
+    # diverges from the stored fingerprint) while the live vault still
+    # matches stored. The vault-side check above covers the inverse.
+    #
+    # Vault-side issues take priority: if vault is anything other than
+    # in-sync, the routing is to re-extract from vault — which will
+    # also overwrite the plugin target — so we report vault-side
+    # status. Only when vault is in-sync do we surface target-side
+    # statuses (target-corrupt, target-marker-missing, target-file-missing).
+    detected_target_sha256=""
+    detected_target_status="not-checked"
+    target_full_path="${REPO_ROOT}/${target_file}"
+    if [[ ! -f "$target_full_path" ]]; then
+        detected_target_status="target-file-missing"
+    else
+        target_body_file="$(mktemp)"
+        extract_target_marker_body_vault "$target_full_path" "$vault_path" > "$target_body_file"
+        if [[ ! -s "$target_body_file" ]]; then
+            detected_target_status="target-marker-missing"
+        else
+            detected_target_sha256="$(sha256_of < "$target_body_file")"
+            if [[ "$detected_target_sha256" == "$stored_sha256" ]]; then
+                detected_target_status="in-sync"
+            else
+                detected_target_status="target-corrupt"
+            fi
+        fi
+        rm -f "$target_body_file"
+    fi
+
+    if [[ "$detected_status" == "in-sync" && "$detected_target_status" != "in-sync" ]]; then
+        detected_status="$detected_target_status"
+    fi
+
     if [[ "$detected_status" != "in-sync" ]]; then
         EXIT_DRIFT=1
     fi
@@ -169,9 +234,11 @@ for i in $(seq 0 $((n_entries - 1))); do
         --arg sd "$synced_at_date" \
         --arg ss "$stored_sha256" \
         --arg ds "$detected_sha256" \
+        --arg dts "$detected_target_sha256" \
+        --arg dtss "$detected_target_status" \
         --arg st "$detected_status" \
         --arg tf "$target_file" \
-        '{vault_path:$vp,section_heading:$sh,extract_mode:$em,synced_at_date:$sd,stored_sha256:$ss,detected_sha256:$ds,detected_status:$st,target_file:$tf}')")
+        '{vault_path:$vp,section_heading:$sh,extract_mode:$em,synced_at_date:$sd,stored_sha256:$ss,detected_sha256:$ds,detected_target_sha256:$dts,detected_target_status:$dtss,detected_status:$st,target_file:$tf}')")
 done
 
 # --- Emit report ------------------------------------------------------------
@@ -200,9 +267,13 @@ else
     done
     echo
     if [[ "$EXIT_DRIFT" -eq 0 ]]; then
-        echo "✓ all entries in-sync"
+        echo "✓ all entries in-sync (vault-side AND plugin target verified)"
     else
         echo "drift detected — review and update absorbed content + body_sha256 + synced_at_date"
+        echo "  vault-side drift     → re-extract from vault, see /vault-resync"
+        echo "  target-corrupt       → plugin target was edited outside the resync flow;"
+        echo "                          re-extract from vault to restore"
+        echo "  target-marker-missing → markers in plugin target are unreachable; manual fix"
         echo "  workflow: see docs/syncing-vault.md"
     fi
 fi

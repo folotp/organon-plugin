@@ -37,16 +37,18 @@ The script:
 5. Hashes the extracted bytes, compares to stored `body_sha256`.
 6. Prints a per-entry status table.
 
-Possible statuses:
+Possible statuses (bilateral check since v0.6.x — both vault-side and plugin-target-side are verified):
 
 | status | meaning |
 |---|---|
-| `in-sync` | vault body matches the stored sha — no review needed |
-| `vault-changed` | body differs — review and re-sync if appropriate |
+| `in-sync` | vault body AND plugin target between markers both match stored sha — no review needed |
+| `vault-changed` | vault body differs from stored — review and re-sync if appropriate |
 | `section-missing` | the section heading was renamed or removed in the vault file — manual investigation needed |
 | `vault-file-missing` | the source file no longer exists in the vault — manual investigation needed |
+| `target-corrupt` | vault matches stored, but the plugin target body inside `<!-- VAULT-* -->` markers diverges — implies a hand-edit bypassed the resync flow; restore from vault |
+| `target-marker-missing` | vault matches stored, but the BEGIN/END markers can't be located in the plugin target — markers were removed or corrupted, manual fix |
 
-Exit code is `0` when everything is `in-sync`, `1` if any drift is detected.
+Exit code is `0` when everything is `in-sync`, `1` if any drift is detected (either vault-side or target-side).
 
 Useful flags:
 

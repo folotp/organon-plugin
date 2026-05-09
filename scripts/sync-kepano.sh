@@ -113,6 +113,58 @@ extract_section() {
     ' "$file"
 }
 
+# Extract the absorbed body inside the matching <!-- KEPANO-* --> markers
+# of the plugin target file, then apply per-mode normalization so the
+# resulting bytes match the upstream extract sha (stored body_sha256).
+#
+# Marker form: "<!-- KEPANO-BEGIN: <kepano_skill> <relpath> [§<heading>|(full body)] @sha:<short> -->"
+# The "skills/<kepano_skill>/" prefix from kepano_section_path is NOT in
+# the marker, so the search key is "<kepano_skill> <relpath_in_skill>".
+#
+# Per-mode normalization (empirically validated against all 9 entries):
+#   (full body)  → strip 1 trailing blank line.
+#   (full file)  → strip 1 leading + 1 trailing blank line.
+#   <heading>    → strip 1 leading blank line only.
+extract_target_marker_body_kepano() {
+    local target_file="$1"
+    local kepano_skill="$2"
+    local section_path="$3"      # full path "skills/<kepano_skill>/<relpath>"
+    local section_heading="$4"   # "(full body)" | "(full file)" | "<heading>"
+    local relpath="${section_path#skills/${kepano_skill}/}"
+    local search_key="${kepano_skill} ${relpath}"
+
+    local raw; raw="$(mktemp)"
+    awk -v key="$search_key" '
+        BEGIN { in_m = 0; skip_next = 0 }
+        index($0, "<!-- KEPANO-BEGIN:") == 1 && index($0, key) > 0 {
+            if (!in_m) { in_m = 1; skip_next = 1; next }
+        }
+        in_m && index($0, "<!-- KEPANO-END:") == 1 { exit }
+        in_m {
+            if (skip_next == 1 && $0 ~ /^<!-- kepano-sync:.*-->$/) { skip_next = 0; next }
+            skip_next = 0
+            print
+        }
+    ' "$target_file" > "$raw"
+
+    case "$section_heading" in
+        "(full body)")
+            # strip 1 trailing blank line
+            awk '{ a[NR]=$0 } END { last=NR; if (a[last]=="") last--; for (i=1;i<=last;i++) print a[i] }' "$raw"
+            ;;
+        "(full file)")
+            # strip 1 leading + 1 trailing blank
+            awk 'NR==1 && /^$/ { next } { print }' "$raw" \
+              | awk '{ a[NR]=$0 } END { last=NR; if (a[last]=="") last--; for (i=1;i<=last;i++) print a[i] }'
+            ;;
+        *)
+            # section heading: strip 1 leading blank
+            awk 'NR==1 && /^$/ { next } { print }' "$raw"
+            ;;
+    esac
+    rm -f "$raw"
+}
+
 # --- Per-section drift check ------------------------------------------------
 
 REPORT_ROWS=()    # human-readable report rows
@@ -165,6 +217,42 @@ for i in $(seq 0 $((n_sections - 1))); do
         rm -f "$body_file"
     fi
 
+    # --- Bilateral check: also hash the plugin target's between-markers
+    # body (per-mode normalized) and compare to stored_sha256. Catches
+    # silent corruption of the absorbed plugin copy. Upstream-side
+    # issues take priority — when upstream is anything other than
+    # in-sync, the resync flow re-extracts from upstream and overwrites
+    # the plugin target, so a target-corrupt finding would be
+    # redundant. Only when upstream is in-sync do we surface
+    # target-side statuses (target-corrupt, target-marker-missing,
+    # target-file-missing).
+    detected_target_sha256=""
+    detected_target_status="not-checked"
+    target_full_path="${REPO_ROOT}/${target_file}"
+    if [[ ! -f "$target_full_path" ]]; then
+        detected_target_status="target-file-missing"
+    else
+        target_body_file="$(mktemp)"
+        extract_target_marker_body_kepano \
+            "$target_full_path" "$kepano_skill" "$section_path" "$section_heading" \
+            > "$target_body_file"
+        if [[ ! -s "$target_body_file" ]]; then
+            detected_target_status="target-marker-missing"
+        else
+            detected_target_sha256="$(sha256_of < "$target_body_file")"
+            if [[ "$detected_target_sha256" == "$stored_sha256" ]]; then
+                detected_target_status="in-sync"
+            else
+                detected_target_status="target-corrupt"
+            fi
+        fi
+        rm -f "$target_body_file"
+    fi
+
+    if [[ "$detected_status" == "in-sync" && "$detected_target_status" != "in-sync" ]]; then
+        detected_status="$detected_target_status"
+    fi
+
     if [[ "$detected_status" != "in-sync" ]]; then
         EXIT_DRIFT=1
     fi
@@ -181,9 +269,11 @@ for i in $(seq 0 $((n_sections - 1))); do
         --arg sd "$synced_at_date" \
         --arg ss "$stored_sha256" \
         --arg ds "$detected_sha256" \
+        --arg dts "$detected_target_sha256" \
+        --arg dtss "$detected_target_status" \
         --arg st "$detected_status" \
         --arg tf "$target_file" \
-        '{kepano_skill:$ks,kepano_section_path:$sp,kepano_section_heading:$sh,synced_at_sha:$sa,synced_at_date:$sd,stored_sha256:$ss,detected_sha256:$ds,detected_status:$st,target_file:$tf}')")
+        '{kepano_skill:$ks,kepano_section_path:$sp,kepano_section_heading:$sh,synced_at_sha:$sa,synced_at_date:$sd,stored_sha256:$ss,detected_sha256:$ds,detected_target_sha256:$dts,detected_target_status:$dtss,detected_status:$st,target_file:$tf}')")
 done
 
 # --- Emit report ------------------------------------------------------------
@@ -211,9 +301,13 @@ else
     done
     echo
     if [[ "$EXIT_DRIFT" -eq 0 ]]; then
-        echo "✓ all sections in-sync"
+        echo "✓ all sections in-sync (upstream AND plugin target verified)"
     else
         echo "drift detected — review and update absorbed content + body_sha256 + synced_at_sha"
+        echo "  upstream-side drift   → re-absorb from upstream, see /kepano-resync"
+        echo "  target-corrupt        → plugin target was edited outside the resync flow;"
+        echo "                           re-absorb from upstream cache to restore"
+        echo "  target-marker-missing → markers in plugin target are unreachable; manual fix"
         echo "  workflow: see docs/syncing-kepano.md"
     fi
 fi

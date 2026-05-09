@@ -29,10 +29,12 @@ Not applicable when: the upstream repo's tag/branch policy itself changed (that'
 
 Status values and routing (full table in `references/RESOLUTION_CHECKLIST.md` §Statuses):
 
-- `in-sync` — no action.
-- `upstream-changed` — body differs ; review the upstream diff, decide whether to absorb, follow §Re-sync below.
+- `in-sync` — no action. Both upstream extract AND plugin target between markers match the stored sha (bilateral check, since v0.6.x).
+- `upstream-changed` — upstream body differs from stored ; review the upstream diff, decide whether to absorb, follow §Re-sync below.
 - `heading-removed` — section heading renamed/removed upstream ; routing in `references/RESOLUTION_CHECKLIST.md` §Heading rename.
 - `upstream-file-missing` — the source file is gone upstream ; manual investigation, escalate to PA.
+- `target-corrupt` — upstream matches stored, but the plugin target body inside `<!-- KEPANO-* -->` markers diverges from stored. Implies a hand-edit (or other tooling) bypassed the resync flow. Routing: re-absorb from upstream cache and overwrite the corrupted bytes (uses the same flow as `upstream-changed`, *without* bumping `synced_at_sha`).
+- `target-marker-missing` — upstream matches stored, but the BEGIN/END markers can't be located in the plugin target file. Manual fix: restore the marker pair before re-running.
 
 ## Re-sync flow (per drifted section)
 
