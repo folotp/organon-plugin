@@ -123,8 +123,8 @@
       "vault_path": "99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — domain.md",
       "section_heading": "Valeurs",
       "extract_mode": "section-body",
-      "synced_at_date": "2026-05-08",
-      "body_sha256": "ce960b83e14f48338d19235ac6a632a8dc6b4d03e5579c306309ca0beab36280",
+      "synced_at_date": "2026-05-09",
+      "body_sha256": "06adfb4e5c8807c844120094cd8fbf00316aeeb29a927dedeb2c9f83f465a1ac",
       "target_file": "skills/organon-frontmatter/references/VOCABULARIES.md",
       "target_section": "domain",
       "drift_status": "in-sync"
