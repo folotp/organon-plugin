@@ -2,6 +2,7 @@
 name: release-readiness
 description: Use this agent before invoking `/plugin-release` to run all the pre-flight gates listed in `skills/plugin-release/SKILL.md` §Pre-flight as a single read-only sweep. Trigger when the user asks to "check release readiness", "is this ready to release", or proactively at the start of a `/plugin-release` invocation. The agent runs `git status`, `./scripts/sync-kepano.sh`, `./scripts/sync-vault.sh`, and `python3 scripts/token-harness.py --no-write`, plus dispatches the `plugin-dev:plugin-validator` and `markdown-link-validator` agents. Reports one go/no-go verdict per gate with one-line diagnostics. Read-only — never bumps version, never commits, never tags. Distinguishes drift (rc=1, blocks release) from gate-unavailable (rc≥2, degraded confidence) per the same contract as `/organon-memory-audit`.
 tools: Bash, Read, Grep, Glob, Agent
+model: sonnet
 ---
 
 # release-readiness

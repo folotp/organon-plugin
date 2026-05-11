@@ -2,6 +2,7 @@
 name: kepano-drift-resolver
 description: Use this agent to resolve drift on a single section reported by `scripts/sync-kepano.sh` against the upstream `kepano/obsidian-skills` repo. Trigger when multiple sections drift and parallel resolution is wanted (fan-out one agent per drifted section), when the user asks to "resolve drift on X", or proactively after `sync-kepano.sh` exits 1 with more than one drifted entry. Each invocation operates on exactly one section identified by `kepano_section_path` + `kepano_section_heading`. The agent reads the cached upstream content, replaces the body inside the `<!-- KEPANO-* -->` markers in the target file, recomputes `body_sha256`, updates the entry in `kepano-sync.json`, and re-runs the script to confirm `in-sync`. It does NOT commit and does NOT decide to diverge — those are reviewer judgments routed to the user.
 tools: Read, Edit, Bash, Glob, Grep
+model: sonnet
 ---
 
 # kepano-drift-resolver

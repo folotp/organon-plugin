@@ -2,6 +2,7 @@
 name: markdown-link-validator
 description: Use this agent before invoking `/plugin-release`, when reviewing a PR that touches `skills/`, `commands/`, `docs/`, `.claude/agents/`, or `README.md`, or when renaming any of those files, to verify that every relative Markdown link and bare-path file mention still resolves. The agent walks the four documentation roots, extracts `[text](path)` links, bare path mentions like `scripts/hooks/foo.sh`, image references, and `[[wikilink]]`-style cross-skill references, then resolves each against the live filesystem. Reports `MATCH | DRIFT` per scope with one line per dead link. Read-only — never edits the source. Complement to `readme-inventory-checker` (which checks the public surface enumerated in README) — this one catches drift in the cross-references between SKILL.md, references/, command files, docs/, and agent definitions where a single rename silently rots the link. Run as Gate 6 in `release-readiness`, or ad-hoc after any rename.
 tools: Bash, Read, Grep, Glob
+model: haiku
 ---
 
 # markdown-link-validator
