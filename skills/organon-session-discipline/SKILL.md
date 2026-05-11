@@ -14,12 +14,12 @@ PA prefers arbitrage motivé over sur-clarification. Quand une décision est inf
 > **Bad** : « Veux-tu que je préserve la numérotation existante VLT-BUG-001…021 (3 chiffres) ou que je renumérote en 4 chiffres comme les nouveaux ? »
 > **Good** : « Je préserve VLT-BUG-001…021 en 3 chiffres (no-renumber per SD-ADR-008 §existing IDs) ; les nouveaux suivent 4 chiffres. Conteste si non. »
 
-## 2. Read bootstrap before writing artifacts — cache-aware
+## 2. Read bootstrap once per session, only when needed
 
-`[[AI Bootstrap]]` est canonique pour OS, naming, vault paths, system config, MCP wrapper version. Avant de drafter une fiche qui mentionne ces faits, **lire effectivement** le Bootstrap — mais via le cache projet si disponible et valide. Protocole détaillé (sha256 manifest, cache hit/miss, multi-artefact session memoization) : `references/BOOTSTRAP_CACHE.md`.
+`[[AI Bootstrap]]` est canonique pour la **topologie vault** : folder → note d'entrée par domaine, et pointers vers les domain bootstraps (`[[Finance Bootstrap]]`, `[[Home Automation Bootstrap]]`). Lire **une fois** par session quand un drafting nécessite ces faits ; mémoïser le résultat pour les artefacts suivants dans la même conversation. Le Bootstrap ne porte plus les system facts (OS, version MCP wrapper) ni les conventions générales — celles-ci vivent dans les surface instructions et la mémoire projet.
 
-> **Bad** : drafter une note disant « v0.4.5 » sans avoir lu le bootstrap pour confirmer la version exacte.
-> **Good** : vérifier manifeste sha256 → cache hit → charger `cache_ai_bootstrap.md` → confirme `mcp-tools-istefox v0.4.5` → drafte avec les valeurs lues. (Burnt 2026-04-28.)
+> **Bad** : re-fetch Bootstrap pour un 2e artefact dans la même session.
+> **Good** : « Bootstrap déjà lu, folder map en cache mental — j'enchaîne. »
 
 ## 3. No in-fiche redundancy
 
