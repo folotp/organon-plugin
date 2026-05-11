@@ -4,7 +4,7 @@ This is the source repo for the **organon** Claude Code plugin (`folotp/organon-
 
 ## Branch policy
 
-- **Never commit directly to `main`.** Required pattern: feature/release branch → PR → merge-commit. `Co-Authored-By` trailers are rejected. Recent merge commits (`3b4fb0e`, `468b2d6`) are the canonical examples.
+- **Never commit directly to `main`.** Required pattern: feature/release branch → PR → merge-commit. `Co-Authored-By` trailers are rejected. Recent merge commits (`612cf86`, `6fc7db1`) are the canonical examples.
 - The repo has `allow_merge_commit=true` set explicitly to support the merge-commit pattern.
 - Branch naming: `feat/`, `fix/`, `chore/`, `perf/`, `docs/` prefixes by intent.
 
@@ -28,7 +28,7 @@ The `plugin-release` skill (`/plugin-release`, user-invokable) is the runbook. C
 The plugin absorbs upstream content from two sources, both with `body_sha256` fingerprints:
 
 - **kepano** (`kepano/obsidian-skills`) — generic Obsidian syntax. Ledger: `kepano-sync.json`. Detector: `scripts/sync-kepano.sh`. Re-sync runbook: `kepano-resync` skill (`/kepano-resync`).
-- **Organon vault** (PA's local Obsidian vault) — frontmatter registre, vocabularies, methodologies. Ledger: `vault-sync.json`. Detector: `scripts/sync-vault.sh`. Re-sync runbook: `docs/syncing-vault.md` (no skill yet).
+- **Organon vault** (PA's local Obsidian vault) — frontmatter registre, vocabularies, methodologies. Ledger: `vault-sync.json`. Detector: `scripts/sync-vault.sh`. Re-sync runbook: `vault-resync` skill (`/vault-resync`).
 
 A **PreToolUse hook** (`scripts/hooks/block-absorbed-edits.sh`) blocks direct `Edit|Write|MultiEdit` on any file registered as a `target_file` in either ledger — direct edits invalidate the fingerprint silently. To update absorbed content, route through the re-sync flow.
 
@@ -44,6 +44,7 @@ A **SessionStart hook** runs both detectors with `--no-fetch` (kepano) for a pas
 | `skills/<name>/SKILL.md` | 11 skills total — 7 description-triggered, 4 user-only (`disable-model-invocation: true`). |
 | `skills/<name>/references/` | Lazy-loaded refs. Some absorbed (kepano/vault) with HTML markers, some Organon-owned. |
 | `skills/<name>/<agent>.md` | Skill-exclusive orchestrator agents co-located with their owning skill (4 total: `kepano-resync-orchestrator`, `vault-resync-orchestrator`, `memory-audit-executor`, `plugin-release-executor`). Symlinked from `.claude/agents/` for runtime discovery. |
+| `.claude/agents/*.md` | General-purpose plugin agents not tied to a single skill: `changelog-synthesizer`, `kepano-drift-resolver`, `markdown-link-validator`, `readme-inventory-checker`, `release-readiness`, `token-harness-regression`. |
 | `commands/<name>.md` | 4 slash-command wrappers (`/kepano-resync`, `/vault-resync`, `/plugin-release`, `/organon-memory-audit`). |
 | `scripts/sync-kepano.sh` | kepano drift detector (exit 0 = in-sync, 1 = drift, ≥2 = gate-unavailable). |
 | `scripts/sync-vault.sh` | vault drift detector (same exit semantics). |
@@ -58,7 +59,7 @@ If you need to update content in `skills/*/references/PROPERTIES.md`, `MARKDOWN_
 
 The legitimate paths:
 - **kepano-absorbed**: invoke `/kepano-resync` (or the `kepano-drift-resolver` subagent for fan-out across drifted sections).
-- **vault-absorbed**: invoke `/vault-resync` (since the v0.6.x flow fix), or follow `docs/syncing-vault.md` manually.
+- **vault-absorbed**: invoke `/vault-resync` (since the v0.6.x flow fix).
 - **Intentional de-absorption**: delete the `kepano-sync.json` / `vault-sync.json` entry first, then edit as Organon-owned content.
 
 ### Resync token (`.organon-resync-token`)
