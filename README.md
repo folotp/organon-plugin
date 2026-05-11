@@ -48,6 +48,19 @@ Drift detection: `./scripts/sync-vault.sh` compares stored `body_sha256` snapsho
 
 ## Changes since v0.1.0
 
+### v0.6.2 (sub-agent cost optimisation)
+
+- **Mechanical user-only skills now delegate to sonnet-pinned executor sub-agents instead of running inline on the main session.** The four `disable-model-invocation: true` skills with mechanical, deterministic runbooks (`plugin-release`, `kepano-resync`, `vault-resync`, `organon-memory-audit`) become thin shims that dispatch to a dedicated executor agent as their first and only action. The runbook bodies (~100–270 lines each) move from `SKILL.md` to `.claude/agents/<name>.md` verbatim — the cost reduction is the model swap, not a content rewrite. Frontmatter `name:` / `description:` / `disable-model-invocation: true` on the source skills is preserved byte-for-byte so trigger discovery, picker presence, and the slash-command wrappers continue to behave identically.
+- **Four new executor agents under `.claude/agents/`** (all `model: sonnet`, dev-time only, not advertised in description-triggered discovery):
+  - `plugin-release-executor` — post-pre-flight ship sequence (version bump, archive, tag, push, GitHub release).
+  - `kepano-resync-orchestrator` — full kepano re-sync runbook; fans out to `kepano-drift-resolver` per drifted section; owns the `.organon-resync-token` lifecycle.
+  - `vault-resync-orchestrator` — full vault re-sync runbook; owns the resync-token lifecycle for vault-absorbed paths.
+  - `memory-audit-executor` — read-only three-pole audit; emits structured four-bucket findings.
+- **Six existing agents now have explicit `model:` pins** — read-only auditors (`markdown-link-validator`, `readme-inventory-checker`, `release-readiness`, `token-harness-regression`) on `haiku`; editors/orchestrators (`kepano-drift-resolver`, `changelog-synthesizer`) on `sonnet`. Replaces the previous implicit "inherit from parent" default that billed at the parent session's model (typically opus).
+- **New PreToolUse routing hook** `scripts/hooks/enforce-skill-delegation.sh` (registered in `.claude/settings.json`, matcher `"Skill"`, timeout 5 s). When one of the four delegation-mandatory skills fires, emits a stdout reinforcement block naming the executor + agent file path so the model's next turn sees an explicit routing directive, plus a stderr audit line. Never blocks (exit 0) — hard-blocking the Skill tool would break the shim flow itself, since the shim still dispatches the executor via the Agent tool from inside the Skill turn. The hook is a third reinforcement on top of the shim's BLOCKING REQUIREMENT paragraph and the skill's `disable-model-invocation: true` frontmatter.
+- **Behavioural impact for end-users: none.** Same 11 skills, same 4 commands, same surface. The delegation is internal — visible only in `/agents` and in the per-skill billing trace. Trigger keywords, absorbed-content shas, and runbook semantics all unchanged.
+- Breaking: no — internal cost-optimisation refactor with no user-facing surface change.
+
 ### v0.6.1 (resync flow hardening + automation tooling)
 
 - **Resync flow now works end-to-end without bypass tricks.** A new `.organon-resync-token` file (gitignored, audit-logged via stderr) lets the model edit absorbed-content `target_file` paths under the supervision of the existing PreToolUse `block-absorbed-edits.sh` hook. Pre-commit refuses to commit while the token exists — silent leakage is impossible. Both `kepano-resync` and `vault-resync` skills, plus the `kepano-drift-resolver` subagent, document the lifecycle.
