@@ -2,6 +2,7 @@
 name: token-harness-regression
 description: Use this agent on a feature/perf/chore branch before merging to `main`, or proactively whenever a PR touches `skills/*/SKILL.md`, `skills/*/references/*.md`, or `scripts/token-harness.py`, to run the token harness in dry-run mode and compare the result against the most recent committed `eval-workspace/iteration-N/harness-output.json`. Reports per-session deltas plus the aggregate `mean_ratio` and `post_tokens_total` deltas, flagging any regression beyond a 5 % threshold (configurable). Read-only — never writes a new iteration directory, never bumps versions, never commits. Methodology: see `docs/token-harness-methodology.md`. Sibling to `release-readiness` Gate 5 but designed to run mid-branch (PR-time) rather than at the release pre-flight.
 tools: Bash, Read, Grep, Glob
+model: haiku
 ---
 
 # token-harness-regression

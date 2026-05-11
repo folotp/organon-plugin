@@ -7,6 +7,14 @@ description: Apply when producing a Mermaid, Excalidraw, JSON Canvas, or one-sho
 
 The canonical authority is `[[Diagramming conventions]]` in the vault ; this skill encodes its actionable rules. For JSON Canvas spec details, see `organon-canvas` (which bundles the absorbed kepano spec in `references/CANVAS_SPEC.md`). Generic Mermaid syntax (kepano-absorbed) lives in `references/MERMAID_SYNTAX.md` — load only when authoring a Mermaid block. Excalidraw `.excalidraw.md` skeleton lives in `references/EXCALIDRAW_SKELETON.md` — load only when persisting a connector drawing via the bridge. Edge cases → `get_vault_file('99 - Méta/AI/Diagramming conventions.md')`.
 
+> **Optional cost-saving routing**: If the user's request is purely "which diagram tool should I use for X?" — a pure tool-selection question with no further diagramming work — consider dispatching the `diagramming-router` sub-agent on sonnet:
+>
+> `Agent({ description: "Route diagram tool choice", subagent_type: "diagramming-router", prompt: "<user's question, vault context>" })`
+>
+> For requests that involve actually authoring the diagram, reviewing existing diagrams, or applying diagramming conventions, continue with this skill inline — that work needs the main model's judgment.
+>
+> (`diagramming-router` agent: planned but not yet implemented — for now, continue inline.)
+
 ## Tool-selection decision tree
 
 Apply in order — first match wins :
