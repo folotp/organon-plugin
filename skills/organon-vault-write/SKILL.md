@@ -1,6 +1,6 @@
 ---
 name: organon-vault-write
-description: Apply BEFORE any patch_vault_file, create_vault_file, append_to_vault_file, or execute_template call on the Organon vault (path contains `Organon`). MCP write discipline via mcp-tools-istefox 0.4.5+ — YAML quoting, frontmatter array semantics, tags shape, heading patch safety, NFC, Templater-first routing for structured shapes. Use every time a write op touches an Organon note.
+description: Use before any `patch_vault_file`, `create_vault_file`, `append_to_vault_file`, or `execute_template` call on the Organon vault (path contains `Organon`). MCP write discipline (mcp-tools-istefox ≥ 0.4.5): YAML quoting, frontmatter array semantics, tags shape, heading-patch safety, NFC normalisation, Templater-first routing for structured shapes.
 ---
 
 # organon-vault-write

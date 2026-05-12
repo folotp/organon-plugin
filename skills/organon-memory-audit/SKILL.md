@@ -1,6 +1,6 @@
 ---
 name: organon-memory-audit
-description: Three-pole drift audit over Organon-related memory and instruction stores — aligns plugin/skill/tool reality, the canonical-snippets vault note, and per-surface implementations (Settings → General, Cowork → Global, ~/.claude/CLAUDE.md, project CLAUDE.md, per-surface memory). Surface-aware (Code / Cowork / Chat). Two scope modes (--scope=global default / --scope=project[=<slug>] / --scope=all) and two interaction modes (--mode=interactive default / --mode=report-only). User-only — drifts and staleness are raised for human-in-the-loop approval; edits are never auto-applied. Run manually with `/organon-memory-audit` or as a scheduled Cowork routine / Code remote agent in --mode=report-only. Skipping the surface-detection probe and writing edits to paste-only stores (Settings → General, Cowork → Global) is the recurring failure mode this skill prevents.
+description: Three-pole drift audit over Organon-related memory and instruction stores. User-only (`/organon-memory-audit`). Surface-aware (Code/Cowork/Chat). Flags: `--scope=global|project|all`, `--mode=interactive|report-only`. Edits never auto-applied — drifts and staleness raised for human triage.
 disable-model-invocation: true
 allowed-tools:
   - Agent

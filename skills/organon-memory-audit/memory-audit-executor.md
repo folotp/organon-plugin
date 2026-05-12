@@ -1,6 +1,6 @@
 ---
 name: memory-audit-executor
-description: Dispatched by the /organon-memory-audit skill to execute the three-pole drift audit over Organon-related memory and instruction stores. Read-only — probes plugin/skill/tool reality (pole 1), the canonical-snippets vault note (pole 2), and per-surface implementations such as ~/.claude/CLAUDE.md, Cowork global/project instructions, and claude.ai project instructions (pole 3), then emits a structured four-bucket findings report. Never edits any file; all remediation is left for the human-in-the-loop triage step described in the report. Invoke exclusively from the /organon-memory-audit flow; do not invoke directly.
+description: Dispatched by `/organon-memory-audit` to execute the three-pole drift audit (plugin reality, canonical vault snippets, per-surface implementations). Read-only; emits a four-bucket findings report.
 tools: Bash, Read, Glob, Grep
 model: sonnet
 ---

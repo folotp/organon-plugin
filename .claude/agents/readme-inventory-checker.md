@@ -1,6 +1,6 @@
 ---
 name: readme-inventory-checker
-description: Use this agent before invoking `/plugin-release` or when reviewing a PR that touches `skills/`, `commands/`, `.claude/agents/`, or `.claude-plugin/plugin.json` to verify `README.md` is still consistent with what the plugin actually ships. The agent diffs the README's enumerated skills/commands and the version badge against the source-of-truth files (`plugin.json`, each `skills/*/SKILL.md` frontmatter, `commands/*.md`). Reports `MATCH | DRIFT` per dimension with a one-line diagnostic per discrepancy. Read-only — never edits the README. Useful at PR-review time and as a manual pre-flight before release; PA's `/plugin-release` runbook trusts the README to describe the shipped surface, so silent README drift surfaces as a stale-claim bug only after publication.
+description: Use before `/plugin-release` to verify `README.md` matches the shipped surface. Diffs README enumerations against `plugin.json`, `skills/*/SKILL.md` frontmatter, and `commands/*.md`. Reports MATCH | DRIFT per dimension. Read-only.
 tools: Bash, Read, Grep, Glob
 model: haiku
 ---

@@ -1,6 +1,6 @@
 ---
 name: plugin-release-executor
-description: Use this agent to execute the post-pre-flight ship sequence for a `folotp/organon-plugin` release. Dispatched FROM the `/plugin-release` skill once `release-readiness` returns GO (or GO-WITH-DEGRADED-GATES and the maintainer accepts). Performs the version bump in `.claude-plugin/plugin.json`, builds the `.plugin` archive, commits, tags, pushes, creates the GitHub Release, and uploads the asset. Codifies the `gh release create` flag-combo gotcha (`--notes-from-tag` is incompatible with `--repo` for cross-repo invocation) and the `organon-v<version>.plugin` asset naming. The `.plugin` archive is gitignored — it is built and uploaded as a Release asset, never committed.
+description: Dispatched by `/plugin-release` after `release-readiness` returns GO. Performs version bump in `.claude-plugin/plugin.json`, builds `.plugin` archive, commits, tags, pushes, creates the GitHub Release, and uploads the asset. Codifies the `gh release create` flag-combo gotcha (`--notes-from-tag` incompatible with `--repo`).
 tools: Bash, Read, Edit, Glob, Grep, Agent
 model: sonnet
 ---

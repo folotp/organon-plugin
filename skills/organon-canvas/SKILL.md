@@ -1,6 +1,6 @@
 ---
 name: organon-canvas
-description: Apply when creating or editing a JSON Canvas (`.canvas`) file in the Organon vault (path contains `Organon`). Purpose discriminator (cartography of *existing* vault notes — sketches go to Excalidraw instead), placement beside the domain the canvas serves, file-node `file:` paths must resolve via Obsidian's filename-based wiki resolution, language by folder for labels and group titles.
+description: Use when editing a JSON Canvas (`.canvas`) file in the Organon vault (path contains `Organon`). Cartography of existing vault notes (sketches go to Excalidraw instead). File-node `file:` paths resolve via Obsidian's filename-based wiki resolution. Language-by-folder applies to labels and group titles.
 ---
 
 # organon-canvas
