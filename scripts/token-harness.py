@@ -49,7 +49,7 @@ ENCODING = tiktoken.get_encoding("cl100k_base")
 # lazy post) vs. which are Organon-specific (lazy in both eras).
 # ---------------------------------------------------------------------------
 
-SKILLS: dict[str, dict[str, list[str]]] = {
+SKILLS: dict[str, dict[str, list[str] | str | None]] = {
     "organon-frontmatter": {
         "core": ["SKILL.md"],
         "absorbed_refs": ["references/PROPERTIES.md"],
@@ -58,11 +58,13 @@ SKILLS: dict[str, dict[str, list[str]]] = {
             "references/VOCABULARIES.md",
             "references/SHAPES_QUICKREF.md",
         ],
+        "dispatch_to": None,
     },
     "organon-vault-write": {
         "core": ["SKILL.md"],
         "absorbed_refs": [],
         "own_refs": [],
+        "dispatch_to": None,
     },
     "organon-markdown-style": {
         "core": ["SKILL.md"],
@@ -72,16 +74,22 @@ SKILLS: dict[str, dict[str, list[str]]] = {
             "references/EMBEDS.md",
         ],
         "own_refs": [],
+        "dispatch_to": None,
     },
     "organon-bases": {
+        # v1.0.0: dispatch shim. SKILL.md is a 1.6 kB router; the full
+        # author runbook + the absorbed refs are loaded by the sonnet
+        # sub-agent, not by the main session.
         "core": ["SKILL.md"],
         "absorbed_refs": [
             "references/BASES_SYNTAX.md",
             "references/FUNCTIONS_REFERENCE.md",
         ],
         "own_refs": [],
+        "dispatch_to": "bases-author",
     },
     "organon-canvas": {
+        # v1.0.0: dispatch shim.
         "core": ["SKILL.md"],
         "absorbed_refs": [
             "references/CANVAS_SPEC.md",
@@ -91,6 +99,7 @@ SKILLS: dict[str, dict[str, list[str]]] = {
         "own_refs": [
             "references/LABEL_TRANSLATIONS.md",
         ],
+        "dispatch_to": "canvas-author",
     },
     "organon-diagramming": {
         # MERMAID_SYNTAX (kepano-absorbed) and EXCALIDRAW_SKELETON
@@ -102,14 +111,14 @@ SKILLS: dict[str, dict[str, list[str]]] = {
         "own_refs": [
             "references/EXCALIDRAW_SKELETON.md",
         ],
+        "dispatch_to": None,
     },
     "organon-session-discipline": {
+        # BOOTSTRAP_CACHE retired in v0.8.0.
         "core": ["SKILL.md"],
         "absorbed_refs": [],
-        # BOOTSTRAP_CACHE split out from core in v0.6.0 (perf trim).
-        "own_refs": [
-            "references/BOOTSTRAP_CACHE.md",
-        ],
+        "own_refs": [],
+        "dispatch_to": None,
     },
 }
 
@@ -141,7 +150,6 @@ SESSIONS: list[dict] = [
             ("organon-frontmatter", "references/PROPERTIES.md"),
             ("organon-frontmatter", "references/VOCABULARIES.md"),
             ("organon-frontmatter", "references/SHAPES_QUICKREF.md"),
-            ("organon-session-discipline", "references/BOOTSTRAP_CACHE.md"),
         ],
     },
     {
@@ -187,7 +195,6 @@ SESSIONS: list[dict] = [
             ("organon-frontmatter", "references/PROPERTIES.md"),
             ("organon-frontmatter", "references/VOCABULARIES.md"),
             ("organon-frontmatter", "references/SHAPES_QUICKREF.md"),
-            ("organon-session-discipline", "references/BOOTSTRAP_CACHE.md"),
         ],
     },
     {
@@ -238,7 +245,16 @@ def skill_path(skill: str, rel: str) -> Path:
 
 
 def session_costs(session: dict, token_cache: dict[Path, int]) -> dict:
-    """Return per-session pre/post tokens and the file lists used."""
+    """Return per-session pre/post tokens and the file lists used.
+
+    `pre_tokens`: cascade-eager era (every absorbed ref loaded with the SKILL).
+    `post_tokens`: v0.4.0+ lazy-load era, MAIN-CONTEXT only.
+
+    For skills with `dispatch_to` set (v1.0.0+), only the SKILL.md shim
+    is loaded into the main session; the author sub-agent picks up the
+    referenced bodies in its own context (counted under
+    `subagent_tokens` for visibility but not against post_tokens).
+    """
 
     def cached(p: Path) -> int:
         if p not in token_cache:
@@ -247,13 +263,15 @@ def session_costs(session: dict, token_cache: dict[Path, int]) -> dict:
 
     pre_files: list[tuple[str, int]] = []
     post_files: list[tuple[str, int]] = []
+    subagent_files: list[tuple[str, int]] = []
 
     needs_set = {(s, r) for (s, r) in session["needs"]}
 
     for skill in session["skills"]:
         spec = SKILLS[skill]
+        dispatches = spec.get("dispatch_to") is not None
 
-        # Core: always loaded in both eras.
+        # Core: always loaded in both eras (SKILL.md, dispatch shim or full body).
         for rel in spec["core"]:
             p = skill_path(skill, rel)
             t = cached(p)
@@ -261,12 +279,16 @@ def session_costs(session: dict, token_cache: dict[Path, int]) -> dict:
             post_files.append((str(p.relative_to(REPO_ROOT)), t))
 
         # absorbed_refs: eager pre, lazy post.
+        # If the skill dispatches, refs go to sub-agent context, not main.
         for rel in spec["absorbed_refs"]:
             p = skill_path(skill, rel)
             t = cached(p)
             pre_files.append((str(p.relative_to(REPO_ROOT)), t))
             if (skill, rel) in needs_set:
-                post_files.append((str(p.relative_to(REPO_ROOT)), t))
+                if dispatches:
+                    subagent_files.append((str(p.relative_to(REPO_ROOT)), t))
+                else:
+                    post_files.append((str(p.relative_to(REPO_ROOT)), t))
 
         # own_refs: lazy in both eras.
         for rel in spec["own_refs"]:
@@ -274,10 +296,23 @@ def session_costs(session: dict, token_cache: dict[Path, int]) -> dict:
             t = cached(p)
             if (skill, rel) in needs_set:
                 pre_files.append((str(p.relative_to(REPO_ROOT)), t))
-                post_files.append((str(p.relative_to(REPO_ROOT)), t))
+                if dispatches:
+                    subagent_files.append((str(p.relative_to(REPO_ROOT)), t))
+                else:
+                    post_files.append((str(p.relative_to(REPO_ROOT)), t))
+
+        # If the skill dispatches, count the sub-agent's body too.
+        if dispatches:
+            agent_path = SKILLS_DIR / skill / f"{spec['dispatch_to']}.md"
+            if agent_path.is_file():
+                t = cached(agent_path)
+                subagent_files.append(
+                    (str(agent_path.relative_to(REPO_ROOT)), t)
+                )
 
     pre_tokens = sum(t for _, t in pre_files)
     post_tokens = sum(t for _, t in post_files)
+    subagent_tokens = sum(t for _, t in subagent_files)
     ratio = pre_tokens / post_tokens if post_tokens > 0 else float("inf")
 
     return {
@@ -286,9 +321,11 @@ def session_costs(session: dict, token_cache: dict[Path, int]) -> dict:
         "skills": session["skills"],
         "pre_tokens": pre_tokens,
         "post_tokens": post_tokens,
+        "subagent_tokens": subagent_tokens,
         "ratio": round(ratio, 3),
         "pre_files": pre_files,
         "post_files": post_files,
+        "subagent_files": subagent_files,
     }
 
 
@@ -310,8 +347,8 @@ def auto_iteration() -> int:
 
 
 def render_table(rows: list[dict]) -> str:
-    cols = ("id", "name", "pre_tokens", "post_tokens", "ratio")
-    headers = ("ID", "Session shape", "pre_tok", "post_tok", "ratio")
+    cols = ("id", "name", "pre_tokens", "post_tokens", "subagent_tokens", "ratio")
+    headers = ("ID", "Session shape", "pre_tok", "post_tok", "sub_tok", "ratio")
     widths = [len(h) for h in headers]
     for r in rows:
         for i, c in enumerate(cols):
@@ -373,17 +410,21 @@ def main() -> int:
 
     pre_total = sum(r["pre_tokens"] for r in rows)
     post_total = sum(r["post_tokens"] for r in rows)
+    subagent_total = sum(r["subagent_tokens"] for r in rows)
     aggregate_ratio = round(pre_total / post_total, 3)
 
     print(f"# Token harness — iteration {iteration}\n")
     print(render_table(rows))
     print()
-    print(f"mean(ratio)      = {mean_ratio}")
-    print(f"median(ratio)    = {median_ratio}")
-    print(f"p90(ratio)       = {p90_ratio}")
-    print(f"aggregate ratio  = {aggregate_ratio}  ({pre_total} / {post_total})")
-    print(f"target           = ≥ 2.15× (B4-complet)")
-    print(f"verdict          = {verdict(mean_ratio)}")
+    print(f"mean(ratio)         = {mean_ratio}")
+    print(f"median(ratio)       = {median_ratio}")
+    print(f"p90(ratio)          = {p90_ratio}")
+    print(f"aggregate ratio     = {aggregate_ratio}  ({pre_total} / {post_total})")
+    print(f"pre tokens (cascade)= {pre_total}")
+    print(f"post tokens (main)  = {post_total}   ← main opus session cost")
+    print(f"sub-agent tokens    = {subagent_total}   ← dispatched to sonnet/haiku, separate context")
+    print(f"target              = ≥ 2.15× (B4-complet)")
+    print(f"verdict             = {verdict(mean_ratio)}")
 
     if args.no_write:
         return 0
@@ -400,6 +441,7 @@ def main() -> int:
             "aggregate_ratio": aggregate_ratio,
             "pre_tokens_total": pre_total,
             "post_tokens_total": post_total,
+            "subagent_tokens_total": subagent_total,
             "target": 2.15,
             "verdict": verdict(mean_ratio),
         },
