@@ -1,6 +1,6 @@
 ---
 name: plugin-release
-description: Cut a new release of the organon plugin — bump `version` in `.claude-plugin/plugin.json`, package the `.plugin` archive (zip), tag the commit, create a GitHub Release on `folotp/organon-plugin`, and upload the `.plugin` as a Release asset (since v0.4.0 the asset is the distribution channel — the gitignored `.plugin` is *not* committed). User-only — pushes tags, creates Releases, uploads assets. Codifies the `gh release create` flag-combo gotcha (`--notes-from-tag` is incompatible with `--repo` for cross-repo invocation) and the `organon-v<version>.plugin` asset naming. Use this skill EVERY TIME a new release is being cut — silent failure modes are committing the `.plugin` archive (gitignored, breaks cleanly), forgetting to upload the asset (Release exists but is empty), and the gh CLI flag-combo trap (cryptic error from gh).
+description: Cut a new release of the organon plugin. User-only (`/plugin-release`). Dispatches to `plugin-release-executor` which bumps `version` in `.claude-plugin/plugin.json`, packages the `.plugin` archive, tags, pushes, creates the GitHub Release, and uploads the asset.
 disable-model-invocation: true
 allowed-tools:
   - Agent

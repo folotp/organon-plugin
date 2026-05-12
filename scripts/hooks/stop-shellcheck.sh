@@ -2,7 +2,7 @@
 # stop-shellcheck.sh — Stop hook. Lints any modified bash script under
 # scripts/ at session end and prints findings to stderr (non-blocking).
 #
-# Why: scripts/ holds 7 bash files (sync-kepano.sh, sync-vault.sh, hooks/*.sh)
+# Why: scripts/ holds several bash files (kepano-check-upstream.sh, hooks/*.sh)
 # whose correctness underwrites release safety. A quoting or POSIX-portability
 # regression here is silent until a release attempt fails. Shellcheck at session
 # end catches it before the diff lands in a PR.

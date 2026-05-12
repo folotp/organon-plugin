@@ -2,7 +2,7 @@
 
 The skill renders this skeleton inline in the conversation. Do not write the report to a file unless PA explicitly asks — the conversation is the persistence.
 
-The `Stable run hash` in the header is the sha256 of the concatenation `(plugin.json content + kepano-sync.json content + vault-sync.json content + canonical vault note body + companion matrix body)`. Two consecutive runs with the same hash means pole 1 + pole 2 are unchanged — useful for scheduled runs (PA can scan the hash to know whether anything moved).
+The `Stable run hash` is the sha256 of the concatenation `(plugin.json content + kepano-version.txt content + canonical vault note body + companion matrix body)`. Two consecutive runs with the same hash means pole 1 + pole 2 are unchanged.
 
 ```markdown
 # Organon memory & instructions audit — <YYYY-MM-DD HH:MM>
@@ -13,7 +13,7 @@ The `Stable run hash` in the header is the sha256 of the concatenation `(plugin.
 - Mode: <interactive | report-only>
 - Plugin source: <readable at <path> | inferred from harness skill list>
 - Canonical vault note: <read at <vault path> | not reachable (no MCP) | paste-driven>
-- Integrity gate: <kepano-sync exit 0, vault-sync exit 0 | DRIFT — see Bucket 0>
+- Integrity gate: <kepano-sync exit 0 | DRIFT — see Bucket 0>
 
 ## Sources of truth
 - Plugin v<X.Y.Z> @ <git short SHA> (<commit date>)
@@ -21,7 +21,6 @@ The `Stable run hash` in the header is the sha256 of the concatenation `(plugin.
 - Commands (<N>): <comma-separated names>
 - MCP server floor: mcp-tools-istefox >= <X.Y.Z>
 - kepano-sync: <N>/<N> in-sync (or list drifted sections with their drift_status)
-- vault-sync: <N>/<N> in-sync (or list drifted entries)
 - Canonical snippets last synced: <date from each per-surface bloc>
 - Stable run hash: <sha256 short>
 
@@ -31,10 +30,10 @@ The `Stable run hash` in the header is the sha256 of the concatenation `(plugin.
 
 For each drifted entry:
 
-- **Source**: kepano-sync | vault-sync
+- **Source**: kepano-sync
 - **Section**: <name>
-- **Status**: <upstream-changed | heading-removed | vault-changed | section-missing | vault-file-missing>
-- **Routing**: Run /kepano-resync | Follow docs/syncing-vault.md
+- **Status**: <upstream-changed | heading-removed | section-missing>
+- **Routing**: docs/refreshing-kepano.md
 - **Why**: pole 1 must be self-consistent before pole 3 can be audited against it.
 
 If Bucket 0 is non-empty, the audit halts here. PA fixes pole-1 drift first, then re-runs.

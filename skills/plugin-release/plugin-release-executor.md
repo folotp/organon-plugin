@@ -1,6 +1,6 @@
 ---
 name: plugin-release-executor
-description: Use this agent to execute the post-pre-flight ship sequence for a `folotp/organon-plugin` release. Dispatched FROM the `/plugin-release` skill once `release-readiness` returns GO (or GO-WITH-DEGRADED-GATES and the maintainer accepts). Performs the version bump in `.claude-plugin/plugin.json`, builds the `.plugin` archive, commits, tags, pushes, creates the GitHub Release, and uploads the asset. Codifies the `gh release create` flag-combo gotcha (`--notes-from-tag` is incompatible with `--repo` for cross-repo invocation) and the `organon-v<version>.plugin` asset naming. The `.plugin` archive is gitignored — it is built and uploaded as a Release asset, never committed.
+description: Dispatched by `/plugin-release` after `release-readiness` returns GO. Performs version bump in `.claude-plugin/plugin.json`, builds `.plugin` archive, commits, tags, pushes, creates the GitHub Release, and uploads the asset. Codifies the `gh release create` flag-combo gotcha (`--notes-from-tag` incompatible with `--repo`).
 tools: Bash, Read, Edit, Glob, Grep, Agent
 model: sonnet
 ---
@@ -20,7 +20,7 @@ Run, in order, and stop on the first failure:
    git rev-parse --abbrev-ref HEAD
    ```
 
-2. **Drift is resolved**: `./scripts/sync-kepano.sh` exits 0. If drift exists, route through `kepano-resync` first or document the divergence (see `kepano-resync` §Divergence) — don't ship a release with unacknowledged drift.
+2. **Kepano pin is in-sync**: `./scripts/kepano-check-upstream.sh` exits 0. If upstream has advanced (rc=1), either refresh per `docs/refreshing-kepano.md` first, or accept the divergence consciously — don't ship a release without checking.
 
 3. **Plugin validates**: invoke the `plugin-dev:plugin-validator` agent against the repo. Failures here ship in the asset — catch them now.
 
@@ -50,7 +50,7 @@ bash skills/plugin-release/scripts/package.sh
 ls -la organon-v*.plugin
 ```
 
-The archive must contain at minimum: `.claude-plugin/plugin.json`, `skills/**`, `scripts/**`, `docs/**`, `README.md`, `kepano-sync.json`. It must *not* contain: `.git/`, `eval-workspace*/`, `evals/iteration-*/`, `__pycache__/`, `.DS_Store`, prior `*.plugin`/`*.skill` archives. Verify:
+The archive must contain at minimum: `.claude-plugin/plugin.json`, `skills/**`, `scripts/**`, `docs/**`, `README.md`, `kepano-version.txt`. It must *not* contain: `.git/`, `eval-workspace*/`, `evals/iteration-*/`, `__pycache__/`, `.DS_Store`, prior `*.plugin`/`*.skill` archives. Verify:
 
 ```bash
 unzip -l organon-v<version>.plugin | grep -E '(eval-workspace|__pycache__|\.DS_Store|\.git/)'

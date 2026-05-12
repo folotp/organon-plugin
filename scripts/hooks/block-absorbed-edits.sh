@@ -1,29 +1,32 @@
 #!/usr/bin/env bash
 # block-absorbed-edits.sh — PreToolUse hook for Edit|Write|MultiEdit.
 #
-# Blocks direct edits to files registered as `target_file` entries in EITHER:
-#   - kepano-sync.json (.sections[].target_file) — content absorbed from
-#     upstream kepano/obsidian-skills.
-#   - vault-sync.json (.entries[].target_file) — content absorbed from the
-#     local Organon vault registres + vocabulaires.
+# Blocks direct edits to the 9 kepano-absorbed references. The plugin pins
+# one upstream sha for kepano/obsidian-skills in kepano-version.txt; the
+# refresh path is documented in docs/refreshing-kepano.md and involves
+# updating these files alongside a sha bump. Casual edits to them silently
+# drift the plugin from its declared upstream pin.
 #
-# Direct edits silently invalidate the body_sha256 fingerprint and produce
-# false drift on the next scripts/sync-*.sh run (or, worse for vault-sync,
-# go undetected because sync-vault.sh hashes only the live vault file, not
-# the plugin target).
-#
-# To resolve drift legitimately, route through the appropriate workflow:
-#   - kepano: kepano-resync skill or kepano-drift-resolver subagent.
-#   - vault:  manual re-sync per docs/syncing-vault.md (no skill yet).
+# The 9 paths are hardcoded — there is no per-file ledger after v1.0.0.
 #
 # Reads the hook event JSON from stdin. Exit 2 = block (stderr shown to model).
 
 set -euo pipefail
 
 REPO_ROOT="${CLAUDE_PROJECT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
-KEPANO_JSON="${REPO_ROOT}/kepano-sync.json"
-VAULT_JSON="${REPO_ROOT}/vault-sync.json"
 TOKEN_FILE="${REPO_ROOT}/.organon-resync-token"
+
+ABSORBED_PATHS=(
+    "skills/organon-bases/references/BASES_SYNTAX.md"
+    "skills/organon-bases/references/FUNCTIONS_REFERENCE.md"
+    "skills/organon-canvas/references/CANVAS_SPEC.md"
+    "skills/organon-canvas/references/EXAMPLES.md"
+    "skills/organon-diagramming/references/MERMAID_SYNTAX.md"
+    "skills/organon-frontmatter/references/PROPERTIES.md"
+    "skills/organon-markdown-style/references/CALLOUTS.md"
+    "skills/organon-markdown-style/references/EMBEDS.md"
+    "skills/organon-markdown-style/references/MARKDOWN_SYNTAX.md"
+)
 
 command -v jq >/dev/null 2>&1 || exit 0
 
@@ -31,29 +34,12 @@ input="$(cat)"
 file_path="$(printf '%s' "$input" | jq -r '.tool_input.file_path // empty')"
 [[ -n "$file_path" ]] || exit 0
 
-# Normalize: strip the repo root prefix if present, then strip a leading ./
-# so we compare in the same space as the relative `target_file` paths in
-# the sync JSONs (which never carry a ./ prefix). Both kepano and vault
-# matching depend on this canonical form.
 rel_path="${file_path#"${REPO_ROOT}"/}"
 rel_path="${rel_path#./}"
 
-# Scoped-token bypass for legitimate re-sync flows.
-#
-# The kepano-resync and vault-resync skills (and the kepano-drift-resolver
-# subagent) need to write inside <!-- KEPANO/VAULT-* --> markers on absorbed
-# target files. The legitimate flow drops a .organon-resync-token file at
-# repo root listing the rel_paths it intends to edit — one per line; blank
-# lines and # comments tolerated. If the requested rel_path appears, the
-# hook allows the edit and emits an audit line to stderr.
-#
-# The pre-commit hook refuses to commit while the token exists, so a leaked
-# token can't slip into history. The token is .gitignored.
-#
-# This bypass is scoped (specific paths only), auditable (stderr per call),
-# and short-lived (skill removes it after the edit batch). It does NOT
-# disable the hook globally — direct edits to absorbed paths NOT listed in
-# the token are still blocked.
+# Scoped-token bypass for kepano refresh flows. Drop a .organon-resync-token
+# at repo root listing the rel_paths to edit (one per line). The pre-commit
+# hook refuses to commit while the token exists, so leakage is impossible.
 if [[ -f "$TOKEN_FILE" ]]; then
     if grep -v '^[[:space:]]*\(#\|$\)' "$TOKEN_FILE" 2>/dev/null |
         grep -Fxq "$rel_path"; then
@@ -62,61 +48,22 @@ if [[ -f "$TOKEN_FILE" ]]; then
     fi
 fi
 
-# Match against kepano-sync.json (.sections[].target_file).
-if [[ -f "$KEPANO_JSON" ]] &&
-    jq -e --arg p "$rel_path" '.sections[] | select(.target_file == $p)' \
-        "$KEPANO_JSON" >/dev/null 2>&1; then
-    cat >&2 <<EOF
-Blocked: $rel_path is an absorbed-kepano file tracked in kepano-sync.json.
+for absorbed in "${ABSORBED_PATHS[@]}"; do
+    if [[ "$rel_path" == "$absorbed" ]]; then
+        cat >&2 <<EOF
+Blocked: $rel_path is a kepano-absorbed reference pinned to
+kepano/obsidian-skills@\$(cat kepano-version.txt).
 
-Direct edits invalidate the body_sha256 fingerprint and produce false drift
-on the next scripts/sync-kepano.sh run.
+Direct edits drift the file from its declared upstream pin. To refresh
+this content correctly, follow docs/refreshing-kepano.md: bump
+kepano-version.txt to the new upstream sha and rewrite the affected
+references in the same commit.
 
-To update absorbed content correctly, route through:
-  - the kepano-resync skill (user-invokable: /kepano-resync), OR
-  - the kepano-drift-resolver subagent for fan-out across multiple sections.
-
-If you intend to remove the file from kepano absorption (intentional
-de-absorption), delete the kepano-sync.json entry first, then edit the
-file as Organon-owned content.
-
-For a legitimate re-sync via the kepano-resync skill, drop a one-line
-.organon-resync-token at repo root scoping this path before editing.
-The skill body documents the lifecycle.
+For a scoped edit under the refresh flow, drop a .organon-resync-token
+at repo root listing this path before editing.
 EOF
-    exit 2
-fi
-
-# Match against vault-sync.json (.entries[].target_file).
-# Note: sync-vault.sh hashes only the live vault file, not the plugin target,
-# so a direct edit here is silently invisible to the drift detector — making
-# the hook the *primary* protection for these files.
-if [[ -f "$VAULT_JSON" ]] &&
-    jq -e --arg p "$rel_path" '.entries[] | select(.target_file == $p)' \
-        "$VAULT_JSON" >/dev/null 2>&1; then
-    cat >&2 <<EOF
-Blocked: $rel_path is an absorbed-vault file tracked in vault-sync.json.
-
-Direct edits invalidate the body_sha256 fingerprint AND go undetected by
-scripts/sync-vault.sh (which hashes the live vault file only, not the
-plugin target). Silent divergence from both vault and stored fingerprint.
-
-To update absorbed content correctly, route through the manual re-sync
-workflow:
-  - docs/syncing-vault.md — step-by-step procedure
-  - re-extract from the vault source listed in the entry's vault_path
-  - update body_sha256 and synced_at_date in vault-sync.json
-  - re-run scripts/sync-vault.sh — must report in-sync
-
-If you intend to remove the file from vault absorption (intentional
-de-absorption), delete the vault-sync.json entry first, then edit the
-file as Organon-owned content.
-
-For a legitimate re-sync via the vault-resync skill, drop a one-line
-.organon-resync-token at repo root scoping this path before editing.
-The skill body documents the lifecycle.
-EOF
-    exit 2
-fi
+        exit 2
+    fi
+done
 
 exit 0

@@ -1,338 +1,78 @@
 # Canvas Examples — Absorbed from kepano
 
-Verbatim copy of kepano `obsidian-skills` `skills/json-canvas/references/EXAMPLES.md`. See `kepano-sync.json` for sync metadata and `scripts/sync-kepano.sh` for the re-sync workflow.
+Adapted from kepano/obsidian-skills@fa1e131. See docs/refreshing-kepano.md.
 
-<!-- KEPANO-BEGIN: json-canvas references/EXAMPLES.md @sha:fa1e131 -->
 <!-- kepano-sync: see kepano-sync.json for body_sha256 + drift status -->
 
-# JSON Canvas Complete Examples
-
-## Simple Canvas with Text and Connections
+## Text and Edges (Simple Hub)
 
 ```json
 {
   "nodes": [
-    {
-      "id": "8a9b0c1d2e3f4a5b",
-      "type": "text",
-      "x": 0,
-      "y": 0,
-      "width": 300,
-      "height": 150,
-      "text": "# Main Idea\n\nThis is the central concept."
-    },
-    {
-      "id": "1a2b3c4d5e6f7a8b",
-      "type": "text",
-      "x": 400,
-      "y": -100,
-      "width": 250,
-      "height": 100,
-      "text": "## Supporting Point A\n\nDetails here."
-    },
-    {
-      "id": "2b3c4d5e6f7a8b9c",
-      "type": "text",
-      "x": 400,
-      "y": 100,
-      "width": 250,
-      "height": 100,
-      "text": "## Supporting Point B\n\nMore details."
-    }
+    { "id": "n1", "type": "text", "x": 0, "y": 0, "width": 300, "height": 100, "text": "Core idea" },
+    { "id": "n2", "type": "text", "x": 400, "y": -80, "width": 200, "height": 60, "text": "Point A" },
+    { "id": "n3", "type": "text", "x": 400, "y": 80, "width": 200, "height": 60, "text": "Point B" }
   ],
   "edges": [
-    {
-      "id": "3c4d5e6f7a8b9c0d",
-      "fromNode": "8a9b0c1d2e3f4a5b",
-      "fromSide": "right",
-      "toNode": "1a2b3c4d5e6f7a8b",
-      "toSide": "left"
-    },
-    {
-      "id": "4d5e6f7a8b9c0d1e",
-      "fromNode": "8a9b0c1d2e3f4a5b",
-      "fromSide": "right",
-      "toNode": "2b3c4d5e6f7a8b9c",
-      "toSide": "left"
-    }
+    { "id": "e1", "fromNode": "n1", "fromSide": "right", "toNode": "n2", "toSide": "left" },
+    { "id": "e2", "fromNode": "n1", "fromSide": "right", "toNode": "n3", "toSide": "left" }
   ]
 }
 ```
 
-## Project Board with Groups
+Hub-and-spoke layout with two text nodes connected to a central node.
+
+## Groups (Kanban Board)
 
 ```json
 {
   "nodes": [
-    {
-      "id": "5e6f7a8b9c0d1e2f",
-      "type": "group",
-      "x": 0,
-      "y": 0,
-      "width": 300,
-      "height": 500,
-      "label": "To Do",
-      "color": "1"
-    },
-    {
-      "id": "6f7a8b9c0d1e2f3a",
-      "type": "group",
-      "x": 350,
-      "y": 0,
-      "width": 300,
-      "height": 500,
-      "label": "In Progress",
-      "color": "3"
-    },
-    {
-      "id": "7a8b9c0d1e2f3a4b",
-      "type": "group",
-      "x": 700,
-      "y": 0,
-      "width": 300,
-      "height": 500,
-      "label": "Done",
-      "color": "4"
-    },
-    {
-      "id": "8b9c0d1e2f3a4b5c",
-      "type": "text",
-      "x": 20,
-      "y": 50,
-      "width": 260,
-      "height": 80,
-      "text": "## Task 1\n\nImplement feature X"
-    },
-    {
-      "id": "9c0d1e2f3a4b5c6d",
-      "type": "text",
-      "x": 370,
-      "y": 50,
-      "width": 260,
-      "height": 80,
-      "text": "## Task 2\n\nReview PR #123",
-      "color": "2"
-    },
-    {
-      "id": "0d1e2f3a4b5c6d7e",
-      "type": "text",
-      "x": 720,
-      "y": 50,
-      "width": 260,
-      "height": 80,
-      "text": "## Task 3\n\n~~Setup CI/CD~~"
-    }
+    { "id": "g1", "type": "group", "x": 0, "y": 0, "width": 300, "height": 400, "label": "To Do", "color": "1" },
+    { "id": "g2", "type": "group", "x": 350, "y": 0, "width": 300, "height": 400, "label": "Done", "color": "4" },
+    { "id": "t1", "type": "text", "x": 20, "y": 30, "width": 260, "height": 70, "text": "Task A" },
+    { "id": "t2", "type": "text", "x": 370, "y": 30, "width": 260, "height": 70, "text": "Task B" }
   ],
   "edges": []
 }
 ```
 
-## Research Canvas with Files and Links
+Groups organize workspace. Tasks placed within group bounds.
+
+## Files and Links (Research)
 
 ```json
 {
   "nodes": [
-    {
-      "id": "1e2f3a4b5c6d7e8f",
-      "type": "text",
-      "x": 300,
-      "y": 200,
-      "width": 400,
-      "height": 200,
-      "text": "# Research Topic\n\n## Key Questions\n\n- How does X affect Y?\n- What are the implications?",
-      "color": "5"
-    },
-    {
-      "id": "2f3a4b5c6d7e8f9a",
-      "type": "file",
-      "x": 0,
-      "y": 0,
-      "width": 250,
-      "height": 150,
-      "file": "Literature/Paper A.pdf"
-    },
-    {
-      "id": "3a4b5c6d7e8f9a0b",
-      "type": "file",
-      "x": 0,
-      "y": 200,
-      "width": 250,
-      "height": 150,
-      "file": "Notes/Meeting Notes.md",
-      "subpath": "#Key Insights"
-    },
-    {
-      "id": "4b5c6d7e8f9a0b1c",
-      "type": "link",
-      "x": 0,
-      "y": 400,
-      "width": 250,
-      "height": 100,
-      "url": "https://example.com/research"
-    },
-    {
-      "id": "5c6d7e8f9a0b1c2d",
-      "type": "file",
-      "x": 750,
-      "y": 150,
-      "width": 300,
-      "height": 250,
-      "file": "Attachments/diagram.png"
-    }
+    { "id": "n1", "type": "text", "x": 200, "y": 150, "width": 300, "height": 120, "text": "Research topic" },
+    { "id": "n2", "type": "file", "x": 0, "y": 0, "width": 150, "height": 100, "file": "Notes.md" },
+    { "id": "n3", "type": "file", "x": 0, "y": 130, "width": 150, "height": 100, "file": "Paper.pdf", "subpath": "#Section" },
+    { "id": "n4", "type": "link", "x": 0, "y": 260, "width": 150, "height": 60, "url": "https://example.com" }
   ],
   "edges": [
-    {
-      "id": "6d7e8f9a0b1c2d3e",
-      "fromNode": "2f3a4b5c6d7e8f9a",
-      "fromSide": "right",
-      "toNode": "1e2f3a4b5c6d7e8f",
-      "toSide": "left",
-      "label": "supports"
-    },
-    {
-      "id": "7e8f9a0b1c2d3e4f",
-      "fromNode": "3a4b5c6d7e8f9a0b",
-      "fromSide": "right",
-      "toNode": "1e2f3a4b5c6d7e8f",
-      "toSide": "left",
-      "label": "informs"
-    },
-    {
-      "id": "8f9a0b1c2d3e4f5a",
-      "fromNode": "4b5c6d7e8f9a0b1c",
-      "fromSide": "right",
-      "toNode": "1e2f3a4b5c6d7e8f",
-      "toSide": "left",
-      "toEnd": "arrow",
-      "color": "6"
-    },
-    {
-      "id": "9a0b1c2d3e4f5a6b",
-      "fromNode": "1e2f3a4b5c6d7e8f",
-      "fromSide": "right",
-      "toNode": "5c6d7e8f9a0b1c2d",
-      "toSide": "left",
-      "label": "visualized by"
-    }
+    { "id": "e1", "fromNode": "n2", "fromSide": "right", "toNode": "n1", "toSide": "left", "label": "supports" },
+    { "id": "e2", "fromNode": "n4", "fromSide": "right", "toNode": "n1", "toSide": "left", "toEnd": "arrow" }
   ]
 }
 ```
 
-## Flowchart
+Files link to vault notes and attachments; links to external URLs. Edge labels optional.
+
+## Flowchart (Decision Tree)
 
 ```json
 {
   "nodes": [
-    {
-      "id": "a0b1c2d3e4f5a6b7",
-      "type": "text",
-      "x": 200,
-      "y": 0,
-      "width": 150,
-      "height": 60,
-      "text": "**Start**",
-      "color": "4"
-    },
-    {
-      "id": "b1c2d3e4f5a6b7c8",
-      "type": "text",
-      "x": 200,
-      "y": 100,
-      "width": 150,
-      "height": 60,
-      "text": "Step 1:\nGather data"
-    },
-    {
-      "id": "c2d3e4f5a6b7c8d9",
-      "type": "text",
-      "x": 200,
-      "y": 200,
-      "width": 150,
-      "height": 80,
-      "text": "**Decision**\n\nIs data valid?",
-      "color": "3"
-    },
-    {
-      "id": "d3e4f5a6b7c8d9e0",
-      "type": "text",
-      "x": 400,
-      "y": 200,
-      "width": 150,
-      "height": 60,
-      "text": "Process data"
-    },
-    {
-      "id": "e4f5a6b7c8d9e0f1",
-      "type": "text",
-      "x": 0,
-      "y": 200,
-      "width": 150,
-      "height": 60,
-      "text": "Request new data",
-      "color": "1"
-    },
-    {
-      "id": "f5a6b7c8d9e0f1a2",
-      "type": "text",
-      "x": 400,
-      "y": 320,
-      "width": 150,
-      "height": 60,
-      "text": "**End**",
-      "color": "4"
-    }
+    { "id": "n1", "type": "text", "x": 100, "y": 0, "width": 100, "height": 50, "text": "Start", "color": "4" },
+    { "id": "n2", "type": "text", "x": 100, "y": 80, "width": 100, "height": 50, "text": "Check data" },
+    { "id": "n3", "type": "text", "x": 250, "y": 80, "width": 100, "height": 50, "text": "Process" },
+    { "id": "n4", "type": "text", "x": 100, "y": 180, "width": 100, "height": 50, "text": "End", "color": "4" }
   ],
   "edges": [
-    {
-      "id": "a6b7c8d9e0f1a2b3",
-      "fromNode": "a0b1c2d3e4f5a6b7",
-      "fromSide": "bottom",
-      "toNode": "b1c2d3e4f5a6b7c8",
-      "toSide": "top"
-    },
-    {
-      "id": "b7c8d9e0f1a2b3c4",
-      "fromNode": "b1c2d3e4f5a6b7c8",
-      "fromSide": "bottom",
-      "toNode": "c2d3e4f5a6b7c8d9",
-      "toSide": "top"
-    },
-    {
-      "id": "c8d9e0f1a2b3c4d5",
-      "fromNode": "c2d3e4f5a6b7c8d9",
-      "fromSide": "right",
-      "toNode": "d3e4f5a6b7c8d9e0",
-      "toSide": "left",
-      "label": "Yes",
-      "color": "4"
-    },
-    {
-      "id": "d9e0f1a2b3c4d5e6",
-      "fromNode": "c2d3e4f5a6b7c8d9",
-      "fromSide": "left",
-      "toNode": "e4f5a6b7c8d9e0f1",
-      "toSide": "right",
-      "label": "No",
-      "color": "1"
-    },
-    {
-      "id": "e0f1a2b3c4d5e6f7",
-      "fromNode": "e4f5a6b7c8d9e0f1",
-      "fromSide": "top",
-      "fromEnd": "none",
-      "toNode": "b1c2d3e4f5a6b7c8",
-      "toSide": "left",
-      "toEnd": "arrow"
-    },
-    {
-      "id": "f1a2b3c4d5e6f7a8",
-      "fromNode": "d3e4f5a6b7c8d9e0",
-      "fromSide": "bottom",
-      "toNode": "f5a6b7c8d9e0f1a2",
-      "toSide": "top"
-    }
+    { "id": "e1", "fromNode": "n1", "fromSide": "bottom", "toNode": "n2", "toSide": "top" },
+    { "id": "e2", "fromNode": "n2", "fromSide": "right", "toNode": "n3", "toSide": "left", "label": "Yes" },
+    { "id": "e3", "fromNode": "n3", "fromSide": "bottom", "toNode": "n4", "toSide": "top" }
   ]
 }
 ```
 
-<!-- KEPANO-END: json-canvas references/EXAMPLES.md -->
+Vertical flow with labeled decision edges. Directed via `fromSide`/`toSide`.

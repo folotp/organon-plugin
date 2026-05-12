@@ -1,6 +1,6 @@
 ---
 name: changelog-synthesizer
-description: Use this agent during `/plugin-release` (after the version bump, before the `gh release create` step) to draft a release-notes body from the merge commits since the last tag. The agent reads `git log --merges <last-tag>..HEAD --format=...`, parses each branch name (`feat/...`, `fix/...`, `chore/...`, `perf/...`, `docs/...`) per the repo's branch-prefix convention from `CLAUDE.md`, categorises the merges, and renders a draft against `skills/plugin-release/references/release-notes-template.md`. Output is a single Markdown block printed to stdout — the dispatcher pipes it into `gh release create --notes-file -` or saves it for hand-edit. Read-only — never tags, never commits, never publishes. Designed to remove the one truly-manual step in the release flow (the body the maintainer would otherwise hand-write each time). Companion to `release-readiness` (pre-flight) and `readme-inventory-checker` (surface drift) — those gate the release; this drafts the announcement.
+description: Dispatched during `/plugin-release` to draft a release-notes body from merge commits since the last tag. Reads `git log --merges <last-tag>..HEAD`, categorises by branch prefix (`feat/`, `fix/`, `chore/`, `perf/`, `docs/`), renders against `skills/plugin-release/references/release-notes-template.md`. Output: Markdown on stdout.
 tools: Bash, Read, Glob, Grep
 model: haiku
 ---

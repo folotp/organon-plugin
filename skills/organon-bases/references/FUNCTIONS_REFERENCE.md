@@ -1,182 +1,134 @@
-# Functions Reference — Absorbed from kepano
-
-Verbatim copy of kepano `obsidian-skills` `skills/obsidian-bases/references/FUNCTIONS_REFERENCE.md`. See `kepano-sync.json` for sync metadata and `scripts/sync-kepano.sh` for the re-sync workflow.
-
-<!-- KEPANO-BEGIN: obsidian-bases references/FUNCTIONS_REFERENCE.md @sha:fa1e131 -->
-<!-- kepano-sync: see kepano-sync.json for body_sha256 + drift status -->
-
 # Functions Reference
+
+Adapted from kepano/obsidian-skills@fa1e131. See docs/refreshing-kepano.md.
+
+<!-- kepano-sync: derived from upstream; see kepano-sync.json and vault-sync.json for drift status -->
 
 ## Global Functions
 
-| Function | Signature | Description |
-|----------|-----------|-------------|
-| `date()` | `date(string): date` | Parse string to date. Format: `YYYY-MM-DD HH:mm:ss` |
-| `duration()` | `duration(string): duration` | Parse duration string |
-| `now()` | `now(): date` | Current date and time |
-| `today()` | `today(): date` | Current date (time = 00:00:00) |
-| `if()` | `if(condition, trueResult, falseResult?)` | Conditional |
-| `min()` | `min(n1, n2, ...): number` | Smallest number |
-| `max()` | `max(n1, n2, ...): number` | Largest number |
-| `number()` | `number(any): number` | Convert to number |
-| `link()` | `link(path, display?): Link` | Create a link |
-| `list()` | `list(element): List` | Wrap in list if not already |
-| `file()` | `file(path): file` | Get file object |
-| `image()` | `image(path): image` | Create image for rendering |
-| `icon()` | `icon(name): icon` | Lucide icon by name |
-| `html()` | `html(string): html` | Render as HTML |
-| `escapeHTML()` | `escapeHTML(string): string` | Escape HTML characters |
+| Function | Signature |
+|----------|-----------|
+| `date()` | `date(string): date` |
+| `duration()` | `duration(string): duration` |
+| `now()` | `now(): date` |
+| `today()` | `today(): date` |
+| `if()` | `if(condition, trueResult, falseResult?)` |
+| `min()` | `min(n1, n2, ...): number` |
+| `max()` | `max(n1, n2, ...): number` |
+| `number()` | `number(any): number` |
+| `link()` | `link(path, display?): Link` |
+| `list()` | `list(element): List` |
+| `file()` | `file(path): file` |
+| `image()` | `image(path): image` |
+| `icon()` | `icon(name): icon` |
+| `html()` | `html(string): html` |
+| `escapeHTML()` | `escapeHTML(string): string` |
 
 ## Any Type Functions
 
-| Function | Signature | Description |
-|----------|-----------|-------------|
-| `isTruthy()` | `any.isTruthy(): boolean` | Coerce to boolean |
-| `isType()` | `any.isType(type): boolean` | Check type |
-| `toString()` | `any.toString(): string` | Convert to string |
+| Function | Signature |
+|----------|-----------|
+| `isTruthy()` | `any.isTruthy(): boolean` |
+| `isType()` | `any.isType(type): boolean` |
+| `toString()` | `any.toString(): string` |
 
 ## Date Functions & Fields
 
 **Fields:** `date.year`, `date.month`, `date.day`, `date.hour`, `date.minute`, `date.second`, `date.millisecond`
 
-| Function | Signature | Description |
-|----------|-----------|-------------|
-| `date()` | `date.date(): date` | Remove time portion |
-| `format()` | `date.format(string): string` | Format with Moment.js pattern |
-| `time()` | `date.time(): string` | Get time as string |
-| `relative()` | `date.relative(): string` | Human-readable relative time |
-| `isEmpty()` | `date.isEmpty(): boolean` | Always false for dates |
+| Function | Signature |
+|----------|-----------|
+| `date()` | `date.date(): date` |
+| `format()` | `date.format(string): string` |
+| `time()` | `date.time(): string` |
+| `relative()` | `date.relative(): string` |
+| `isEmpty()` | `date.isEmpty(): boolean` |
 
 ## Duration Type
 
-When subtracting two dates, the result is a **Duration** type (not a number). Duration has its own properties and methods.
+Subtracting two dates returns **Duration**. Fields: `days`, `hours`, `minutes`, `seconds`, `milliseconds` (all numeric). Duration does NOT support `.round()` directly—access a field first: `(date1 - date2).days.round(0)`.
 
-**Duration Fields:**
-| Field | Type | Description |
-|-------|------|-------------|
-| `duration.days` | Number | Total days in duration |
-| `duration.hours` | Number | Total hours in duration |
-| `duration.minutes` | Number | Total minutes in duration |
-| `duration.seconds` | Number | Total seconds in duration |
-| `duration.milliseconds` | Number | Total milliseconds in duration |
-
-**IMPORTANT:** Duration does NOT support `.round()`, `.floor()`, `.ceil()` directly. You must access a numeric field first (like `.days`), then apply number functions.
-
-```yaml
-# CORRECT: Calculate days between dates
-"(date(due_date) - today()).days"                    # Returns number of days
-"(now() - file.ctime).days"                          # Days since created
-
-# CORRECT: Round the numeric result if needed
-"(date(due_date) - today()).days.round(0)"           # Rounded days
-"(now() - file.ctime).hours.round(0)"                # Rounded hours
-
-# WRONG - will cause error:
-# "((date(due) - today()) / 86400000).round(0)"      # Duration doesn't support division then round
-```
-
-## Date Arithmetic
-
-```yaml
-# Duration units: y/year/years, M/month/months, d/day/days,
-#                 w/week/weeks, h/hour/hours, m/minute/minutes, s/second/seconds
-
-# Add/subtract durations
-"date + \"1M\""           # Add 1 month
-"date - \"2h\""           # Subtract 2 hours
-"now() + \"1 day\""       # Tomorrow
-"today() + \"7d\""        # A week from today
-
-# Subtract dates returns Duration type
-"now() - file.ctime"                    # Returns Duration
-"(now() - file.ctime).days"             # Get days as number
-"(now() - file.ctime).hours"            # Get hours as number
-
-# Complex duration arithmetic
-"now() + (duration('1d') * 2)"
-```
+Duration arithmetic: Add/subtract via strings (`"1M"`, `"2h"`, `"7d"`, `"1 year"`).
 
 ## String Functions
 
 **Field:** `string.length`
 
-| Function | Signature | Description |
-|----------|-----------|-------------|
-| `contains()` | `string.contains(value): boolean` | Check substring |
-| `containsAll()` | `string.containsAll(...values): boolean` | All substrings present |
-| `containsAny()` | `string.containsAny(...values): boolean` | Any substring present |
-| `startsWith()` | `string.startsWith(query): boolean` | Starts with query |
-| `endsWith()` | `string.endsWith(query): boolean` | Ends with query |
-| `isEmpty()` | `string.isEmpty(): boolean` | Empty or not present |
-| `lower()` | `string.lower(): string` | To lowercase |
-| `title()` | `string.title(): string` | To Title Case |
-| `trim()` | `string.trim(): string` | Remove whitespace |
-| `replace()` | `string.replace(pattern, replacement): string` | Replace pattern |
-| `repeat()` | `string.repeat(count): string` | Repeat string |
-| `reverse()` | `string.reverse(): string` | Reverse string |
-| `slice()` | `string.slice(start, end?): string` | Substring |
-| `split()` | `string.split(separator, n?): list` | Split to list |
+| Function | Signature |
+|----------|-----------|
+| `contains()` | `string.contains(value): boolean` |
+| `containsAll()` | `string.containsAll(...values): boolean` |
+| `containsAny()` | `string.containsAny(...values): boolean` |
+| `startsWith()` | `string.startsWith(query): boolean` |
+| `endsWith()` | `string.endsWith(query): boolean` |
+| `isEmpty()` | `string.isEmpty(): boolean` |
+| `lower()` | `string.lower(): string` |
+| `title()` | `string.title(): string` |
+| `trim()` | `string.trim(): string` |
+| `replace()` | `string.replace(pattern, replacement): string` |
+| `repeat()` | `string.repeat(count): string` |
+| `reverse()` | `string.reverse(): string` |
+| `slice()` | `string.slice(start, end?): string` |
+| `split()` | `string.split(separator, n?): list` |
 
 ## Number Functions
 
-| Function | Signature | Description |
-|----------|-----------|-------------|
-| `abs()` | `number.abs(): number` | Absolute value |
-| `ceil()` | `number.ceil(): number` | Round up |
-| `floor()` | `number.floor(): number` | Round down |
-| `round()` | `number.round(digits?): number` | Round to digits |
-| `toFixed()` | `number.toFixed(precision): string` | Fixed-point notation |
-| `isEmpty()` | `number.isEmpty(): boolean` | Not present |
+| Function | Signature |
+|----------|-----------|
+| `abs()` | `number.abs(): number` |
+| `ceil()` | `number.ceil(): number` |
+| `floor()` | `number.floor(): number` |
+| `round()` | `number.round(digits?): number` |
+| `toFixed()` | `number.toFixed(precision): string` |
+| `isEmpty()` | `number.isEmpty(): boolean` |
 
 ## List Functions
 
 **Field:** `list.length`
 
-| Function | Signature | Description |
-|----------|-----------|-------------|
-| `contains()` | `list.contains(value): boolean` | Element exists |
-| `containsAll()` | `list.containsAll(...values): boolean` | All elements exist |
-| `containsAny()` | `list.containsAny(...values): boolean` | Any element exists |
-| `filter()` | `list.filter(expression): list` | Filter by condition (uses `value`, `index`) |
-| `map()` | `list.map(expression): list` | Transform elements (uses `value`, `index`) |
-| `reduce()` | `list.reduce(expression, initial): any` | Reduce to single value (uses `value`, `index`, `acc`) |
-| `flat()` | `list.flat(): list` | Flatten nested lists |
-| `join()` | `list.join(separator): string` | Join to string |
-| `reverse()` | `list.reverse(): list` | Reverse order |
-| `slice()` | `list.slice(start, end?): list` | Sublist |
-| `sort()` | `list.sort(): list` | Sort ascending |
-| `unique()` | `list.unique(): list` | Remove duplicates |
-| `isEmpty()` | `list.isEmpty(): boolean` | No elements |
+| Function | Signature |
+|----------|-----------|
+| `contains()` | `list.contains(value): boolean` |
+| `containsAll()` | `list.containsAll(...values): boolean` |
+| `containsAny()` | `list.containsAny(...values): boolean` |
+| `filter()` | `list.filter(expression): list` |
+| `map()` | `list.map(expression): list` |
+| `reduce()` | `list.reduce(expression, initial): any` |
+| `flat()` | `list.flat(): list` |
+| `join()` | `list.join(separator): string` |
+| `reverse()` | `list.reverse(): list` |
+| `slice()` | `list.slice(start, end?): list` |
+| `sort()` | `list.sort(): list` |
+| `unique()` | `list.unique(): list` |
+| `isEmpty()` | `list.isEmpty(): boolean` |
 
 ## File Functions
 
-| Function | Signature | Description |
-|----------|-----------|-------------|
-| `asLink()` | `file.asLink(display?): Link` | Convert to link |
-| `hasLink()` | `file.hasLink(otherFile): boolean` | Has link to file |
-| `hasTag()` | `file.hasTag(...tags): boolean` | Has any of the tags |
-| `hasProperty()` | `file.hasProperty(name): boolean` | Has property |
-| `inFolder()` | `file.inFolder(folder): boolean` | In folder or subfolder |
+| Function | Signature |
+|----------|-----------|
+| `asLink()` | `file.asLink(display?): Link` |
+| `hasLink()` | `file.hasLink(otherFile): boolean` |
+| `hasTag()` | `file.hasTag(...tags): boolean` |
+| `hasProperty()` | `file.hasProperty(name): boolean` |
+| `inFolder()` | `file.inFolder(folder): boolean` |
 
 ## Link Functions
 
-| Function | Signature | Description |
-|----------|-----------|-------------|
-| `asFile()` | `link.asFile(): file` | Get file object |
-| `linksTo()` | `link.linksTo(file): boolean` | Links to file |
+| Function | Signature |
+|----------|-----------|
+| `asFile()` | `link.asFile(): file` |
+| `linksTo()` | `link.linksTo(file): boolean` |
 
 ## Object Functions
 
-| Function | Signature | Description |
-|----------|-----------|-------------|
-| `isEmpty()` | `object.isEmpty(): boolean` | No properties |
-| `keys()` | `object.keys(): list` | List of keys |
-| `values()` | `object.values(): list` | List of values |
+| Function | Signature |
+|----------|-----------|
+| `isEmpty()` | `object.isEmpty(): boolean` |
+| `keys()` | `object.keys(): list` |
+| `values()` | `object.values(): list` |
 
 ## Regular Expression Functions
 
-| Function | Signature | Description |
-|----------|-----------|-------------|
-| `matches()` | `regexp.matches(string): boolean` | Test if matches |
-
-<!-- KEPANO-END: obsidian-bases references/FUNCTIONS_REFERENCE.md -->
+| Function | Signature |
+|----------|-----------|
+| `matches()` | `regexp.matches(string): boolean` |
