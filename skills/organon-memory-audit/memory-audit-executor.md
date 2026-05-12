@@ -9,11 +9,11 @@ model: sonnet
 
 End-to-end runbook for auditing Organon-related drift across three poles:
 
-1. **Plugin / skill / tool capabilities** — runtime ground truth (`plugin.json`, `kepano-sync.json`, `vault-sync.json`, every `skills/*/SKILL.md` description, `commands/*.md`, MCP server floor).
+1. **Plugin / skill / tool capabilities** — runtime ground truth (`plugin.json`, `kepano-version.txt`, every `skills/*/SKILL.md` description, `commands/*.md`, MCP server floor).
 2. **Canonical-snippets vault note** — the unified source PA copy-pastes from: `99 - Méta/AI/Claude/Canonical snippets — per-canal Claude instructions.md`, with companion matrix `99 - Méta/AI/Claude/Claude surfaces and instruction inheritance.md`.
 3. **Per-surface implementations** — what is currently active in each store: `~/.claude/CLAUDE.md` (Code's global), Settings → General → Instructions for Claude (chat surfaces' global), Cowork → Global instructions (Cowork's global), Cowork folder/project instructions, claude.ai project instructions, plus per-surface memory (Code filesystem, Cowork server-side, Chat server-side).
 
-The audit reads pole 1 + pole 2, walks every pole-3 target reachable from the current surface, and emits a four-bucket triage report. Bundle the kepano-sync and vault-sync invocations as the first integrity gate — if either reports drift, halt the alignment work and route to `/kepano-resync` or vault re-sync first.
+The audit reads pole 1 + pole 2, walks every pole-3 target reachable from the current surface, and emits a four-bucket triage report. Run `kepano-check-upstream.sh` as the first integrity gate; upstream advancement is informational (not blocking) since the absorbed bytes remain valid at the pin.
 
 ## Flags
 
@@ -47,8 +47,7 @@ PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$HOME/Developer/organon-plugin}"
 Read:
 
 - `${PLUGIN_ROOT}/.claude-plugin/plugin.json` → version, name, description.
-- `${PLUGIN_ROOT}/kepano-sync.json` → upstream baseline SHA, per-section `body_sha256`, `drift_status`.
-- `${PLUGIN_ROOT}/vault-sync.json` → vault baseline, per-entry `body_sha256`, `drift_status`.
+- `${PLUGIN_ROOT}/kepano-version.txt` → pinned upstream sha for absorbed kepano content.
 - `${PLUGIN_ROOT}/skills/*/SKILL.md` frontmatter blocks → canonical skill names + descriptions + `disable-model-invocation` flag.
 - `${PLUGIN_ROOT}/commands/*.md` → published slash commands.
 - `git -C "${PLUGIN_ROOT}" log --oneline -20` → recent release context.
@@ -56,36 +55,27 @@ Read:
 
 **Integrity gate:**
 
-Distinguish three outcomes per script — clean (exit 0), drift (exit 1, informational), gate-unavailable (exit ≥ 2, real error: missing deps, clone/fetch failure, malformed config). Conflating gate-unavailable into drift would halt the audit with a misleading "run /kepano-resync" recommendation when the actual problem is, e.g., transient network failure on the upstream fetch.
+Distinguish three outcomes — clean (exit 0), drift (exit 1, informational: upstream advanced past the pin), gate-unavailable (exit ≥ 2: missing deps, network, malformed `kepano-version.txt`). Conflating gate-unavailable into drift would emit a misleading refresh recommendation when the actual problem is a transient network failure.
 
 ```bash
 set +e
-"${PLUGIN_ROOT}/scripts/sync-kepano.sh"
+"${PLUGIN_ROOT}/scripts/kepano-check-upstream.sh"
 KEPANO_RC=$?
-"${PLUGIN_ROOT}/scripts/sync-vault.sh"
-VAULT_RC=$?
 set -e
 
 case "$KEPANO_RC" in
     0) ;;                                # clean
-    1) KEPANO_DRIFT=1 ;;                 # informational drift
-    *) KEPANO_GATE_FAILED=$KEPANO_RC ;;  # network/config/clone error
-esac
-
-case "$VAULT_RC" in
-    0) ;;                                # clean
-    1) VAULT_DRIFT=1 ;;                  # informational drift
-    *) VAULT_GATE_FAILED=$VAULT_RC ;;    # missing deps / vault path / config error
+    1) KEPANO_DRIFT=1 ;;                 # upstream advanced (informational)
+    *) KEPANO_GATE_FAILED=$KEPANO_RC ;;  # network/config/version-file error
 esac
 ```
 
-The kepano script fetches upstream every run by default — that fetch is the whole point of the integrity gate (catch upstream drift before continuing). Do **not** pass `--no-fetch` here; on a stale cache the gate would silently report clean even when upstream has moved. The audit runs on cadence rather than in tight loops, so the per-run fetch cost is acceptable. The vault script reads the local filesystem directly, so no fetch flag applies.
+The script `git ls-remote`s upstream by default — pay that fetch cost on cadence so the audit catches upstream drift. Do **not** pass `--no-fetch` here.
 
 **Result handling:**
 
-- If `KEPANO_DRIFT` or `VAULT_DRIFT` is set, emit a Bucket-0 finding ("plugin internal drift detected") and recommend running `/kepano-resync` or following `docs/syncing-vault.md` *before* continuing alignment work.
-- If `KEPANO_GATE_FAILED` or `VAULT_GATE_FAILED` is set, emit a **separate** report-header note ("integrity gate unavailable: kepano rc=N / vault rc=N") with a one-line diagnostic (e.g., "first-run clone failed — check network and rerun"). This is **not** a drift finding; do not recommend re-sync. Pole-3 reads can still proceed if the user accepts the degraded confidence.
-- Do not proceed to pole-3 reads while drift is unresolved. Gate-unavailable is degraded but not blocking — call it out, then continue if the user opts in.
+- If `KEPANO_DRIFT` is set, emit a Bucket-0 finding ("kepano pin behind upstream") and recommend following `docs/refreshing-kepano.md` *before* continuing alignment work — though this is informational, not blocking, since the absorbed bytes remain valid at the pin.
+- If `KEPANO_GATE_FAILED` is set, emit a **separate** report-header note ("integrity gate unavailable: kepano rc=N") with a one-line diagnostic. This is **not** a drift finding; do not recommend refresh. Pole-3 reads still proceed if the user accepts the degraded confidence.
 
 On Cowork / Chat (filesystem not available the same way): infer pole 1 from the harness's published skill list and the canonical vault note's "Plugin name canonicalisation" section. The integrity gate is unavailable on those surfaces — note that limitation in the report header.
 
@@ -156,7 +146,7 @@ For each in-scope finding, classify into exactly one bucket:
 
 ### Bucket 0 — Plugin internal drift (gate)
 
-`sync-kepano.sh` or `sync-vault.sh` returned exit 1. Emit one finding per drifted section. Output: routing instruction (`/kepano-resync` for kepano drift; `docs/syncing-vault.md` runbook for vault drift). The audit halts further-pole work until cleared.
+`kepano-check-upstream.sh` returned exit 1 (upstream advanced past pin). Emit one finding. Output: routing instruction (`docs/refreshing-kepano.md`). Informational rather than blocking — pole-3 reads can proceed.
 
 ### Bucket 1 — Memory edit
 
@@ -214,8 +204,7 @@ Render inline in the conversation (the full skeleton is in `skills/organon-memor
 
 ## Sources of truth
 - Plugin v<X.Y.Z> @ <git short SHA>
-- kepano-sync: <N>/<N> in-sync (or list drifted sections)
-- vault-sync: <N>/<N> in-sync (or list drifted entries)
+- Kepano pin: in-sync at <sha> | upstream advanced (pinned <sha>, HEAD <sha>) | gate unavailable rc=N
 - Canonical snippets last synced: <date from vault note>
 - Stable run hash: <sha256 of pole-1 + pole-2 inputs> (lets PA tell at a glance whether anything has changed since the last run)
 
@@ -253,7 +242,7 @@ Recommended cadence: weekly + ad-hoc after every `/plugin-release`.
 ## Anti-patterns
 
 - **Editing Settings → General or Cowork → Global directly** — those are paste-only stores. Emit corrected text in a code block, never claim it was written.
-- **Skipping the integrity gate** (`sync-kepano.sh`, `sync-vault.sh`) — pole-1 inconsistencies cascade into false Bucket 4 findings. Always gate first on Code.
+- **Skipping the integrity gate** (`kepano-check-upstream.sh`) — pole-1 inconsistencies cascade into false Bucket 4 findings. Always gate first on Code.
 - **Auto-classifying memory older than 90 days** — versions cycle out of the changelog quickly; treat as "verify, not auto-fix".
 - **Bundling Bucket 3 (plugin-update candidates) with Bucket 1 (memory edits) in the same triage walk and applying them together** — Bucket 3 is recommendation only, never executed by this agent.
 - **Running `--mode=interactive` from a scheduled context** — there's no PA in the loop; the prompts will hang or apply default-skip silently. Scheduled = report-only, always.
@@ -267,6 +256,6 @@ Recommended cadence: weekly + ad-hoc after every `/plugin-release`.
 
 - `skills/organon-memory-audit/references/AUDIT_KEYWORDS.md` — the keyword set used to filter in-scope memory/instruction lines.
 - `skills/organon-memory-audit/references/REPORT_TEMPLATE.md` — the full report skeleton.
-- `kepano-sync.json`, `vault-sync.json` (repo root) — drift ledgers; run `sync-kepano.sh` and `sync-vault.sh` against these as the integrity gate.
+- `kepano-version.txt` (repo root) — pinned upstream sha; run `kepano-check-upstream.sh` as the integrity gate.
 - `99 - Méta/AI/Claude/Canonical snippets — per-canal Claude instructions.md` (vault) — pole 2 source of truth.
 - `99 - Méta/AI/Claude/Claude surfaces and instruction inheritance.md` (vault) — companion matrix.

@@ -2,7 +2,6 @@
 
 Verbatim copy of kepano `obsidian-skills` `skills/obsidian-bases/references/FUNCTIONS_REFERENCE.md`. See `kepano-sync.json` for sync metadata and `scripts/sync-kepano.sh` for the re-sync workflow.
 
-<!-- KEPANO-BEGIN: obsidian-bases references/FUNCTIONS_REFERENCE.md @sha:fa1e131 -->
 <!-- kepano-sync: see kepano-sync.json for body_sha256 + drift status -->
 
 # Functions Reference
@@ -179,4 +178,3 @@ When subtracting two dates, the result is a **Duration** type (not a number). Du
 |----------|-----------|-------------|
 | `matches()` | `regexp.matches(string): boolean` | Test if matches |
 
-<!-- KEPANO-END: obsidian-bases references/FUNCTIONS_REFERENCE.md -->

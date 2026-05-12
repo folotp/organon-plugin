@@ -16,21 +16,19 @@ The `plugin-release` skill (`/plugin-release`, user-invokable) is the runbook. C
 - The `.plugin` archive is **gitignored** (`*.plugin` in `.gitignore`). Distribution is via GitHub Release asset, never committed.
 - **Pre-flight gates** (see `release-readiness` subagent for parallel pre-flight, or run sequentially):
   1. Working tree clean on `main` (or release branch).
-  2. `./scripts/sync-kepano.sh` exits 0 (no upstream drift).
+  2. `./scripts/kepano-check-upstream.sh` exits 0 (pinned sha matches upstream).
   3. `plugin-dev:plugin-validator` agent passes.
   4. (Optional, on minor/major) `python3 scripts/token-harness.py` regression check.
 - **Tag flow**: push `main` *before* the tag — pushing the tag against an out-of-date remote leaves a dangling reference.
 - **`gh release create` flag-combo gotcha**: `--notes-from-tag` is incompatible with `--repo`. Inside the repo, omit `--repo`. Cross-repo, use `--notes` or `--notes-file` instead. Don't combine with `--notes-from-tag`.
 
-## Drift gate — kepano absorption
+## Kepano absorption — version-pin model
 
-The plugin absorbs upstream content from `kepano/obsidian-skills` (generic Obsidian syntax). Ledger: `kepano-sync.json`. Detector: `scripts/sync-kepano.sh`. Re-sync runbook: `kepano-resync` skill (`/kepano-resync`).
+The plugin carries 9 references absorbed verbatim from `kepano/obsidian-skills` (generic Obsidian syntax). One upstream sha is pinned in `kepano-version.txt`. Check: `./scripts/kepano-check-upstream.sh`. Refresh runbook: `docs/refreshing-kepano.md`.
 
-A **PreToolUse hook** (`scripts/hooks/block-absorbed-edits.sh`) blocks direct `Edit|Write|MultiEdit` on any file registered as a `target_file` in `kepano-sync.json` — direct edits invalidate the fingerprint silently. To update absorbed content, route through `/kepano-resync`.
+A **PreToolUse hook** (`scripts/hooks/block-absorbed-edits.sh`) blocks direct `Edit|Write|MultiEdit` on the 9 absorbed paths (hardcoded list) to prevent silent drift from the pin. A scoped, audit-logged `.organon-resync-token` allows refresh-time edits; the pre-commit hook refuses to commit while the token exists.
 
-A **PostToolUse hook** (`scripts/hooks/validate-sync-json.sh`) re-runs `sync-kepano.sh` after edits to `kepano-sync.json` to catch drift introduced by ledger edits.
-
-A **SessionStart hook** runs the kepano detector with `--no-fetch` for a passive integrity check at session open. Note: this hook lives in `.claude/settings.json` of THIS source repo only — it is not shipped in the distributed plugin (`.claude-plugin/plugin.json` declares no hooks), so it fires only when working in this source repo, not in Code or Cowork consumer sessions.
+Hooks declared in `.claude/settings.json` fire only when working in **this** source repo. They are not shipped in the distributed plugin (`.claude-plugin/plugin.json` declares no hooks), so they do not run in Code or Cowork consumer sessions.
 
 Vault-side absorption was retired in v1.0.0 — the Organon vault is PA's own, and the plugin is now the canonical home for frontmatter registre / vocabularies / methodologies. Edit those references directly.
 
@@ -39,28 +37,26 @@ Vault-side absorption was retired in v1.0.0 — the Organon vault is PA's own, a
 | Path | Purpose |
 |---|---|
 | `.claude-plugin/plugin.json` | Plugin manifest (version, description, keywords). |
-| `skills/<name>/SKILL.md` | 10 skills total — 7 description-triggered, 3 user-only (`disable-model-invocation: true`). |
-| `skills/<name>/references/` | Lazy-loaded refs. Some absorbed (kepano) with HTML markers, most Organon-owned. |
-| `skills/<name>/<agent>.md` | Skill-exclusive orchestrator agents co-located with their owning skill (3 total: `kepano-resync-orchestrator`, `memory-audit-executor`, `plugin-release-executor`). Symlinked from `.claude/agents/` for runtime discovery. |
-| `.claude/agents/*.md` | General-purpose plugin agents not tied to a single skill: `changelog-synthesizer`, `kepano-drift-resolver`, `markdown-link-validator`, `readme-inventory-checker`, `release-readiness`, `token-harness-regression`. |
-| `commands/<name>.md` | 3 slash-command wrappers (`/kepano-resync`, `/plugin-release`, `/organon-memory-audit`). |
-| `scripts/sync-kepano.sh` | kepano drift detector (exit 0 = in-sync, 1 = drift, ≥2 = gate-unavailable). |
-| `scripts/hooks/` | PreToolUse + PostToolUse hooks. |
+| `skills/<name>/SKILL.md` | 9 skills total — 7 description-triggered, 2 user-only (`disable-model-invocation: true`). |
+| `skills/<name>/references/` | Lazy-loaded refs. 9 absorbed (kepano, pinned to one upstream sha); rest are Organon-owned. |
+| `skills/<name>/<agent>.md` | Skill-exclusive executor agents co-located with their owning skill (2: `memory-audit-executor`, `plugin-release-executor`). Symlinked from `.claude/agents/` for runtime discovery. |
+| `.claude/agents/*.md` | General-purpose plugin agents: `changelog-synthesizer`, `markdown-link-validator`, `readme-inventory-checker`, `release-readiness`, `token-harness-regression`. |
+| `commands/<name>.md` | 2 slash-command wrappers (`/plugin-release`, `/organon-memory-audit`). |
+| `scripts/kepano-check-upstream.sh` | Compares pinned sha vs upstream HEAD (exit 0 = in-sync, 1 = upstream advanced, ≥2 = gate-unavailable). |
+| `scripts/hooks/` | PreToolUse + PostToolUse + UserPromptSubmit + Stop hooks (in-repo only — not shipped). |
 | `scripts/token-harness.py` | Token-cost measurement; methodology in `docs/token-harness-methodology.md`. |
 | `eval-workspace/iteration-N/` | **Gitignored.** Token harness output and benchmark notes per iteration. |
-| `kepano-sync.json` | kepano drift ledger (per-section `body_sha256`, `synced_at_sha`, `synced_at_date`). |
+| `kepano-version.txt` | One line: `kepano/obsidian-skills@<sha>`. |
 
 ## Working with absorbed files — DO NOT bypass the hook
 
-If you need to update content in kepano-absorbed files (`PROPERTIES.md`, `MARKDOWN_SYNTAX.md`, `CALLOUTS.md`, `EMBEDS.md`, `BASES_SYNTAX.md`, `FUNCTIONS_REFERENCE.md`, `CANVAS_SPEC.md`, `EXAMPLES.md`, `MERMAID_SYNTAX.md`) — do **not** edit them directly. The PreToolUse hook will block, for good reason: the `body_sha256` would silently desync from upstream.
+If you need to update content in kepano-absorbed files (`PROPERTIES.md`, `MARKDOWN_SYNTAX.md`, `CALLOUTS.md`, `EMBEDS.md`, `BASES_SYNTAX.md`, `FUNCTIONS_REFERENCE.md`, `CANVAS_SPEC.md`, `EXAMPLES.md`, `MERMAID_SYNTAX.md`) — do **not** edit them directly. The PreToolUse hook blocks: a casual edit drifts the absorbed content from the upstream pin.
 
-The legitimate paths:
-- **kepano-absorbed**: invoke `/kepano-resync` (or the `kepano-drift-resolver` subagent for fan-out across drifted sections).
-- **Intentional de-absorption**: delete the `kepano-sync.json` entry first, then edit as Organon-owned content.
+The legitimate path: follow `docs/refreshing-kepano.md` — bump `kepano-version.txt` to a new upstream sha, rewrite the affected references in the same commit, and the pre-commit gate confirms the new pin is in-sync before the commit lands.
 
 ### Resync token (`.organon-resync-token`)
 
-The `kepano-resync` skill (and the `kepano-drift-resolver` subagent) needs the model to Edit absorbed files mid-flow — but the PreToolUse hook would block. The legitimate bypass is a **scoped, short-lived, audit-logged** token at repo root:
+To edit an absorbed reference as part of a refresh, drop a scoped, audit-logged token at repo root:
 
 - File: `.organon-resync-token` (repo root, `.gitignored`).
 - Format: one rel_path per line; blank lines and `# comments` tolerated.
@@ -80,6 +76,6 @@ Don't bypass `block-absorbed-edits.sh` with `--dangerously-skip-hooks`, sed/pyth
 
 - Don't commit `.plugin` archives (gitignored — distribution is via Release asset).
 - Don't bypass `block-absorbed-edits.sh` with `--dangerously-skip-hooks` or similar.
-- Don't run `sync-kepano.sh` without `--no-fetch` in tight loops (it git-fetches by default).
+- Don't run `kepano-check-upstream.sh` without `--no-fetch` in tight loops (it `git ls-remote`s by default).
 - Don't add Co-Authored-By trailers — PA rejects them.
 - Don't introduce `Co-Authored-By: Claude` or similar attribution. Commit messages are PA's voice.

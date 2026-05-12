@@ -2,7 +2,6 @@
 
 Verbatim copy of kepano `obsidian-skills` `skills/obsidian-markdown/references/CALLOUTS.md`. See `kepano-sync.json` for sync metadata and `scripts/sync-kepano.sh` for the re-sync workflow.
 
-<!-- KEPANO-BEGIN: obsidian-markdown references/CALLOUTS.md @sha:fa1e131 -->
 <!-- kepano-sync: see kepano-sync.json for body_sha256 + drift status -->
 
 # Callouts Reference
@@ -64,4 +63,3 @@ Verbatim copy of kepano `obsidian-skills` `skills/obsidian-markdown/references/C
 }
 ```
 
-<!-- KEPANO-END: obsidian-markdown references/CALLOUTS.md -->

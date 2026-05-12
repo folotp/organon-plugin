@@ -2,7 +2,6 @@
 
 Verbatim copy of kepano `obsidian-skills` `skills/obsidian-markdown/references/PROPERTIES.md`. See `kepano-sync.json` for sync metadata and `scripts/sync-kepano.sh` for the re-sync workflow.
 
-<!-- KEPANO-BEGIN: obsidian-markdown references/PROPERTIES.md @sha:fa1e131 -->
 <!-- kepano-sync: see kepano-sync.json for body_sha256 + drift status -->
 
 # Properties (Frontmatter) Reference
@@ -67,4 +66,3 @@ tags:
 ---
 ```
 
-<!-- KEPANO-END: obsidian-markdown references/PROPERTIES.md -->

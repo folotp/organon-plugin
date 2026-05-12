@@ -20,7 +20,7 @@ If the repo root is missing, stop and ask. Do not guess.
 
 ## Out of scope (escalate, don't auto-fix)
 
-- **Drift resolution.** If `sync-kepano.sh` exits 1, route to `/kepano-resync`. This agent reports the drift, does not resolve it.
+- **Drift resolution.** If `kepano-check-upstream.sh` exits 1, route to `docs/refreshing-kepano.md`. This agent reports the drift, does not resolve it.
 - **Plugin manifest fixes.** If `plugin-dev:plugin-validator` fails, surface the issue. Don't edit `plugin.json`.
 - **Version bumping.** That's `/plugin-release`'s job.
 - **Committing or tagging.** Read-only. Never.
@@ -39,17 +39,17 @@ git -C "$REPO_ROOT" rev-parse --abbrev-ref HEAD
 PASS: empty `--porcelain` output AND current branch is `main` (or a release branch the user named explicitly).
 FAIL: non-empty `--porcelain` (uncommitted changes pollute the build) OR wrong branch.
 
-### Gate 2 — Kepano drift gate
+### Gate 2 — Kepano upstream pin
 
 ```bash
-"$REPO_ROOT/scripts/sync-kepano.sh"
+"$REPO_ROOT/scripts/kepano-check-upstream.sh"
 ```
 
-(Note: full fetch, no `--no-fetch` — release pre-flight is the right time to pay the upstream fetch cost.)
+(Full fetch — release pre-flight is the right time to pay the upstream fetch cost.)
 
-- rc=0 → PASS (`✓ all sections in-sync`).
-- rc=1 → FAIL (drift detected — route to `/kepano-resync`).
-- rc≥2 → DEGRADED (gate unavailable: network, config, deps). Surface the rc, recommend re-running once cause is known.
+- rc=0 → PASS (pinned sha matches upstream HEAD).
+- rc=1 → DEGRADED (upstream advanced; not blocking — the absorbed content remains valid at the pin until a maintainer refreshes per `docs/refreshing-kepano.md`).
+- rc≥2 → DEGRADED (gate unavailable: network, missing tools, malformed `kepano-version.txt`).
 
 ### Gate 3 — Plugin validator
 
@@ -117,7 +117,7 @@ Verdict: GO | NO-GO | GO-WITH-DEGRADED-GATES
 
 Next step:
 - GO → run /plugin-release
-- NO-GO → fix gate <N>: <route> (e.g., /kepano-resync, manual link fix for Gate 6)
+- NO-GO → fix gate <N>: <route> (e.g., docs/refreshing-kepano.md, manual link fix for Gate 6)
 - GO-WITH-DEGRADED-GATES → user decides whether to ship anyway
 ```
 
@@ -131,4 +131,4 @@ Hard rules:
 
 - Read-only. Never edit files. Never commit. Never tag.
 - Run gates in parallel where possible — the user is waiting.
-- If `--no-fetch` was passed implicitly (e.g., the dispatcher said "quick check"), surface that the kepano gate ran without an upstream fetch and is therefore weaker than a full pre-flight.
+- If `--no-fetch` was passed to Gate 2 implicitly (e.g., the dispatcher said "quick check"), surface that the kepano gate ran without an upstream fetch and is therefore weaker than a full pre-flight.

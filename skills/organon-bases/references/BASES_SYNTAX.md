@@ -2,7 +2,6 @@
 
 Verbatim copy of the body of kepano `obsidian-skills` `skills/obsidian-bases/SKILL.md`. See `kepano-sync.json` for sync metadata and `scripts/sync-kepano.sh` for the re-sync workflow.
 
-<!-- KEPANO-BEGIN: obsidian-bases SKILL.md (full body) @sha:fa1e131 -->
 <!-- kepano-sync: see kepano-sync.json for body_sha256 + drift status -->
 
 # Obsidian Bases Skill
@@ -498,4 +497,3 @@ formulas:
 - [Formulas](https://help.obsidian.md/formulas)
 - [Complete Functions Reference](references/FUNCTIONS_REFERENCE.md)
 
-<!-- KEPANO-END: obsidian-bases SKILL.md (full body) -->

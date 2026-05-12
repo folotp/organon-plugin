@@ -10,7 +10,6 @@
 #
 # Covered skills (blocking mandate):
 #   plugin-release       → plugin-release-executor
-#   kepano-resync        → kepano-resync-orchestrator
 #   organon-memory-audit → memory-audit-executor
 #
 # Excluded by design:
@@ -36,9 +35,6 @@ skill_name="$(printf '%s' "$input" | jq -r '(.tool_input.skill // .tool_input.sk
 case "$skill_name" in
     plugin-release)
         executor="plugin-release-executor"
-        ;;
-    kepano-resync)
-        executor="kepano-resync-orchestrator"
         ;;
     organon-memory-audit)
         executor="memory-audit-executor"

@@ -1,1 +1,0 @@
-../../skills/kepano-resync/kepano-resync-orchestrator.md

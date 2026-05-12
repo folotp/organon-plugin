@@ -4,7 +4,7 @@ Organon vault conventions for Claude — packaged as a Cowork/Claude Code plugin
 
 ## What this plugin provides
 
-Ten skills total: seven description-triggered (load automatically when working with the Organon Obsidian vault at `~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Organon`) plus three user-only skills invoked via slash command.
+Nine skills total: seven description-triggered (load automatically when working with the Organon Obsidian vault at `~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Organon`) plus two user-only skills invoked via slash command.
 
 ### Core (4 skills, validated in chat 1.A)
 
@@ -19,17 +19,16 @@ Ten skills total: seven description-triggered (load automatically when working w
 - **organon-canvas** — Purpose discriminator (cartography of existing notes vs. freeform sketches), placement beside the domain, file-node filename-only paths for vault-move robustness, language by folder for labels, ID convention (kepano 16-char hex).
 - **organon-diagramming** — Tool-selection decision tree (Mermaid for code-expressible flows, Canvas for note-cartography, Excalidraw via connector+bridge for freeform, SVG for throwaways), Excalidraw bridge skeleton, plugin compression-OFF invariant, preview-before-persist pattern.
 
-### User-only (3 skills, invoked via slash command — `disable-model-invocation: true`)
+### User-only (2 skills, invoked via slash command — `disable-model-invocation: true`)
 
-- **kepano-resync** (`/kepano-resync`, since v0.4.1) — End-to-end runbook for resolving drift detected by `scripts/sync-kepano.sh`. Re-sync workflow, marker invariants, hash recomputation, divergence handling.
 - **plugin-release** (`/plugin-release`, since v0.4.1) — Cut releases: bump version in `plugin.json`, package the `.plugin` archive, tag, create the GitHub Release with the archive uploaded as a Release asset.
 - **organon-memory-audit** (`/organon-memory-audit`, since v0.5.0) — Three-pole drift audit aligning plugin/skill/tool reality, the canonical-snippets vault note, and per-surface implementations (Code / Cowork / Chat). Two scope modes (`--scope=global|project|all`) and two interaction modes (`--mode=interactive|report-only`). Edits never auto-applied — drifts and staleness are raised for human-in-the-loop approval.
 
-## Absorbed kepano content (since v0.4.0)
+## Absorbed kepano content — version-pin model (since v1.0.0)
 
-This plugin used to **cascade at runtime** to the upstream [kepano `obsidian-skills`](https://github.com/kepano/obsidian-skills) plugin for generic Obsidian syntax. Since v0.4.0 it **absorbs** the relevant kepano content verbatim into per-skill `references/` files (with HTML provenance markers and a `body_sha256` fingerprint tracked in `kepano-sync.json`). Net effect: when an `organon-*` skill triggers, the kepano cascade no longer needs to load — content lives locally and is read on-demand thanks to progressive disclosure (lean SKILL.md ≤ 1 200 words, bundled refs loaded only when the task requires them).
+This plugin carries 9 references absorbed verbatim from [kepano `obsidian-skills`](https://github.com/kepano/obsidian-skills) for generic Obsidian syntax. One upstream sha is pinned in `kepano-version.txt`; the absorbed bytes are guaranteed to match upstream at that sha. Check: `./scripts/kepano-check-upstream.sh` (compares pin vs upstream HEAD). Refresh runbook: [`docs/refreshing-kepano.md`](docs/refreshing-kepano.md).
 
-Drift detection: `./scripts/sync-kepano.sh` compares stored `body_sha256` snapshots against current upstream HEAD and reports per-section status. Re-sync workflow: see [`docs/syncing-kepano.md`](docs/syncing-kepano.md). The script never auto-edits files or commits — review obligatory.
+The pre-v1.0.0 design used per-section `body_sha256` fingerprints in `kepano-sync.json` plus a bidirectional drift detector + a `/kepano-resync` runbook. The version-pin model is ~95% cheaper to maintain (1 line vs a 9-section ledger; 65-LoC check script vs 317 LoC) at the cost of less granular drift reporting — for casual refresh cadence, the tradeoff is right-sized.
 
 ## Organon-owned reference content (was: absorbed vault content, retired v1.0.0)
 

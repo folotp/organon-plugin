@@ -1,17 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "hooks": {
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PROJECT_DIR}/scripts/hooks/session-start-drift-check.sh",
-            "timeout": 10
-          }
-        ]
-      }
-    ],
     "PreToolUse": [
       {
         "matcher": "Edit|Write|MultiEdit",
@@ -38,11 +27,6 @@
       {
         "matcher": "Edit|Write|MultiEdit",
         "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PROJECT_DIR}/scripts/hooks/validate-sync-json.sh",
-            "timeout": 15
-          },
           {
             "type": "command",
             "command": "${CLAUDE_PROJECT_DIR}/scripts/hooks/postedit-shfmt.sh",

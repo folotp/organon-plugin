@@ -2,7 +2,6 @@
 
 Verbatim copy of kepano `obsidian-skills` `skills/json-canvas/references/EXAMPLES.md`. See `kepano-sync.json` for sync metadata and `scripts/sync-kepano.sh` for the re-sync workflow.
 
-<!-- KEPANO-BEGIN: json-canvas references/EXAMPLES.md @sha:fa1e131 -->
 <!-- kepano-sync: see kepano-sync.json for body_sha256 + drift status -->
 
 # JSON Canvas Complete Examples
@@ -335,4 +334,3 @@ Verbatim copy of kepano `obsidian-skills` `skills/json-canvas/references/EXAMPLE
 }
 ```
 
-<!-- KEPANO-END: json-canvas references/EXAMPLES.md -->

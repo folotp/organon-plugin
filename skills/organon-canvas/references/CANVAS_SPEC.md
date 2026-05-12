@@ -2,7 +2,6 @@
 
 Verbatim copy of the body of kepano `obsidian-skills` `skills/json-canvas/SKILL.md`. See `kepano-sync.json` for sync metadata and `scripts/sync-kepano.sh` for the re-sync workflow.
 
-<!-- KEPANO-BEGIN: json-canvas SKILL.md @sha:fa1e131 -->
 <!-- kepano-sync: see kepano-sync.json for body_sha256 + drift status -->
 
 # JSON Canvas Skill
@@ -245,4 +244,3 @@ See [references/EXAMPLES.md](references/EXAMPLES.md) for full canvas examples in
 - [JSON Canvas Spec 1.0](https://jsoncanvas.org/spec/1.0/)
 - [JSON Canvas GitHub](https://github.com/obsidianmd/jsoncanvas)
 
-<!-- KEPANO-END: json-canvas SKILL.md -->
