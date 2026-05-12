@@ -66,8 +66,8 @@ cat >"$HOOK_PATH" <<'HOOK'
 # pre-commit — drift gate + token-presence guard.
 # 1. Refuse if .organon-resync-token exists at repo root (a leaked
 #    edit-bypass token must never reach a commit).
-# 2. Run sync-kepano.sh --no-fetch and sync-vault.sh; block on rc=1
-#    (drift), pass through rc≥2 (gate-unavailable) as a warning.
+# 2. Run sync-kepano.sh --no-fetch; block on rc=1 (drift),
+#    pass through rc≥2 (gate-unavailable) as a warning.
 #
 # Bypass for an emergency commit: git commit --no-verify
 
@@ -75,7 +75,6 @@ set -u
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 KEPANO="${REPO_ROOT}/scripts/sync-kepano.sh"
-VAULT="${REPO_ROOT}/scripts/sync-vault.sh"
 TOKEN="${REPO_ROOT}/.organon-resync-token"
 
 if [[ -f "$TOKEN" ]]; then
@@ -116,16 +115,14 @@ run_gate() {
 
 echo "organon-plugin pre-commit drift gate:"
 run_gate "kepano" "$KEPANO" --no-fetch
-run_gate "vault " "$VAULT"
 
 if [[ "$drift" -eq 1 ]]; then
     cat <<MSG
 
-✗ Commit blocked: absorbed-content drift detected.
+✗ Commit blocked: kepano drift detected.
 
 Resolve before committing:
-  - kepano drift → run /kepano-resync (Claude) or scripts/sync-kepano.sh
-  - vault  drift → run /vault-resync  (Claude) or follow docs/syncing-vault.md
+  - run /kepano-resync (Claude) or scripts/sync-kepano.sh
 
 Bypass (use sparingly): git commit --no-verify
 MSG

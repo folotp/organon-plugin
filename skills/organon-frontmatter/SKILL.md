@@ -5,7 +5,7 @@ description: Use when composing or editing frontmatter on an Organon vault note 
 
 # organon-frontmatter
 
-**Authoritative source** : `[[Registre des clés de frontmatter]]` (vault). The plugin carries a drift-tracked snapshot ; **vault wins on disagreement**. Run `./scripts/sync-vault.sh` to detect drift ; cf. `docs/syncing-vault.md`.
+**Canonical source** : `references/REGISTRE_KEYS.md` (Organon-owned in this plugin since v1.0.0 — the vault note `[[Registre des clés de frontmatter]]` is PA's reading copy, not authoritative).
 
 **Language coherence** (folder default, prose-fields ↔ `lang:` ↔ body) is governed by `organon-markdown-style` §Langue par dossier — read it once per session ; not duplicated here.
 

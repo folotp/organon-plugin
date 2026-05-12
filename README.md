@@ -4,7 +4,7 @@ Organon vault conventions for Claude — packaged as a Cowork/Claude Code plugin
 
 ## What this plugin provides
 
-Eleven skills total: seven description-triggered (load automatically when working with the Organon Obsidian vault at `~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Organon`) plus four user-only skills invoked via slash command.
+Ten skills total: seven description-triggered (load automatically when working with the Organon Obsidian vault at `~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Organon`) plus three user-only skills invoked via slash command.
 
 ### Core (4 skills, validated in chat 1.A)
 
@@ -19,12 +19,11 @@ Eleven skills total: seven description-triggered (load automatically when workin
 - **organon-canvas** — Purpose discriminator (cartography of existing notes vs. freeform sketches), placement beside the domain, file-node filename-only paths for vault-move robustness, language by folder for labels, ID convention (kepano 16-char hex).
 - **organon-diagramming** — Tool-selection decision tree (Mermaid for code-expressible flows, Canvas for note-cartography, Excalidraw via connector+bridge for freeform, SVG for throwaways), Excalidraw bridge skeleton, plugin compression-OFF invariant, preview-before-persist pattern.
 
-### User-only (4 skills, invoked via slash command — `disable-model-invocation: true`)
+### User-only (3 skills, invoked via slash command — `disable-model-invocation: true`)
 
 - **kepano-resync** (`/kepano-resync`, since v0.4.1) — End-to-end runbook for resolving drift detected by `scripts/sync-kepano.sh`. Re-sync workflow, marker invariants, hash recomputation, divergence handling.
 - **plugin-release** (`/plugin-release`, since v0.4.1) — Cut releases: bump version in `plugin.json`, package the `.plugin` archive, tag, create the GitHub Release with the archive uploaded as a Release asset.
 - **organon-memory-audit** (`/organon-memory-audit`, since v0.5.0) — Three-pole drift audit aligning plugin/skill/tool reality, the canonical-snippets vault note, and per-surface implementations (Code / Cowork / Chat). Two scope modes (`--scope=global|project|all`) and two interaction modes (`--mode=interactive|report-only`). Edits never auto-applied — drifts and staleness are raised for human-in-the-loop approval.
-- **vault-resync** (`/vault-resync`, since v0.6.1) — End-to-end runbook for resolving drift detected by `scripts/sync-vault.sh`. Mirror of `kepano-resync` adapted for vault semantics: `synced_at_date` instead of `synced_at_sha`, two `extract_mode` shapes (full-body / section-body), the two-entry coupling rule for vocabulary changes (Vocabulaire + Registre).
 
 ## Absorbed kepano content (since v0.4.0)
 
@@ -32,13 +31,11 @@ This plugin used to **cascade at runtime** to the upstream [kepano `obsidian-ski
 
 Drift detection: `./scripts/sync-kepano.sh` compares stored `body_sha256` snapshots against current upstream HEAD and reports per-section status. Re-sync workflow: see [`docs/syncing-kepano.md`](docs/syncing-kepano.md). The script never auto-edits files or commits — review obligatory.
 
-## Absorbed vault content (since v0.5.0)
+## Organon-owned reference content (was: absorbed vault content, retired v1.0.0)
 
-The plugin also **absorbs Organon vault content** into `organon-frontmatter/references/`: the canonical frontmatter key registry (`REGISTRE_KEYS.md`), ID prefix registry (`PREFIXES.md`), and 12 controlled vocabularies (sectioned inside `VOCABULARIES.md`) — all verbatim, all drift-tracked via `vault-sync.json`. Two distilled methodology references (`METHODOLOGY_ADR.md` and `METHODOLOGY_INC_BUG_BL.md`) carry Claude-actionable subsets of the vault methodologies (no markers — re-derive manually after material changes).
+`organon-frontmatter/references/` carries the canonical frontmatter key registry (`REGISTRE_KEYS.md`), ID prefix registry (`PREFIXES.md`), 12 controlled vocabularies (sectioned inside `VOCABULARIES.md`), and the methodology references (`METHODOLOGY_ADR.md`, `METHODOLOGY_INC_BUG_BL.md`). The plugin is now the **canonical home** for this content — edit it here directly. (Prior to v1.0.0 these files were absorbed verbatim from PA's local Organon vault with bidirectional drift tracking; the bidirectional contract was retired because the vault is PA's own, not a third-party upstream.)
 
-Net effect: when `organon-frontmatter` triggers (e.g., drafting an ADR / VLT-BUG / FIN-DEC), the schema, vocab, and methodology are already loaded — no MCP round-trip to the vault registre needed. The vault remains authoritative on disagreement (banner in each absorbed file).
-
-Drift detection: `./scripts/sync-vault.sh` compares stored `body_sha256` snapshots against the live vault, with `mktemp` snapshotting for atomicity (Obsidian/Linter can rewrite files mid-script). Re-sync workflow: see [`docs/syncing-vault.md`](docs/syncing-vault.md). Mechanism is parallel to and independent of kepano absorption.
+Net effect: when `organon-frontmatter` triggers (drafting an ADR / VLT-BUG / FIN-DEC), the schema, vocab, and methodology are already in `references/` — no MCP round-trip to the vault needed.
 
 ## Empirical validation
 
@@ -144,7 +141,7 @@ Drift detection: `./scripts/sync-vault.sh` compares stored `body_sha256` snapsho
 
 ## Installation
 
-Click "Install plugin" when this `.plugin` file appears in Cowork chat. The 7 description-triggered skills load automatically when working with the Organon vault; the 4 user-only skills (`/kepano-resync`, `/vault-resync`, `/plugin-release`, `/organon-memory-audit`) are invoked explicitly via slash command.
+Click "Install plugin" when this `.plugin` file appears in Cowork chat. The 7 description-triggered skills load automatically when working with the Organon vault; the 3 user-only skills (`/kepano-resync`, `/plugin-release`, `/organon-memory-audit`) are invoked explicitly via slash command.
 
 ## Author
 

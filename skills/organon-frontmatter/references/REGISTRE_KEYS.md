@@ -4,7 +4,6 @@ Verbatim copy of the body of vault note `99 - Méta/Système documentaire/Regist
 
 See `vault-sync.json` for sync metadata (`body_sha256`, `synced_at_date`) and `scripts/sync-vault.sh` for the re-sync workflow. To re-derive after the vault file evolves: re-run the sync script, replace the bytes between markers below, update the JSON entry.
 
-<!-- VAULT-BEGIN: 99 - Méta/Système documentaire/Registre des clés de frontmatter.md (full body) @synced:2026-05-08 -->
 <!-- vault-sync: see vault-sync.json for body_sha256 + drift status -->
 
 ## Registre des clés de frontmatter
@@ -409,4 +408,3 @@ Clés définitivement retirées ou dont la migration en production est actée.
 | 2026-05-04 | Drop narrative de migration `shape` → `content-model` (condensée en 1 ligne). Décomposition §Clés retirées / §Clés en migration. Déplacement des questions résolues vers §Décisions historiques. Remplacement §Vocabulaires contrôlés (drop framing Templater comme propriétaire). Ajout §Liens. Wave B doc cleanup. |
 | 2026-05-05 | [[SD-ADR-011]]: `amends:` / `amended-by:` ajoutés à §Clés retirées; note §FIN-DEC `amends:` reportée remplacée par pointeur de dépréciation. [[FIN-BL-0108]]: enum `status:` FIN-DEC étendu au canon ADR (`proposed | accepted | rejected | superseded | deprecated`); §Questions ouvertes mise à jour (résolution). |
 | 2026-05-05 | [[FIN-BL-0107]] exécution intégrale (D1-D5). Promotions globales: `last-reviewed`, `next-review`, `cadence`, `date` ajoutées; vocab `type:` étendu à 16 valeurs (+ 7 hypothesis/rule/tool/template/runbook/reference/plan); valeur `active` ajoutée au vocab `status:` global. Retraits FIN: `domain`, `item-type`, `tool-type`, `target-type`, `scope`, `category`, `related-decisions`, `snapshot-date` documentés à §Clés retirées avec leurs cibles de migration (tags / clés globales / drops). Tri Linter étendu (`last-reviewed`, `next-review`, `cadence`). |
-<!-- VAULT-END: 99 - Méta/Système documentaire/Registre des clés de frontmatter.md (full body) -->

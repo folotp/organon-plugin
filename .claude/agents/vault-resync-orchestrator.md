@@ -1,1 +1,0 @@
-../../skills/vault-resync/vault-resync-orchestrator.md

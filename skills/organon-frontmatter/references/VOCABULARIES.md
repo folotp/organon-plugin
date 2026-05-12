@@ -80,7 +80,6 @@ Les 12 sections suivantes mirrorent verbatim le `## Valeurs` table de chaque `Vo
 
 Vocabulaire status des ADR (Nygard 2011) et des FIN-DEC (canon ADR adopté 2026-05-05 par [[FIN-BL-0108]]).
 
-<!-- VAULT-BEGIN: 99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — adr-status.md §Valeurs @synced:2026-05-08 -->
 <!-- vault-sync: see vault-sync.json for body_sha256 + drift status -->
 
 | Valeur | Description |
@@ -91,13 +90,11 @@ Vocabulaire status des ADR (Nygard 2011) et des FIN-DEC (canon ADR adopté 2026-
 | `superseded` | Remplacée par un ADR ultérieur — `superseded-by:` rempli, fiche reste en place |
 | `deprecated` | Plus en vigueur sans remplacement explicite — cas rare, à éviter (préférer la supersession) |
 
-<!-- VAULT-END: 99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — adr-status.md §Valeurs -->
 
 ### `vlt-bl-status` / `sd-bl-status` — Backlog item lifecycle
 
 Vocabulaire `status:` des items backlog VLT-BL / SD-BL. Convention identique entre domaines.
 
-<!-- VAULT-BEGIN: 99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — vlt-bl-status.md §Valeurs @synced:2026-05-08 -->
 <!-- vault-sync: see vault-sync.json for body_sha256 + drift status -->
 
 | Valeur | Description |
@@ -109,13 +106,11 @@ Vocabulaire `status:` des items backlog VLT-BL / SD-BL. Convention identique ent
 | `verified` | Vérifié après déploiement — confirmation post-mortem que le travail tient |
 | `abandoned` | Abandonné avec raison documentée dans le journal |
 
-<!-- VAULT-END: 99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — vlt-bl-status.md §Valeurs -->
 
 ### `vlt-bl-priority` / `sd-bl-priority` — Backlog item priority
 
 Aligné JIRA. Convention identique VLT/SD.
 
-<!-- VAULT-BEGIN: 99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — vlt-bl-priority.md §Valeurs @synced:2026-05-08 -->
 <!-- vault-sync: see vault-sync.json for body_sha256 + drift status -->
 
 | Valeur | Description |
@@ -125,13 +120,11 @@ Aligné JIRA. Convention identique VLT/SD.
 | `high` | Haute — bloque ou ralentit du travail en cours; à traiter rapidement |
 | `critical` | Critique — bloquant total ou risque sérieux; interrompre pour traiter |
 
-<!-- VAULT-END: 99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — vlt-bl-priority.md §Valeurs -->
 
 ### `vlt-bl-origin` / `sd-bl-origin` — Backlog item provenance
 
 Si `origin: bug`, `linked-bug: "[[VLT-BUG-NNN]]"` est obligatoire dans le frontmatter de l'item (validation par convention humaine).
 
-<!-- VAULT-BEGIN: 99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — vlt-bl-origin.md §Valeurs @synced:2026-05-08 -->
 <!-- vault-sync: see vault-sync.json for body_sha256 + drift status -->
 
 | Valeur | Description |
@@ -143,13 +136,11 @@ Si `origin: bug`, `linked-bug: "[[VLT-BUG-NNN]]"` est obligatoire dans le frontm
 | `mitigation` | Réduire l’impact d’un risque ou d’un problème sans le résoudre complètement |
 | `misc` | Fourre-tout — à éviter mais utile en transition |
 
-<!-- VAULT-END: 99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — vlt-bl-origin.md §Valeurs -->
 
 ### `vlt-bug-status` — Bug lifecycle (Bugzilla aligné)
 
 Lifecycle: `open → investigating → root-cause-known → fix-designed → fix-deployed → verified → closed`. Sauts permis si critère documenté dans le journal d'investigation.
 
-<!-- VAULT-BEGIN: 99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — vlt-bug-status.md §Valeurs @synced:2026-05-08 -->
 <!-- vault-sync: see vault-sync.json for body_sha256 + drift status -->
 
 | Valeur | Description |
@@ -162,13 +153,11 @@ Lifecycle: `open → investigating → root-cause-known → fix-designed → fix
 | `verified` | Vérification post-déploiement réussie — N observations sans récurrence |
 | `closed` | État terminal — bug fermé pour bonne raison (corrigé ou non-applicable) |
 
-<!-- VAULT-END: 99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — vlt-bug-status.md §Valeurs -->
 
 ### `vlt-bug-severity` — Bug severity (Bugzilla aligné)
 
 `severity` = gravité technique intrinsèque. À distinguer de `priority` (sur VLT-BL) qui est l'urgence de traitement (politique humaine).
 
-<!-- VAULT-BEGIN: 99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — vlt-bug-severity.md §Valeurs @synced:2026-05-08 -->
 <!-- vault-sync: see vault-sync.json for body_sha256 + drift status -->
 
 | Valeur | Description |
@@ -178,13 +167,11 @@ Lifecycle: `open → investigating → root-cause-known → fix-designed → fix
 | `major` | Impact significatif — bloque un cas d’usage, contournable au prix d’effort notable |
 | `critical` | Impact critique — bloque un cas d’usage central, pas de contournement viable |
 
-<!-- VAULT-END: 99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — vlt-bug-severity.md §Valeurs -->
 
 ### `vlt-inc-status` — Incident lifecycle
 
 Cas particulier : non consommé par INC-template (qui hardcode `status: recorded` à la création, cf. [[SD-ADR-008]]). La fiche existe pour cohérence d'audit et discipline éditoriale (transitions manuelles vers `assigned` ou `superseded`).
 
-<!-- VAULT-BEGIN: 99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — vlt-inc-status.md §Valeurs @synced:2026-05-08 -->
 <!-- vault-sync: see vault-sync.json for body_sha256 + drift status -->
 
 | Valeur | Description |
@@ -193,13 +180,11 @@ Cas particulier : non consommé par INC-template (qui hardcode `status: recorded
 | `assigned` | Promu en bug — un VLT-BUG a été ouvert; la fiche INC pointe le bug via `bug:` et reste en lecture seule |
 | `superseded` | Remplacé — incident reformulé ou consolidé dans une autre fiche INC ou un bug; `superseded-by:` rempli |
 
-<!-- VAULT-END: 99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — vlt-inc-status.md §Valeurs -->
 
 ### `vlt-inc-surface` — Incident surface (Claude interface)
 
 Où l'utilisateur interagit avec Claude au moment de l'incident. La matrice `surface × layer × tool` est la grille de diagnostic primaire.
 
-<!-- VAULT-BEGIN: 99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — vlt-inc-surface.md §Valeurs @synced:2026-05-08 -->
 <!-- vault-sync: see vault-sync.json for body_sha256 + drift status -->
 
 | Valeur | Description |
@@ -211,13 +196,11 @@ Où l'utilisateur interagit avec Claude au moment de l'incident. La matrice `sur
 | `dispatch` | Claude Dispatch (orchestrateur multi-agents) |
 | `claude-code` | Claude Code (CLI agentique de codage) |
 
-<!-- VAULT-END: 99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — vlt-inc-surface.md §Valeurs -->
 
 ### `vlt-inc-layer` — Incident technical layer
 
 Quelle couche technique a manifesté le symptôme. Différent de `surface` (où l'utilisateur interagit).
 
-<!-- VAULT-BEGIN: 99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — vlt-inc-layer.md §Valeurs @synced:2026-05-08 -->
 <!-- vault-sync: see vault-sync.json for body_sha256 + drift status -->
 
 | Valeur | Description |
@@ -230,13 +213,11 @@ Quelle couche technique a manifesté le symptôme. Différent de `surface` (où 
 | `github` | GitHub, dépôts, issues, PR (lecture/écriture via API ou CLI) |
 | `framework` | Framework agent (Claude Agent SDK, runtime conversation, hooks) |
 
-<!-- VAULT-END: 99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — vlt-inc-layer.md §Valeurs -->
 
 ### `vlt-inc-operation` — Incident operation type
 
 Type fonctionnel de l'opération technique au moment de l'incident. L'outil exact vit dans le champ `tool:` (sœur).
 
-<!-- VAULT-BEGIN: 99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — vlt-inc-operation.md §Valeurs @synced:2026-05-08 -->
 <!-- vault-sync: see vault-sync.json for body_sha256 + drift status -->
 
 | Valeur | Description |
@@ -251,13 +232,11 @@ Type fonctionnel de l'opération technique au moment de l'incident. L'outil exac
 | `config` | Configuration (édition de data.json plugin, settings) |
 | `tool-discovery` | Découverte ou invocation d’outils MCP (ToolSearch, list_obsidian_commands) |
 
-<!-- VAULT-END: 99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — vlt-inc-operation.md §Valeurs -->
 
 ### `domain` — Functional domain
 
 Co-source de vérité avec `PREFIXES.md` §Registre des domaines (niveau 1). Toute valeur ici doit avoir un préfixe d'identifiants correspondant et inversement.
 
-<!-- VAULT-BEGIN: 99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — domain.md §Valeurs @synced:2026-05-09 -->
 <!-- vault-sync: see vault-sync.json for body_sha256 + drift status -->
 
 | Valeur | Description |
@@ -266,13 +245,11 @@ Co-source de vérité avec `PREFIXES.md` §Registre des domaines (niveau 1). Tou
 | `SD` | Système documentaire — structure du vault comme artefact de connaissance. Folder racine: `99 - Méta/Système documentaire/`. |
 | `FIN` | Finances et patrimoine. Folder racine: `01 - Finances et patrimoine/`. Préfixe d’identifiants actif (cf. [[Préfixes d'identifiants]]); flux Templater dual-mode actif depuis 2026-05-08, **BL uniquement** (pas de FIN-BUG, FIN-INC, FIN-ADR à date — ces shapes n’existent pas dans le domaine finance). |
 
-<!-- VAULT-END: 99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — domain.md §Valeurs -->
 
 ### `topic` — Cross-cutting topic tags (`#topic/*`)
 
 Sujets techniques ou méthodologiques transverses (orthogonal à `#domain/*`). Format : minuscules, ASCII, traits d'union, plat (pas de hiérarchie par `/`). Règle de croissance : ≥2 notes distinctes (ou imminence certaine) + transverse à ≥2 domaines (ou suffisamment spécifique pour mériter filtrage).
 
-<!-- VAULT-BEGIN: 99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — topic.md §Valeurs @synced:2026-05-08 -->
 <!-- vault-sync: see vault-sync.json for body_sha256 + drift status -->
 
 | Valeur | Description |
@@ -303,7 +280,6 @@ Sujets techniques ou méthodologiques transverses (orthogonal à `#domain/*`). F
 | `upstream` | Contributions amont (OSS, issues GitHub publiques) |
 | `uri` | URI, URL, liens profonds (Advanced URI, etc.) |
 
-<!-- VAULT-END: 99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — topic.md §Valeurs -->
 
 ---
 

@@ -11,7 +11,6 @@
 # Covered skills (blocking mandate):
 #   plugin-release       → plugin-release-executor
 #   kepano-resync        → kepano-resync-orchestrator
-#   vault-resync         → vault-resync-orchestrator
 #   organon-memory-audit → memory-audit-executor
 #
 # Excluded by design:
@@ -40,9 +39,6 @@ case "$skill_name" in
         ;;
     kepano-resync)
         executor="kepano-resync-orchestrator"
-        ;;
-    vault-resync)
-        executor="vault-resync-orchestrator"
         ;;
     organon-memory-audit)
         executor="memory-audit-executor"

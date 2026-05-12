@@ -4,7 +4,6 @@ Verbatim copy of the body of vault note `99 - Méta/Système documentaire/Préfi
 
 See `vault-sync.json` for sync metadata and `scripts/sync-vault.sh` for the re-sync workflow. To re-derive after the vault file evolves: re-run the sync script, replace the bytes between markers below, update the JSON entry.
 
-<!-- VAULT-BEGIN: 99 - Méta/Système documentaire/Préfixes d'identifiants.md (full body) @synced:2026-05-08 -->
 <!-- vault-sync: see vault-sync.json for body_sha256 + drift status -->
 
 ## Objet
@@ -154,4 +153,3 @@ Avant d’inventer un préfixe sur le vif:
 - Parent: [[Conventions de nommage]]
 - Voisines: [[Vocabulaire — domain]], [[Index des standards financiers]] (FIN), [[Index — Accès à Obsidian par Claude]] (VLT), [[Méthodologie — Incidents, bugs et backlog]]
 - Conventions: [[Vault Conventions]], [[AI Bootstrap]]
-<!-- VAULT-END: 99 - Méta/Système documentaire/Préfixes d'identifiants.md (full body) -->

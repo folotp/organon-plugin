@@ -17,54 +17,50 @@ The `plugin-release` skill (`/plugin-release`, user-invokable) is the runbook. C
 - **Pre-flight gates** (see `release-readiness` subagent for parallel pre-flight, or run sequentially):
   1. Working tree clean on `main` (or release branch).
   2. `./scripts/sync-kepano.sh` exits 0 (no upstream drift).
-  3. `./scripts/sync-vault.sh` exits 0 (no vault drift).
-  4. `plugin-dev:plugin-validator` agent passes.
-  5. (Optional, on minor/major) `python3 scripts/token-harness.py` regression check.
+  3. `plugin-dev:plugin-validator` agent passes.
+  4. (Optional, on minor/major) `python3 scripts/token-harness.py` regression check.
 - **Tag flow**: push `main` *before* the tag — pushing the tag against an out-of-date remote leaves a dangling reference.
 - **`gh release create` flag-combo gotcha**: `--notes-from-tag` is incompatible with `--repo`. Inside the repo, omit `--repo`. Cross-repo, use `--notes` or `--notes-file` instead. Don't combine with `--notes-from-tag`.
 
-## Drift gates — the absorption pattern
+## Drift gate — kepano absorption
 
-The plugin absorbs upstream content from two sources, both with `body_sha256` fingerprints:
+The plugin absorbs upstream content from `kepano/obsidian-skills` (generic Obsidian syntax). Ledger: `kepano-sync.json`. Detector: `scripts/sync-kepano.sh`. Re-sync runbook: `kepano-resync` skill (`/kepano-resync`).
 
-- **kepano** (`kepano/obsidian-skills`) — generic Obsidian syntax. Ledger: `kepano-sync.json`. Detector: `scripts/sync-kepano.sh`. Re-sync runbook: `kepano-resync` skill (`/kepano-resync`).
-- **Organon vault** (PA's local Obsidian vault) — frontmatter registre, vocabularies, methodologies. Ledger: `vault-sync.json`. Detector: `scripts/sync-vault.sh`. Re-sync runbook: `vault-resync` skill (`/vault-resync`).
+A **PreToolUse hook** (`scripts/hooks/block-absorbed-edits.sh`) blocks direct `Edit|Write|MultiEdit` on any file registered as a `target_file` in `kepano-sync.json` — direct edits invalidate the fingerprint silently. To update absorbed content, route through `/kepano-resync`.
 
-A **PreToolUse hook** (`scripts/hooks/block-absorbed-edits.sh`) blocks direct `Edit|Write|MultiEdit` on any file registered as a `target_file` in either ledger — direct edits invalidate the fingerprint silently. To update absorbed content, route through the re-sync flow.
+A **PostToolUse hook** (`scripts/hooks/validate-sync-json.sh`) re-runs `sync-kepano.sh` after edits to `kepano-sync.json` to catch drift introduced by ledger edits.
 
-A **PostToolUse hook** (`scripts/hooks/validate-sync-json.sh`) re-runs `sync-kepano.sh` after edits to either ledger to catch drift introduced by JSON edits.
+A **SessionStart hook** runs the kepano detector with `--no-fetch` for a passive integrity check at session open. Note: this hook lives in `.claude/settings.json` of THIS source repo only — it is not shipped in the distributed plugin (`.claude-plugin/plugin.json` declares no hooks), so it fires only when working in this source repo, not in Code or Cowork consumer sessions.
 
-A **SessionStart hook** runs both detectors with `--no-fetch` (kepano) for a passive integrity check at session open.
+Vault-side absorption was retired in v1.0.0 — the Organon vault is PA's own, and the plugin is now the canonical home for frontmatter registre / vocabularies / methodologies. Edit those references directly.
 
 ## Repo layout
 
 | Path | Purpose |
 |---|---|
 | `.claude-plugin/plugin.json` | Plugin manifest (version, description, keywords). |
-| `skills/<name>/SKILL.md` | 11 skills total — 7 description-triggered, 4 user-only (`disable-model-invocation: true`). |
-| `skills/<name>/references/` | Lazy-loaded refs. Some absorbed (kepano/vault) with HTML markers, some Organon-owned. |
-| `skills/<name>/<agent>.md` | Skill-exclusive orchestrator agents co-located with their owning skill (4 total: `kepano-resync-orchestrator`, `vault-resync-orchestrator`, `memory-audit-executor`, `plugin-release-executor`). Symlinked from `.claude/agents/` for runtime discovery. |
+| `skills/<name>/SKILL.md` | 10 skills total — 7 description-triggered, 3 user-only (`disable-model-invocation: true`). |
+| `skills/<name>/references/` | Lazy-loaded refs. Some absorbed (kepano) with HTML markers, most Organon-owned. |
+| `skills/<name>/<agent>.md` | Skill-exclusive orchestrator agents co-located with their owning skill (3 total: `kepano-resync-orchestrator`, `memory-audit-executor`, `plugin-release-executor`). Symlinked from `.claude/agents/` for runtime discovery. |
 | `.claude/agents/*.md` | General-purpose plugin agents not tied to a single skill: `changelog-synthesizer`, `kepano-drift-resolver`, `markdown-link-validator`, `readme-inventory-checker`, `release-readiness`, `token-harness-regression`. |
-| `commands/<name>.md` | 4 slash-command wrappers (`/kepano-resync`, `/vault-resync`, `/plugin-release`, `/organon-memory-audit`). |
+| `commands/<name>.md` | 3 slash-command wrappers (`/kepano-resync`, `/plugin-release`, `/organon-memory-audit`). |
 | `scripts/sync-kepano.sh` | kepano drift detector (exit 0 = in-sync, 1 = drift, ≥2 = gate-unavailable). |
-| `scripts/sync-vault.sh` | vault drift detector (same exit semantics). |
 | `scripts/hooks/` | PreToolUse + PostToolUse hooks. |
 | `scripts/token-harness.py` | Token-cost measurement; methodology in `docs/token-harness-methodology.md`. |
 | `eval-workspace/iteration-N/` | **Gitignored.** Token harness output and benchmark notes per iteration. |
-| `kepano-sync.json`, `vault-sync.json` | Drift ledgers (per-section `body_sha256`, `synced_at_sha`, `synced_at_date`). |
+| `kepano-sync.json` | kepano drift ledger (per-section `body_sha256`, `synced_at_sha`, `synced_at_date`). |
 
 ## Working with absorbed files — DO NOT bypass the hook
 
-If you need to update content in `skills/*/references/PROPERTIES.md`, `MARKDOWN_SYNTAX.md`, `CALLOUTS.md`, `EMBEDS.md`, `BASES_SYNTAX.md`, `FUNCTIONS_REFERENCE.md`, `CANVAS_SPEC.md`, `EXAMPLES.md`, `MERMAID_SYNTAX.md`, `REGISTRE_KEYS.md`, `PREFIXES.md`, `VOCABULARIES.md` (sectioned), `METHODOLOGY_*.md` — do **not** edit them directly. The PreToolUse hook will block, for good reason: the `body_sha256` would silently desync from upstream.
+If you need to update content in kepano-absorbed files (`PROPERTIES.md`, `MARKDOWN_SYNTAX.md`, `CALLOUTS.md`, `EMBEDS.md`, `BASES_SYNTAX.md`, `FUNCTIONS_REFERENCE.md`, `CANVAS_SPEC.md`, `EXAMPLES.md`, `MERMAID_SYNTAX.md`) — do **not** edit them directly. The PreToolUse hook will block, for good reason: the `body_sha256` would silently desync from upstream.
 
 The legitimate paths:
 - **kepano-absorbed**: invoke `/kepano-resync` (or the `kepano-drift-resolver` subagent for fan-out across drifted sections).
-- **vault-absorbed**: invoke `/vault-resync` (since the v0.6.x flow fix).
-- **Intentional de-absorption**: delete the `kepano-sync.json` / `vault-sync.json` entry first, then edit as Organon-owned content.
+- **Intentional de-absorption**: delete the `kepano-sync.json` entry first, then edit as Organon-owned content.
 
 ### Resync token (`.organon-resync-token`)
 
-Both re-sync skills (and the `kepano-drift-resolver` subagent) need the model to Edit absorbed files mid-flow — but the PreToolUse hook would block. The legitimate bypass is a **scoped, short-lived, audit-logged** token at repo root:
+The `kepano-resync` skill (and the `kepano-drift-resolver` subagent) needs the model to Edit absorbed files mid-flow — but the PreToolUse hook would block. The legitimate bypass is a **scoped, short-lived, audit-logged** token at repo root:
 
 - File: `.organon-resync-token` (repo root, `.gitignored`).
 - Format: one rel_path per line; blank lines and `# comments` tolerated.
