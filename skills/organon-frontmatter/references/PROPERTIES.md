@@ -1,10 +1,6 @@
-# Properties — Absorbed from kepano
+# Properties (frontmatter) — generic Obsidian
 
-Verbatim copy of kepano `obsidian-skills` `skills/obsidian-markdown/references/PROPERTIES.md`. See `kepano-sync.json` for sync metadata and `scripts/sync-kepano.sh` for the re-sync workflow.
-
-<!-- kepano-sync: see kepano-sync.json for body_sha256 + drift status -->
-
-# Properties (Frontmatter) Reference
+Adapted from kepano/obsidian-skills@fa1e131. See `docs/refreshing-kepano.md`. For the Organon schema specifically, see `REGISTRE_KEYS.md` (sibling) — this file documents generic YAML semantics only.
 
 Properties use YAML frontmatter at the start of a note:
 

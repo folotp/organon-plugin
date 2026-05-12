@@ -1,8 +1,8 @@
 # Canvas label translations EN ↔ FR
 
-Translations à garder sous la main quand on draft un canvas dans un folder français pendant une conversation chat en anglais. Le default-English instinct slips into JSON labels même quand l'artefact vit en folder français — **traduire chaque label avant d'écrire**.
+EN↔FR translations for canvas labels in French-folder vaults during English chat sessions.
 
-| English (default instinct) | French (folder default) |
+| English | French |
 |---|---|
 | `cause`, `causes`, `causal link` | `cause`, `lien causal` |
 | `root cause` | `cause racine` |
@@ -14,13 +14,3 @@ Translations à garder sous la main quand on draft un canvas dans un folder fran
 | `blocks`, `blocked by` | `bloque`, `bloqué par` |
 | `extends`, `refines` | `étend`, `affine` |
 | `Project Overview`, `Summary` | `Vue d'ensemble`, `Synthèse` |
-
-> **Bad** (canvas sous folder français mais labels EN dans le JSON) :
-> ```json
-> {"text": "Common root cause: YAML schema drift", "label": "causes"}
-> ```
->
-> **Good** (mêmes folder, labels FR) :
-> ```json
-> {"text": "Cause racine commune : dérive de schéma YAML", "label": "cause"}
-> ```

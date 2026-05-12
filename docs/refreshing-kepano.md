@@ -1,6 +1,6 @@
 # Refreshing absorbed kepano content
 
-The plugin pins one upstream sha for the whole `kepano/obsidian-skills` repo in `kepano-version.txt`. Run `scripts/kepano-check-upstream.sh` to compare against upstream HEAD.
+The plugin pins one upstream sha for `kepano/obsidian-skills` in `kepano-version.txt`. Since v1.0.0 the absorbed references are **AI-slim adaptations** of upstream content, not byte-equivalent copies — the pin records the upstream version the adaptations were derived from. Run `scripts/kepano-check-upstream.sh` to detect when upstream has advanced past the pin.
 
 ## When upstream advances
 

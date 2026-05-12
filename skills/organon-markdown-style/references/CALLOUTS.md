@@ -1,10 +1,6 @@
-# Callouts — Absorbed from kepano
+# Callouts
 
-Verbatim copy of kepano `obsidian-skills` `skills/obsidian-markdown/references/CALLOUTS.md`. See `kepano-sync.json` for sync metadata and `scripts/sync-kepano.sh` for the re-sync workflow.
-
-<!-- kepano-sync: see kepano-sync.json for body_sha256 + drift status -->
-
-# Callouts Reference
+Adapted from kepano/obsidian-skills@fa1e131. See `docs/refreshing-kepano.md`.
 
 ## Basic Callout
 

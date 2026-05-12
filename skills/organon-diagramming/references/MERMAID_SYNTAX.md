@@ -1,10 +1,6 @@
-# Mermaid syntax — Absorbed from kepano
+# Mermaid in Obsidian
 
-Verbatim extract of kepano `obsidian-skills` `skills/obsidian-markdown/SKILL.md` §Diagrams (Mermaid). See `kepano-sync.json` for sync metadata and `scripts/sync-kepano.sh` for the re-sync workflow.
-
-<!-- kepano-sync: see kepano-sync.json for body_sha256 + drift status -->
-
-## Diagrams (Mermaid)
+Adapted from kepano/obsidian-skills@fa1e131. See `docs/refreshing-kepano.md`.
 
 ````markdown
 ```mermaid

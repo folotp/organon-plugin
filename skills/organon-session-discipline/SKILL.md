@@ -5,44 +5,34 @@ description: Use at the start of any Claude session operating on the Organon vau
 
 # organon-session-discipline
 
-7 frictions Claude récurrentes (cf. VLT-ADR-012). Domaine purement behavioral. Pour conventions techniques, cascade vers `organon-vault-write`, `organon-frontmatter`, `organon-markdown-style`.
+7 behavioral rules (cf. VLT-ADR-012). For technical conventions, cascade to `organon-vault-write`, `organon-frontmatter`, `organon-markdown-style`.
 
 ## 1. Arbitrate, don't over-clarify
 
-PA prefers arbitrage motivé over sur-clarification. Quand une décision est inférable du contexte (ADRs, conventions, transcript), faire l'appel et proposer direction. Demander uniquement si stakes hauts (overwrite, delete, batch > 3, cross-domain refactor) **ou** ambiguïté maximale — et même là, proposer un défaut et laisser PA le contester.
-
-> **Bad** : « Veux-tu que je préserve la numérotation existante VLT-BUG-001…021 (3 chiffres) ou que je renumérote en 4 chiffres comme les nouveaux ? »
-> **Good** : « Je préserve VLT-BUG-001…021 en 3 chiffres (no-renumber per SD-ADR-008 §existing IDs) ; les nouveaux suivent 4 chiffres. Conteste si non. »
+When a decision is inferable from context (ADRs, conventions, transcript), make the call and propose direction. Ask only for high-stakes operations (overwrite, delete, batch > 3, cross-domain refactor) or maximal ambiguity — and even then, propose a default and let PA contest.
 
 ## 2. Read bootstrap once per session, only when needed
 
-`[[AI Bootstrap]]` est canonique pour la **topologie vault** : folder → note d'entrée par domaine, et pointers vers les domain bootstraps (`[[Finance Bootstrap]]`, `[[Home Automation Bootstrap]]`). Lire **une fois** par session quand un drafting nécessite ces faits ; mémoïser le résultat pour les artefacts suivants dans la même conversation. Le Bootstrap ne porte plus les system facts (OS, version MCP wrapper) ni les conventions générales — celles-ci vivent dans les surface instructions et la mémoire projet.
-
-> **Bad** : re-fetch Bootstrap pour un 2e artefact dans la même session.
-> **Good** : « Bootstrap déjà lu, folder map en cache mental — j'enchaîne. »
+`[[AI Bootstrap]]` is canonical for vault topology: folder → domain entry note, pointers to domain bootstraps. Read once per session when drafting requires these facts; memoize for subsequent artifacts in the same conversation.
 
 ## 3. No in-fiche redundancy
 
-Si l'info est dans une table/liste/frontmatter, ne pas la restater en prose juste avant ou après. One canonical form per fact.
-
-> **Bad** : table « Statut: open / in-progress / done » immédiatement précédée de « Le statut peut être open, in-progress, ou done. »
-> **Good** : 1-sentence intro qui annonce la table, puis la table seule.
+If information exists in a table, list, or frontmatter, do not restate it in prose immediately before or after. One canonical form per fact.
 
 ## 4. Confirm inferred mappings explicitly
 
-Quand on map des items entre systèmes (`VLT-BUG-NNN ↔ GitHub issue #N`, `ADR ↔ Diagnostic problem ID`, `transcript timestamp ↔ commit`), énoncer l'inférence et demander « confirm? » dans la même réponse. PA accepting passively ≠ validation explicite.
-
-> **Bad** : « VLT-BUG-020 correspond à #58 et VLT-BUG-021 à #62. » (PA accepte sans valider.)
-> **Good** : « Mapping inféré — VLT-BUG-020 ↔ istefox/obsidian-mcp-tools#58, VLT-BUG-021 ↔ #62. Confirme? » (Burnt 2026-04-27.)
+When mapping items across systems (`VLT-BUG-NNN ↔ GitHub issue #N`, `ADR ↔ problem ID`, `timestamp ↔ commit`), state the inference and ask "confirm?" in the same response. PA accepting passively ≠ explicit validation.
 
 ## 5. Propose generalizations when patterns recur
 
-Si 2+ artefacts similaires sont produits (sweeps, layers, prompts, BL templates, fiches avec structure parallèle), proposer un meta-pattern ou template. Ne pas attendre que PA demande.
+When 2+ similar artifacts are produced (sweeps, layers, BL templates, parallel-structure fiches), propose a meta-pattern or template. Don't wait for PA to ask.
 
 ## 6. Check meta-skills before producing typed artifacts
 
-Avant de drafter un artefact d'un type spécifique (SKILL.md, ADR, plugin Cowork, MCP server, manifest), itérer sur `available_skills` pour identifier une skill méta qui code des best practices structurelles. Anchoring biases courants à neutraliser : framing projet l'emporte sur framing artefact, sentiment d'avoir « toute l'info locale » via les exemples disponibles. Skill-creator note explicitement : Claude tend à *undertrigger* les skills utiles. (Burnt 2026-04-28 — drafter 4 SKILL.md sans consulter `skill-creator`.)
+Before drafting a typed artifact (SKILL.md, ADR, plugin, MCP server, manifest), scan `available_skills` for a meta-skill encoding structural best practices.
+
+**Why:** Claude tends to undertrigger useful skills when local examples create a false sense of having full context.
 
 ## 7. Language coherence — folder default beats prompt language
 
-Pour les artefacts vault (ADR, BL, BUG, INC, Concept, Note, etc.), la langue est gouvernée par le folder, pas par le prompt. Règle complète et exemples : `organon-markdown-style` §Langue par dossier (canonical home).
+For vault artifacts (ADR, BL, BUG, INC, Concept, Note, etc.), language is governed by the folder, not the prompt. Full rule and examples: `organon-markdown-style` §Langue par dossier (canonical home).

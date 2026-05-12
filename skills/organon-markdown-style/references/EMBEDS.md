@@ -1,10 +1,6 @@
-# Embeds — Absorbed from kepano
+# Embeds
 
-Verbatim copy of kepano `obsidian-skills` `skills/obsidian-markdown/references/EMBEDS.md`. See `kepano-sync.json` for sync metadata and `scripts/sync-kepano.sh` for the re-sync workflow.
-
-<!-- kepano-sync: see kepano-sync.json for body_sha256 + drift status -->
-
-# Embeds Reference
+Adapted from kepano/obsidian-skills@fa1e131. See `docs/refreshing-kepano.md`.
 
 ## Embed Notes
 
