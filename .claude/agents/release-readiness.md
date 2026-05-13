@@ -80,7 +80,7 @@ FAIL: `mean(ratio)` regression > 5 % vs the most recent iteration. Surface the p
 bash "$REPO_ROOT/skills/plugin-release/scripts/package.sh" --dry
 ```
 
-PASS: dry run completes, the listed contents include `.claude-plugin/plugin.json`, `skills/**`, `scripts/**`, `docs/**`, `README.md`, `kepano-sync.json`, AND exclude `.git/`, `eval-workspace*/`, `evals/iteration-*/`, `__pycache__/`, `.DS_Store`, prior `*.plugin` archives.
+PASS: dry run completes, the listed contents include `.claude-plugin/plugin.json`, `skills/**`, `scripts/**`, `docs/**`, `README.md`, `kepano-version.txt`, `.claude/agents/**`, AND exclude `.git/`, `eval-workspace*/`, `evals/iteration-*/`, `__pycache__/`, `.DS_Store`, `.claude/settings.json`, prior `*.plugin` archives.
 FAIL: missing required content OR includes excluded content.
 
 ### Gate 6 — Markdown link integrity

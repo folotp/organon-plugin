@@ -55,8 +55,8 @@ cd "$REPO_ROOT"
 EXCLUDES=(
     '.git/*'
     '.git/**/*'
-    '.claude/*'
-    '.claude/**/*'
+    '.claude/settings.json'
+    '.claude/settings.local.json'
     'eval-workspace/*'
     'eval-workspace/**/*'
     'eval-workspace-*/*'
