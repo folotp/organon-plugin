@@ -55,8 +55,8 @@ cd "$REPO_ROOT"
 EXCLUDES=(
     '.git/*'
     '.git/**/*'
-    '.claude/settings.json'
-    '.claude/settings.local.json'
+    '.claude/*'
+    '.claude/**/*'
     'eval-workspace/*'
     'eval-workspace/**/*'
     'eval-workspace-*/*'
@@ -86,6 +86,7 @@ if [[ "$DRY" -eq 1 ]]; then
     echo "from:        $REPO_ROOT"
     echo "contents:"
     zip -r -q -X /tmp/organon-pkg-dry.zip . "${ZIP_EXCLUDE_ARGS[@]}"
+    zip -r -q -X /tmp/organon-pkg-dry.zip .claude/agents/
     unzip -l /tmp/organon-pkg-dry.zip
     rm -f /tmp/organon-pkg-dry.zip
     exit 0
@@ -94,6 +95,7 @@ fi
 [[ -f "$ARCHIVE" ]] && rm -f "$ARCHIVE"
 
 zip -r -q -X "$ARCHIVE" . "${ZIP_EXCLUDE_ARGS[@]}"
+zip -r -q -X "$ARCHIVE" .claude/agents/
 
 echo "built:  $ARCHIVE"
 echo "size:   $(du -h "$ARCHIVE" | awk '{print $1}')"
