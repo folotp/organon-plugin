@@ -1,27 +1,27 @@
 ---
 name: organon-session-discipline
-description: Use at the start of any Claude session operating on the Organon vault (path contains `Organon`), or before any multi-step Organon task (drafting an ADR, BL, BUG, INC, sweep, refactor wave). 7 behavioral rules: arbitrate over over-clarify, read bootstrap, no in-fiche redundancy, confirm inferred mappings, propose generalizations, check meta-skills, language coherence by folder.
+description: Use at the start of any Claude session operating on the Organon vault (path contains `Organon`), or before any multi-step Organon task (drafting/updating an ADR, BL, BUG, INC, sweep, refactor wave, or any "check if an Organon note needs updating" prompt). 8 behavioral rules: arbitrate over over-clarify, read bootstrap, no in-fiche redundancy, confirm inferred mappings, propose generalizations, check meta-skills, language coherence by folder, semantic pre-filter before exploratory reads.
 ---
 
 # organon-session-discipline
 
-7 behavioral rules (cf. VLT-ADR-012). For technical conventions, cascade to `organon-vault-write`, `organon-frontmatter`, `organon-markdown-style`.
+8 behavioral rules (cf. VLT-ADR-012). For technical conventions, cascade to `organon-vault-write`, `organon-vault-read`, `organon-frontmatter`, `organon-markdown-style`.
 
 ## 1. Arbitrate, don't over-clarify
 
-When a decision is inferable from context (ADRs, conventions, transcript), make the call and propose direction. Ask only for high-stakes operations (overwrite, delete, batch > 3, cross-domain refactor) or maximal ambiguity — and even then, propose a default and let PA contest.
+If decision is inferable from context (ADRs, conventions, transcript), make the call and propose direction. Ask only for high-stakes ops (overwrite, delete, batch > 3, cross-domain refactor) or maximal ambiguity — even then, propose a default and let PA contest.
 
 ## 2. Read bootstrap once per session, only when needed
 
-`[[AI Bootstrap]]` is canonical for vault topology: folder → domain entry note, pointers to domain bootstraps. Read once per session when drafting requires these facts; memoize for subsequent artifacts in the same conversation.
+`[[AI Bootstrap]]` is canonical for vault topology: folder → domain entry note, pointers to domain bootstraps. Read once per session when drafting requires these facts; memoize for subsequent artifacts in same conversation.
 
 ## 3. No in-fiche redundancy
 
-If information exists in a table, list, or frontmatter, do not restate it in prose immediately before or after. One canonical form per fact.
+If info exists in table, list, or frontmatter, don't restate it in prose before or after. One canonical form per fact.
 
 ## 4. Confirm inferred mappings explicitly
 
-When mapping items across systems (`VLT-BUG-NNN ↔ GitHub issue #N`, `ADR ↔ problem ID`, `timestamp ↔ commit`), state the inference and ask "confirm?" in the same response. PA accepting passively ≠ explicit validation.
+When mapping across systems (`VLT-BUG-NNN ↔ GitHub issue #N`, `ADR ↔ problem ID`, `timestamp ↔ commit`), state the inference and ask "confirm?" in same response. PA accepting passively ≠ explicit validation.
 
 ## 5. Propose generalizations when patterns recur
 
@@ -29,10 +29,24 @@ When 2+ similar artifacts are produced (sweeps, layers, BL templates, parallel-s
 
 ## 6. Check meta-skills before producing typed artifacts
 
-Before drafting a typed artifact (SKILL.md, ADR, plugin, MCP server, manifest), scan `available_skills` for a meta-skill encoding structural best practices.
+Before drafting typed artifact (SKILL.md, ADR, plugin, MCP server, manifest), scan `available_skills` for a meta-skill encoding structural best practices.
 
-**Why:** Claude tends to undertrigger useful skills when local examples create a false sense of having full context.
+**Why:** Claude undertriggers useful skills when local examples create false sense of full context.
 
 ## 7. Language coherence — folder default beats prompt language
 
-For vault artifacts (ADR, BL, BUG, INC, Concept, Note, etc.), language is governed by the folder, not the prompt. Full rule and examples: `organon-markdown-style` §Langue par dossier (canonical home).
+For vault artifacts (ADR, BL, BUG, INC, Concept, Note, etc.), language governed by folder, not prompt. Full rule and examples: `organon-markdown-style` §Langue par dossier (canonical home).
+
+## 8. Semantic pre-filter before exploratory reads
+
+Before calling `get_vault_file` on unknown path (not hardcoded in skill or given in prompt), call `search_vault_smart` first with natural-language query.
+
+**When to use:** Finding relevant notes, checking prior art, identifying context before multi-step task. Exempt: skill-hardcoded paths (`AI Bootstrap`, `Vault Conventions.md`, `references/*`), paths given explicitly by PA.
+
+**Result interpretation:** Results are similarity-ranked. Read only top 1-3, only when path (folder + title) plausibly matches query — `search_vault_smart` returns paths and scores, no body excerpts. Off-topic top result (wrong domain folder, unrelated title) = skip.
+
+**Read budget:** At most 3 reads per smart-search result set before re-evaluating. Prefer `get_vault_file_partial` (frontmatter / heading / outline) over full `get_vault_file` — see `organon-vault-read` for decision tree. All 3 candidates low-relevance → report to PA instead of reading further.
+
+**Provider-not-ready fallback:** If `search_vault_smart` errors or times out, fall back to `search_vault_simple` (keyword). Don't skip pre-filtering entirely.
+
+**Why:** Without this rule, exploratory reads default to full `get_vault_file` on uncertain paths, burning context tokens on irrelevant notes. `search_vault_smart` is a cheap path-filter before committing to any body read.

@@ -1,67 +1,168 @@
 ---
 name: organon-vault-write
-description: Use before any `patch_vault_file`, `create_vault_file`, `append_to_vault_file`, or `execute_template` call on the Organon vault (path contains `Organon`). MCP write discipline (mcp-tools-istefox ≥ 0.4.5): YAML quoting, frontmatter array semantics, tags shape, heading-patch safety, NFC normalisation, Templater-first routing for structured shapes.
+description: Use before any MCP write against the Organon vault (path contains `Organon`) — `set_note_property` / `delete_note_property` for atomic frontmatter, `patch_vault_file` / `create_vault_file` / `append_to_vault_file` for body, `rename_heading` / `rename_vault_file` for link-safe rename, `execute_template` for structured shapes. Mandates atomic-always frontmatter writes, canonical template paths (BL/BUG/INC/ADR + Note/Concept/Person/Book/Quote/Index/Organization), heading-patch safety incl. fenced-code H2 trap, EJS-literal Templater invariants, NFC normalisation.
 ---
 
 # organon-vault-write
 
-Edge cases → `get_vault_file('99 - Méta/AI/Vault Conventions.md')`.
+Edge cases → `get_vault_file('99 - Méta/AI/Vault Conventions.md')`. Read-side → `organon-vault-read`.
 
-## MCP write-tool surface
+## MCP write-tool surface (mcp-tools-istefox ≥ 0.7.0)
 
 | Tool | Use for | Notes |
 |---|---|---|
-| `patch_vault_file` | Targeted field/heading/block edits on an existing note | `targetType`: `frontmatter` \| `heading` \| `block`; `operation`: `replace`/`append`/`prepend` |
-| `create_vault_file` | Create a new note with full content | Auto-creates missing parent directories (≥ 0.4.5) |
-| `append_to_vault_file` | Append raw content to an existing note | Idempotency is caller's responsibility |
-| `execute_template` | Render a Templater template | `createFile: false` → returns rendered string; `createFile: true` → creates file at `targetPath` |
+| `set_note_property` | Add/update single frontmatter key | Atomic. Bypasses full-frontmatter revalidation. Preferred over `patch_vault_file targetType:frontmatter`. |
+| `delete_note_property` | Remove single frontmatter key | Atomic. |
+| `patch_vault_file` | Heading / block / multi-key frontmatter rewrite | `targetType`: `heading` \| `block` \| `frontmatter`; `operation`: `replace`/`append`/`prepend`. Prefer atomic tools for frontmatter. |
+| `create_vault_file` | Create note with full content | Auto-creates missing parent dirs (≥ 0.4.5). |
+| `append_to_vault_file` | Append raw content to existing note | Caller responsible for idempotency. |
+| `rename_heading` | Rename heading + update all vault refs | Link-safe. Replaces patch + manual sweep. |
+| `rename_vault_file` | Rename file + preserve all incoming links | Link-safe. Replaces filesystem rename + sweep. |
+| `execute_template` | Render Templater template | `createFile: false` → returns rendered string; `createFile: true` → creates file at `targetPath`. |
+| `get_or_create_daily_note` / `get_or_create_periodic_note` | Ensure + return periodic note | Idempotent. |
+| `append_to_periodic_note` | Append to periodic note (today or specified) | Combine with periodic-note ensure for journal flows. |
+| `create_vault_directory` / `delete_vault_directory` / `delete_vault_file` | Filesystem ops | `delete_vault_file` requires explicit filename — never `delete_active_file`. |
 
-## Templater-first routing (structured shapes)
+## Atomic-always for frontmatter (canonical)
 
-- IF the shape is BL / BUG / INC / ADR (sequential ID): use **two-step** — `execute_template … createFile:false` → read `frontmatter.id` from rendered output → `create_vault_file content=<render> filename=<folder>/<id>.md`. Never invent the ID before rendering; Templater generates it via `tp.user.next_id`.
-- IF the shape is Note / Concept / Person / Book / Quote / Index / Organization: use **one-step** — `execute_template … createFile:true targetPath:<path>`.
-- NEVER `create_vault_file` ad-hoc for these shapes — Templater injects ULID, sequential ID, creator, and Linter-conformant key order.
+Use atomic tools (`set_note_property`, `delete_note_property`) over `patch_vault_file targetType:frontmatter`. Two reasons:
+
+1. **Safer.** Single-key in-place update; malformed scalar elsewhere doesn't block the edit.
+2. **Cheaper.** Wire payload `{ path, key, value }` vs JSON-encoded full-frontmatter rewrite.
+
+Multi-key edits: loop the atomic call. Safety and token-economy over speed.
+
+`patch_vault_file targetType:frontmatter` retained for: (a) bulk rewrite reshaping an entire key set, (b) legacy toolchains pinned below 0.6.0.
+
+## Wire format reminders
+
+### `set_note_property`
+
+```json
+{ "path": "Folder/Note.md", "key": "status", "value": "active" }
+```
+
+Arrays: pass real JSON array.
+
+```json
+{ "path": "Folder/Note.md", "key": "tags", "value": ["source/ia", "domain/tooling"] }
+```
+
+### `patch_vault_file targetType:frontmatter` (when needed)
+
+`content` must be JSON-encoded string, not object. Internal double-quotes escaped as `\"`.
+
+```json
+{ "content": "\"Value with : colon\"", "contentType": "application/json" }
+```
+
+## Canonical template paths (Templater-first routing)
+
+Two shape families, both routed through `execute_template`. **Static** (instruction gabarit only — IDs NOT injected) vs **active** (Templater injects ULID, sequential ID, creator, key order).
+
+### Static gabarits — two-step (resolve ID externally → `create_vault_file`)
+
+| Shape | Template path |
+|---|---|
+| VLT-BL | `99 - Méta/Templates/VLT-BL-template.md` |
+| VLT-BUG | `99 - Méta/Templates/VLT-BUG-template.md` |
+| VLT-INC | `99 - Méta/Templates/VLT-INC-template.md` |
+| VLT-ADR / SD-ADR | `99 - Méta/Templates/ADR-template.md` |
+| SD-BL | `99 - Méta/Templates/BL-template.md` |
+
+Workflow:
+1. `execute_template{ templatePath, createFile: false }` → returns gabarit body verbatim (structural reference).
+2. Resolve sequential ID: `list_vault_files` on domain Backlog folder → pick `max(id) + 1`.
+3. Generate ULID (bash `python -c "import ulid; print(ulid.new())"` or equivalent Crockford base32).
+4. `create_vault_file{ filename: "<folder>/<id>.md", content: <filled-in render> }`.
+
+Templates do **not** inject IDs — session must.
+
+### Active Templater shapes — one-step (`createFile: true`)
+
+| Shape | Template path |
+|---|---|
+| Note | `99 - Méta/Templates/Note template.md` |
+| Concept | `99 - Méta/Templates/Concept template.md` |
+| Person | `99 - Méta/Templates/Person template.md` |
+| Book | `99 - Méta/Templates/Book template.md` |
+| Quote | `99 - Méta/Templates/Quote template.md` |
+| Index | `99 - Méta/Templates/Index template.md` |
+| Organization | `99 - Méta/Templates/Organization template.md` |
+| Note de session de psychothérapie | `99 - Méta/Templates/Note de session de psychothérapie.md` |
+| Note de journal personnel | `99 - Méta/Templates/Note de journal personnel.md` |
+| Note de bilan personnel | `99 - Méta/Templates/Note de bilan personnel.md` |
+
+Workflow:
+
+```js
+execute_template({
+  templatePath: "99 - Méta/Templates/Note template.md",
+  targetPath: "<domain folder>/<filename>.md",
+  createFile: true
+})
+```
+
+Templater injects ULID (via `tp.user.ulid()` from `99 - Méta/Templates/scripts/ulid.js`), Linter-conformant key order, `creator: Claude` + `source/ia` tag (dual-mode detection via `tp.mcpTools`), and `modified:` timestamp. Do not `create_vault_file` ad-hoc for these shapes — bypassing template re-implements upstream work and risks subtle divergence.
+
+## Templater invariants (when authoring or debugging a template)
+
+1. **Every fenced JS block must close correctly.** Mismatched `<% … %>` brackets corrupt render and can leave file unsaved.
+2. **`tp.user.*` helpers live in `99 - Méta/Templates/scripts/`.** Confirm helper exists before referencing.
+3. **MCP-mode detection via `tp.mcpTools`.** Use dual-mode prelude (`if (tp.mcpTools) { creator = "Claude"; tags.push("source/ia") } else { creator = "Pierre-André Folot" }`).
+4. **Sequential IDs via `tp.user.next_id(<prefix>, <folder>)`.** Never invent IDs client-side for active-Templater shapes.
+5. **No EJS literals inside JS comments inside a Templater block.** EJS parser interprets `<%`, `%>`, `-%>`, `<%*` **even inside `//` or `/* */` comments**. Commented-out example tag still terminates surrounding block. Break across two strings (`"<" + "%"`) or move example outside the Templater block.
 
 ## YAML quoting rules
 
-- IF a frontmatter scalar contains `: # & * ! | > ' " % @ \``: quote it with `"…"`.
-- **Wire format for `patch_vault_file targetType: frontmatter`**: `content` must be a JSON-encoded string, not a JSON object. Internal double-quotes escaped as `\"`.
-  ```json
-  { "content": "\"Value with : colon\"", "contentType": "application/json" }
-  ```
-  **Why:** Local REST API revalidates full frontmatter on every patch — a malformed scalar blocks all subsequent edits (HTTP 500).
+- IF frontmatter scalar contains `: # & * ! | > ' " % @ \``: quote with `"…"`.
 
-## Frontmatter array vs scalar
+**Why:** `get_vault_file_partial mode=frontmatter` strict parser rejects unquoted scalars with `:` (returns `"File has no frontmatter"`). Patch-side risk retired in mcp-tools-istefox 0.4.x, but partial-read path and strict-YAML consumers still require quoted scalars. `set_note_property` quotes correctly by construction when `value` is JSON string.
 
-- Fields `tags:`, `aliases:`, `references:` are arrays. Pass a JSON array string: `"content": "[\"a\", \"b\"]"`.
-- On a scalar field, pass a JSON string: `"content": "\"some value\""`.
-- IF types mismatch: fail-loud (no silent coercion since istefox 0.4.0).
-- `append`/`prepend` auto-wrap a bare scalar into an array element on array fields.
+## Frontmatter array vs scalar (atomic and patch)
+
+- `tags:`, `aliases:`, `references:` are arrays. With `set_note_property`, pass JSON array as `value`. With `patch_vault_file`, pass `"content": "[\"a\", \"b\"]"`.
+- Scalar field with `patch_vault_file`: pass `"content": "\"some value\""`.
+- Type mismatch: fail-loud (no silent coercion since istefox 0.4.0).
+- `append`/`prepend` on `patch_vault_file` auto-wraps bare scalar into array element on array fields. With atomic tools: `get_note_property` → mutate → `set_note_property`.
 
 ## Tags shape
 
-- `tags:` must be an array of strings — never a number, `null`, bare date, or empty scalar.
-- IF no tags: omit the key entirely, or use `tags: []`.
+- `tags:` must be array of strings — never number, `null`, bare date, or empty scalar.
+- No tags: omit key, or `tags: []`.
 - **Why:** YAML 1.1 silently parses `tags: 4` as `[Number(4)]`; plugins calling `.startsWith()` crash.
 
 ## Heading-patch safety
 
-1. Before any `patch_vault_file targetType: heading`: `get_vault_file` + grep `^## <target>$`. Abort if absent.
-2. `createTargetIfMissing: true` (the default on ≥ 0.4.5) silently appends to EOF when the heading is missing — do not rely on it as a safety net.
-3. `createTargetIfMissing: false` is **incompatible with Organon** — istefox rejects H2-root notes as "root-orphan" (all Organon notes are H2-root by convention).
-4. `targetType: block` is rejected fail-loud if the block ref is inside a table cell or on a fenced-code boundary.
-- Post-write: on the first heading patch of a session, verify mtime + diff before proceeding.
+1. Before `patch_vault_file targetType: heading`: read via `get_vault_file_partial mode=outline` (cheap) — abort if heading absent.
+2. `createTargetIfMissing: true` (default ≥ 0.4.5) silently appends to EOF when heading missing — do not rely on it as safety net.
+3. H1-free notes (title in frontmatter, body starts at H2) accepted on ≥ 0.4.10 via `allowRootHeadings`. Pre-0.4.10 "root-orphan" rejection retired.
+4. `targetType: block` rejected fail-loud if block ref inside table cell or fenced-code boundary.
+5. **`targetType: heading` with `operation: replace` traverses H2 boundaries inside fenced code blocks** (VLT-BUG-0022, still active). Target section with fenced block containing `## ` lines: heading walker treats internal `## ` as real boundaries — replace stops at first one, orphaning rest of code block and promoting internal `## ` to real H2. Silent corruption.
+   - **Discipline:** before heading replace, read target section via `get_vault_file_partial mode=heading`, scan for fenced blocks with `## ` lines. If present, route to `create_vault_file` (full-file rewrite).
+- Post-write: on first heading patch of session, verify mtime + diff before proceeding.
+
+## Renaming — prefer the link-safe tools
+
+| Intent | Tool | Why |
+|---|---|---|
+| Rename heading + update all `[[Note#Heading]]` refs | `rename_heading` | Vault-wide sweep by connector. Replaces patch + manual `[[…#…]]` grep. |
+| Rename file + preserve all `[[Name]]` | `rename_vault_file` | Incoming links rewritten. Replaces filesystem rename + sweep. |
+| Move file across folders | `rename_vault_file` with new path | Same link preservation. |
+
+Do not rename via `create_vault_file` + `delete_vault_file` — breaks all incoming `[[…]]`.
 
 ## NFC normalisation
 
-- Apply NFC to every path and title containing accented characters before any MCP call.
-- IF 404 on a path that should exist: try NFC variant → `list_vault_files` parent → byte-compare → log VLT-INC.
+- Apply NFC to every path/title with accented characters before any MCP call.
+- 404 on path that should exist: try NFC variant → `list_vault_files` parent → byte-compare → log VLT-INC.
 
 ## Footguns
 
-- `delete_active_file` takes no arguments — deletes whatever is focused in Obsidian. Always use `delete_vault_file` with an explicit filename.
-- MCP write followed by a manual UI save can be overwritten by Obsidian's re-import. Wait for the "Re-import" banner to clear before saving in the UI.
-- Do not pre-create parent directories; `create_vault_file`, `append_to_vault_file`, and `execute_template` auto-mkdirp since 0.4.5.
-- Do not add a "verify MCP is alive" ping step before writes. Let the real call surface failures; retry only on abnormal signals.
+- `delete_active_file` takes no arguments — deletes whatever is focused in Obsidian. Always use `delete_vault_file` with explicit filename.
+- MCP write followed by manual UI save can be overwritten by Obsidian's re-import. Wait for "Re-import" banner to clear before saving in UI.
+- Do not pre-create parent dirs; `create_vault_file`, `append_to_vault_file`, `execute_template` auto-mkdirp since 0.4.5.
+- No "verify MCP is alive" ping before writes. Let real call surface failures; retry only on abnormal signals.
+- `execute_template` on static gabarit returns body verbatim — does NOT inject IDs. Session responsible for ID resolution before `create_vault_file`.
 
-Schema frontmatter → `organon-frontmatter`. Body prose → `organon-markdown-style`.
+Frontmatter schema → `organon-frontmatter`. Body prose → `organon-markdown-style`. Read-side → `organon-vault-read`.

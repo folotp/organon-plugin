@@ -1,6 +1,6 @@
 # Audit keywords
 
-In-scope filter for organon-memory-audit. Substring match (case-insensitive) unless marked exact-token.
+In-scope filter. Substring match, case-insensitive, unless marked exact-token.
 
 ## Plugin / skills / commands (exact tokens)
 

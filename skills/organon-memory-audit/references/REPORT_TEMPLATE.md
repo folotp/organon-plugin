@@ -1,8 +1,8 @@
 # Report template — organon-memory-audit
 
-The skill renders this skeleton inline in the conversation. Do not write the report to a file unless PA explicitly asks — the conversation is the persistence.
+Render inline in conversation. Write to file only if PA explicitly asks — conversation is the persistence.
 
-The `Stable run hash` is the sha256 of the concatenation `(plugin.json content + kepano-version.txt content + canonical vault note body + companion matrix body)`. Two consecutive runs with the same hash means pole 1 + pole 2 are unchanged.
+`Stable run hash`: sha256 of `(plugin.json content + kepano-version.txt content + canonical vault note body + companion matrix body)`. Same hash on two consecutive runs = pole 1 + pole 2 unchanged.
 
 ```markdown
 # Organon memory & instructions audit — <YYYY-MM-DD HH:MM>
@@ -36,7 +36,7 @@ For each drifted entry:
 - **Routing**: docs/refreshing-kepano.md
 - **Why**: pole 1 must be self-consistent before pole 3 can be audited against it.
 
-If Bucket 0 is non-empty, the audit halts here. PA fixes pole-1 drift first, then re-runs.
+Non-empty Bucket 0 halts audit. PA fixes pole-1 drift, then re-runs.
 
 ### Bucket 1 — Memory edits (<N>)
 
@@ -83,7 +83,7 @@ For each finding:
   ```
 - **Rationale**: why this belongs in plugin source rather than memory.
 
-Recommendation only — actual plugin work goes through the normal `/plugin-release` flow on a feature branch.
+Recommendation only — plugin work goes through `/plugin-release` on a feature branch.
 
 ### Bucket 4 — Canonical-snippets edits (<N>)
 
@@ -116,7 +116,7 @@ For each finding:
 
 ## Empty-report short form
 
-If all buckets are 0:
+All buckets 0:
 
 ```markdown
 # Organon memory & instructions audit — <YYYY-MM-DD HH:MM>

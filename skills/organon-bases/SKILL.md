@@ -21,7 +21,7 @@ Agent({
 })
 ```
 
-Forward verbatim any user constraints (folder, filter shape, summary type). The sub-agent owns the full runbook and the lazy-loads of `references/BASES_SYNTAX.md` + `references/FUNCTIONS_REFERENCE.md` — running it on sonnet keeps the kepano-absorbed grammar off the main opus context.
+Forward user constraints verbatim (folder, filter shape, summary type). Sub-agent owns the full runbook and lazy-loads `references/BASES_SYNTAX.md` + `references/FUNCTIONS_REFERENCE.md` — sonnet keeps kepano-absorbed grammar off main opus context.
 
 ## Runbook location
 

@@ -4,14 +4,15 @@ Organon vault conventions for Claude — packaged as a Cowork/Claude Code plugin
 
 ## What this plugin provides
 
-Nine skills total: seven description-triggered (load automatically when working with the Organon Obsidian vault at `~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Organon`) plus two user-only skills invoked via slash command.
+Ten skills total: eight description-triggered (load automatically when working with the Organon Obsidian vault at `~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Organon`) plus two user-only skills invoked via slash command. Targets `mcp-tools-istefox` ≥ 0.7.0.
 
-### Core (4 skills, validated in chat 1.A)
+### Core (5 skills)
 
-- **organon-vault-write** — MCP write discipline via `mcp-tools-istefox` 0.4.5+. Covers Templater-first routing for structured notes (two-step render-then-create / one-step render-and-create via `execute_template`), YAML scalar quoting, frontmatter array vs scalar semantics, `tags:` array shape, heading patch safety, NFC normalization, footguns.
+- **organon-vault-write** — MCP write discipline via `mcp-tools-istefox` ≥ 0.7.0. Atomic-always frontmatter writes (`set_note_property` / `delete_note_property`), canonical template paths for static gabarits (BL/BUG/INC/ADR) and active Templater shapes (Note/Concept/Person/Book/Quote/Index/Organization), link-safe `rename_heading` / `rename_vault_file`, heading-patch safety incl. the still-active fenced-code H2 trap (VLT-BUG-0022), EJS-literal-in-JS-comment Templater invariant, NFC normalization.
+- **organon-vault-read** (new in v1.1.0) — Read-side token-minimisation. Decision tree across atomic frontmatter (`get_note_property`), partial reads (`get_vault_file_partial` modes: frontmatter / heading / block / outline), graph nav (`get_backlinks`, `get_outgoing_links`), tag and property indexes (`list_tags`, `get_files_by_tag`, `list_property_values`), search (`search_vault_smart` → `search_vault_simple` fallback, `execute_dataview_query` in-process, `search_vault` DQL/JsonLogic), `get_recent_files`. Reserves full `get_vault_file` for cases where the whole body is genuinely required.
 - **organon-frontmatter** — Schema, key ordering, controlled vocabularies, ULID forward-only, `creator:` dual-mode (UI vs MCP), archive/supersession, alias-only versioning, ADR/BL/BUG/INC field requirements. Vocabularies externalized to `references/VOCABULARIES.md` (loaded on-demand).
 - **organon-markdown-style** — Body conventions: no H1 in body, language by folder (`99 - Méta/AI/` in EN, rest in FR), typographic apostrophes, no trailing whitespace, no systematic block anchors, table+block-ref pitfall.
-- **organon-session-discipline** — 7 behavioral rules: arbitrate over over-clarify, read bootstrap before drafting, no in-fiche redundancy, confirm inferred mappings, propose generalizations, check meta-skills before producing typed artifacts, language coherence by folder.
+- **organon-session-discipline** — 8 behavioral rules: arbitrate over over-clarify, read bootstrap before drafting, no in-fiche redundancy, confirm inferred mappings, propose generalizations, check meta-skills before producing typed artifacts, language coherence by folder, semantic pre-filter before exploratory reads (Rule 8, new in v1.1.0).
 
 ### Aux (3 skills, new in v0.2.0 — chat 1.B)
 
@@ -43,6 +44,18 @@ Net effect: when `organon-frontmatter` triggers (drafting an ADR / VLT-BUG / FIN
 - Detailed results in `refactor-phase4/wave-1-skills-bootstrap/eval-workspace/` of the Organon project workspace.
 
 ## Changes since v0.1.0
+
+### v1.1.0 (mcp-tools-istefox 0.7.0 refactor + caveman compression)
+
+- **Connector floor bumped 0.4.5 → 0.7.0.** Skills now leverage the post-0.4.5 tool surface: atomic frontmatter props (`set_note_property`, `get_note_property`, `delete_note_property`, `list_property_values`), partial reads (`get_vault_file_partial` modes frontmatter / heading / block / outline), link-safe rename (`rename_heading`, `rename_vault_file`), in-process Dataview (`execute_dataview_query`, 0.7.0+), periodic notes (`get_or_create_periodic_note`, `append_to_periodic_note`), graph nav (`get_backlinks`, `get_outgoing_links`), tag and property indexes (`list_tags`, `get_files_by_tag`).
+- **New `organon-vault-read` skill** — read-side counterpart to `organon-vault-write`. Decision tree routes every read to the cheapest tool that returns enough information; full `get_vault_file` is the last resort. Reference matrix in `references/READ_TOOL_MATRIX.md`.
+- **Atomic-always for frontmatter writes.** `set_note_property` / `delete_note_property` are the canonical path; `patch_vault_file targetType:frontmatter` is reserved for bulk reshape. Safer (no full-frontmatter revalidation footgun) and cheaper (single-key payload).
+- **Rule 8 — semantic pre-filter** added to `organon-session-discipline`. Closes issue #34. Before any exploratory `get_vault_file`, `search_vault_smart` returns the top-K candidate paths; only the top 1-3 get partial-read.
+- **Canonical template paths** added to `organon-vault-write` for both static gabarits (BL/BUG/INC/ADR/SD-BL) and active Templater shapes (Note/Concept/Person/Book/Quote/Index/Organization + 3 domain specials). Closes issues #33 and #35.
+- **Documented active bugs.** Heading-replace traverses H2 boundaries inside fenced code blocks (VLT-BUG-0022, closes #37). EJS literals interpreted inside JS comments (closes #38).
+- **Updated YAML-quoting rationale** — patch-side LRA revalidation footgun retired in 0.4.x; partial-read parser still strict. Closes issue #36.
+- **Caveman-compressed every skill body and reference.** Prose-only compression — frontmatter `description:` fields, code, tables, file paths, MCP tool names, wikilinks all preserved verbatim. Closes issue #40.
+- **Harness extended.** S11-S13 measure atomic-frontmatter writes, partial reads, and the Rule 8 semantic pre-filter. New `organon-vault-read` row in the skill classification.
 
 ### v1.0.0 (absorption overhaul — major token-cost reduction)
 

@@ -13,15 +13,15 @@ Cross-refs: `REGISTRE_KEYS.md` §Clés pour les ADR · `VOCABULARIES.md` §`adr-
 | `VLT-ADR-NNN` | Claude × Organon interface | `99 - Méta/Outils/Accès à Obsidian par Claude/ADR/` |
 | `SD-ADR-NNN` | Documentary system | `99 - Méta/Système documentaire/ADR/` |
 
-Same shape, same lifecycle, same governance. Prefix and folder are the only differences.
+Same shape, lifecycle, governance. Prefix and folder differ only.
 
 ---
 
 ## Write-or-not rules
 
-**Write an ADR IF:** decision changes a policy, modifies architecture (folders, note types, frontmatter schema, inter-fiche flows), adopts/abandons a tool or protocol, arbitrates conflicting principles, or would be contestable without context.
+**Write IF:** decision changes policy, modifies architecture (folders, note types, frontmatter schema, inter-fiche flows), adopts/abandons tool or protocol, arbitrates conflicting principles, or would be contestable without context.
 
-**Do NOT write an ADR IF:** execution work for a decided decision → backlog (`<DOMAIN>-BL-NNNN`). Empirical observation with no decisional content. Bug fix → `METHODOLOGY_INC_BUG_BL.md`. Minor update to an already-ADR'd convention that does not reverse an earlier decision.
+**Do NOT write IF:** execution work for a decided decision → backlog (`<DOMAIN>-BL-NNNN`). Empirical observation with no decisional content. Bug fix → `METHODOLOGY_INC_BUG_BL.md`. Minor update to an already-ADR'd convention that doesn't reverse a prior decision.
 
 ---
 
@@ -31,7 +31,7 @@ Same shape, same lifecycle, same governance. Prefix and folder are the only diff
 - **Décision** — one decision, declarative. One per ADR.
 - **Conséquences** — what gets easier/harder; accepted trade-offs.
 
-Recommended: **Alternatives considérées** · **Mise en œuvre** · **Journal** (append-only events on the fiche itself).
+Recommended: **Alternatives considérées** · **Mise en œuvre** · **Journal** (append-only events on the fiche).
 
 ---
 
@@ -64,7 +64,7 @@ tags:
 ---
 ```
 
-`supersedes:` / `superseded-by:` — present only when the fiche is in a supersession chain.
+`supersedes:` / `superseded-by:` — present only when fiche is in a supersession chain.
 
 ---
 
@@ -77,36 +77,36 @@ accepted → superseded     (new ADR replaces it; new one carries supersedes:)
 accepted → deprecated     (no longer in force, no replacement — rare; prefer supersession)
 ```
 
-No other transitions are valid. `rejected` and `deprecated` are terminal.
+No other transitions valid. `rejected` and `deprecated` are terminal.
 
 ---
 
 ## Immutability rule (CRITICAL)
 
-An `accepted` ADR is never rewritten. IF the decision changes, THEN write a new ADR that:
+An `accepted` ADR is never rewritten. IF decision changes, THEN write a new ADR that:
 - carries `supersedes: "[[old]]"` in frontmatter,
-- restates the **complete** current decision (no read-dependency on the old fiche),
+- restates the **complete** current decision (no read-dependency on old fiche),
 - explains in Contexte what changed.
 
-The old ADR:
+Old ADR:
 - gets `status: superseded` + `superseded-by: "[[new]]"`,
 - stays in place (no archiving),
 - receives the superseded callout (see below).
 
-**Why complete supersession only:** single-pattern coherence. `amends:` / `amended-by:` are deprecated — never use them. Even purely additive changes (adding an enum value, extending a case list) follow complete supersession.
+**Why complete supersession only:** single-pattern coherence. `amends:` / `amended-by:` are deprecated — never use. Even purely additive changes (adding an enum value, extending a case list) require complete supersession.
 
 ---
 
 ## Superseded callout (mandatory)
 
-Insert on the **first body line** after frontmatter for any `status: superseded` fiche:
+Insert on **first body line** after frontmatter for any `status: superseded` fiche:
 
 ```markdown
 > [!warning] Superseded
 > Cette fiche est remplacée par [[<nouvelle>]]. Pour la décision en vigueur, consulter cette dernière.
 ```
 
-**Why both `status:` and callout:** `status: superseded` drives Bases/Dataview filters and AI skill recovery. The callout protects any agent or human who loads the fiche despite the filter — they see the warning before reading the body.
+**Why both `status:` and callout:** `status: superseded` drives Bases/Dataview filters and AI skill recovery. Callout protects any agent or human loading the fiche despite the filter — they see the warning before reading body.
 
 Not Linter-enforced; verified during monthly Organon maintenance.
 
@@ -116,15 +116,15 @@ Not Linter-enforced; verified during monthly Organon maintenance.
 
 ### Creating an ADR
 1. Pick prefix (`VLT-ADR` / `SD-ADR`) by domain.
-2. Read the index to find the next available number.
-3. Create `<PRÉFIXE>-NNN.md` in the ADR folder; frontmatter per `REGISTRE_KEYS.md`.
+2. Read the index for next available number.
+3. Create `<PRÉFIXE>-NNN.md` in ADR folder; frontmatter per `REGISTRE_KEYS.md`.
 4. Set `status: proposed` unless already ratified at write time (then `status: accepted`, noted in journal).
-5. Update the index's modifications journal if the decision impacts the in-force convention.
+5. Update index's modifications journal if decision impacts in-force convention.
 
 ### Supersession
 1. Create new ADR with `supersedes: "[[old]]"`.
 2. Update old ADR: `status: superseded` + `superseded-by: "[[new]]"` + insert superseded callout on first body line.
-3. Audit notes referencing the old ADR — wikilinks still resolve, but pointed content may be obsolete.
+3. Audit notes referencing old ADR — wikilinks still resolve, but pointed content may be obsolete.
 
 ### MCP write discipline
 1. Emit write (`create_vault_file` for full fiche, `patch_vault_file` for targeted amendment).

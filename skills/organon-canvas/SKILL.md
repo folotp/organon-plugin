@@ -21,7 +21,7 @@ Agent({
 })
 ```
 
-Forward verbatim any user constraints (which notes are nodes, edge semantics, embed plans). The sub-agent owns the full runbook and the lazy-loads of `references/CANVAS_SPEC.md` + `references/EXAMPLES.md` + `references/LABEL_TRANSLATIONS.md` — running it on sonnet keeps the kepano-absorbed spec off the main opus context.
+Forward user constraints verbatim (node notes, edge semantics, embed plans). Sub-agent owns the full runbook and lazy-loads `references/CANVAS_SPEC.md` + `references/EXAMPLES.md` + `references/LABEL_TRANSLATIONS.md` — sonnet keeps kepano-absorbed spec off main opus context.
 
 ## Runbook location
 

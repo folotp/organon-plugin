@@ -1,6 +1,6 @@
 # Canvas label translations EN ↔ FR
 
-EN↔FR translations for canvas labels in French-folder vaults during English chat sessions.
+Canvas label translations for French-folder vaults in English chat sessions.
 
 | English | French |
 |---|---|
