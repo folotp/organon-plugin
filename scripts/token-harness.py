@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Token harness — formal P6.2 successor.
 
-Measures the runtime token cost of the organon plugin across 10
+Measures the runtime token cost of the organon plugin across 13
 representative session shapes, with a built-in pre/post comparison
 between the cascade-eager era and the v0.4.0 lazy-load era.
 
@@ -120,6 +120,15 @@ SKILLS: dict[str, dict[str, list[str] | str | None]] = {
         "own_refs": [],
         "dispatch_to": None,
     },
+    "organon-vault-read": {
+        # v1.1.0 — read-side counterpart to organon-vault-write.
+        "core": ["SKILL.md"],
+        "absorbed_refs": [],
+        "own_refs": [
+            "references/READ_TOOL_MATRIX.md",
+        ],
+        "dispatch_to": None,
+    },
 }
 
 
@@ -219,6 +228,26 @@ SESSIONS: list[dict] = [
         ],
         "needs": [
             ("organon-frontmatter", "references/VOCABULARIES.md"),
+        ],
+    },
+    {
+        "id": "S11",
+        "name": "Atomic frontmatter write (set_note_property, 1-3 keys)",
+        "skills": ["organon-frontmatter", "organon-vault-write"],
+        "needs": [],
+    },
+    {
+        "id": "S12",
+        "name": "Partial read (get_vault_file_partial mode=heading)",
+        "skills": ["organon-vault-read"],
+        "needs": [],
+    },
+    {
+        "id": "S13",
+        "name": "Exploratory semantic pre-filter (search_vault_smart → top-3 partial)",
+        "skills": ["organon-session-discipline", "organon-vault-read"],
+        "needs": [
+            ("organon-vault-read", "references/READ_TOOL_MATRIX.md"),
         ],
     },
 ]

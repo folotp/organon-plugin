@@ -1,6 +1,6 @@
 # Excalidraw `.excalidraw.md` skeleton
 
-The Excalidraw plugin parses literal markers in the file. Reproduce this skeleton verbatim when persisting a connector-generated drawing via the bridge. Wrap the `elements` array from `create_view` inside the JSON block on the `## Drawing` heading.
+Excalidraw plugin parses literal markers. Reproduce skeleton verbatim when persisting a connector drawing via the bridge. Wrap `elements` array from `create_view` inside the JSON block under `## Drawing`.
 
 ## Skeleton (reproduce verbatim)
 
@@ -20,12 +20,12 @@ tags: [excalidraw]
 
 ## Strip before saving
 
-Any `cameraUpdate`, `delete`, or `restoreCheckpoint` pseudo-elements from `create_view` output. They are rendering directives for the connector, not real Excalidraw elements — leaving them in breaks the plugin's parser.
+`cameraUpdate`, `delete`, `restoreCheckpoint` pseudo-elements from `create_view` output. Rendering directives for the connector, not real Excalidraw elements — leaving them breaks the plugin's parser.
 
 ## Preserve verbatim
 
-The `excalidraw-plugin: parsed` frontmatter key, the warning sentence, the `## Drawing` heading, the closing `%%` markdown comment. The plugin matches these literally.
+`excalidraw-plugin: parsed` frontmatter key, warning sentence, `## Drawing` heading, closing `%%` markdown comment. Plugin matches these literally.
 
 ## Save target
 
-`99 - Méta/Media/Excalidraw/<name>.excalidraw.md` via `create_vault_file`. Plugin invariants (compression OFF, default font Virgil, Linter OFF) are documented in the SKILL.md.
+`99 - Méta/Media/Excalidraw/<name>.excalidraw.md` via `create_vault_file`. Plugin invariants (compression OFF, default font Virgil, Linter OFF) documented in the SKILL.md.

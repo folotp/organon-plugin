@@ -1,8 +1,8 @@
 # Frontmatter Keys Registry
 
-Canonical registry of all frontmatter keys used in Organon. For each key: description, scope, required/optional, type, controlled vocabulary (if any), standard/origin, Linter sort position.
+Canonical registry of all frontmatter keys in Organon. Per key: description, scope, required/optional, type, controlled vocabulary, standard/origin, Linter sort position.
 
-**Controlled vocabularies:** authoritative value lists live in dedicated notes under `99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — <key>.md`. These apply vault-wide (Templater, Linter, Bases, audits). On disagreement, the vocabulary note is canonical.
+**Controlled vocabularies:** authoritative value lists in `99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — <key>.md`. Vault-wide (Templater, Linter, Bases, audits). On disagreement, vocabulary note is canonical.
 
 ## Key Legend
 
@@ -15,22 +15,22 @@ Canonical registry of all frontmatter keys used in Organon. For each key: descri
 
 | Key | Description | Required | Type | Vocabulary | Standard |
 |---|---|---|---|---|---|
-| `title` | Human-readable note title. For coded notes, begins with code (e.g. `"FIN-DEC-090 — Title…"`). No longer tied to filename (Option C, 2026-04-23). | yes | string | free; code prefix if applicable | Pandoc, SSG |
-| `aliases` | Alternative names. For coded notes, first alias is code alone (e.g. `FIN-DEC-090`) for short wikilinks. | no | list<string> | free | Obsidian |
+| `title` | Human-readable note title. Coded notes begin with code (e.g. `"FIN-DEC-090 — Title…"`). Not tied to filename (Option C, 2026-04-23). | yes | string | free; code prefix if applicable | Pandoc, SSG |
+| `aliases` | Alternative names. Coded notes: first alias is code alone (e.g. `FIN-DEC-090`) for short wikilinks. | no | list<string> | free | Obsidian |
 | `description` | Scope line; recommended for notes >500 words. | no | string | free | DCMI, schema.org |
 | `type` | Note type; determines filing and structural contract. | yes | enum | see **Vocabulary: type** below | Organon |
 | `content-model` | Structural contract orthogonal to type (renamed from `shape`, 2026-04-25). | no | enum | see **Vocabulary: content-model** below | Organon |
-| `lang` | Primary language of note. | no | string | BCP 47 | BCP 47 |
-| `creator` | Author of the Organon note itself (not the described content). | no | string | free | DCMI |
+| `lang` | Primary language. | no | string | BCP 47 | BCP 47 |
+| `creator` | Author of Organon note (not described content). | no | string | free | DCMI |
 | `created` | Creation timestamp. | yes | datetime | `YYYY-MM-DD HH:mm` | DCMI, ISO 8601 |
 | `modified` | Last modification timestamp. | yes | datetime | `YYYY-MM-DD HH:mm` | DCMI, ISO 8601 |
-| `ulid` | Unique stable identifier (ULID, 26 char Crockford base32). Forward-only; notes created before 2026-04-23 may lack it. | no | string | ULID (26 chars) | Organon |
+| `ulid` | Unique stable identifier (ULID, 26 char Crockford base32). Forward-only; notes before 2026-04-23 may lack it. | no | string | ULID (26 chars) | Organon |
 | `status` | Lifecycle state; vocabulary depends on domain. | no | enum | see domain sections | Bugzilla / Organon |
 | `archived` | Archive flag; orthogonal to status. | no | bool | `true` / `false` | Organon |
 | `archived-date` | When archived. | if `archived: true` | date | `YYYY-MM-DD` | Organon, ISO 8601 |
 | `closed-date` | When closed or completed. | if `status: done \| closed` (recommended) | date | `YYYY-MM-DD` | Organon, ISO 8601 |
-| `date` | Date of described content/event (distinct from `created`/`modified`). Used for incidents, snapshots, dated events. Generalized 2026-05-05 beyond VLT-INC only. | if applicable to note type | date | `YYYY-MM-DD` | Organon, ISO 8601 |
-| `last-reviewed` | Date of last content review/audit (for freshness tracking). Adopted 2026-05-05. | no | date | `YYYY-MM-DD` | Organon, ISO 8601 |
+| `date` | Date of described content/event (distinct from `created`/`modified`). For incidents, snapshots, dated events. Generalized 2026-05-05 beyond VLT-INC only. | if applicable to note type | date | `YYYY-MM-DD` | Organon, ISO 8601 |
+| `last-reviewed` | Date of last content review/audit (freshness tracking). Adopted 2026-05-05. | no | date | `YYYY-MM-DD` | Organon, ISO 8601 |
 | `next-review` | Planned next review date. Adopted 2026-05-05. | no | date | `YYYY-MM-DD` | Organon, ISO 8601 |
 | `cadence` | Review/execution frequency for recurring processes. Adopted 2026-05-05. | no | enum | `on-demand` \| `monthly` \| `quarterly` \| `annually` | Organon |
 | `tags` | Functional tags (source, domain, topic). | no | list<string> | defined namespaces | Obsidian, SSG |
@@ -57,7 +57,7 @@ Canonical registry of all frontmatter keys used in Organon. For each key: descri
 - `ai` — Bootstrap config for AI system in `99 - Méta/AI/`.
 - `hypothesis` — Modeling proposition to validate (planning, research). Promoted 2026-05-05.
 - `rule` — Operational rule applicable to system/context. Promoted 2026-05-05.
-- `tool` — External tool (software, API, service) referenced for internal use. Promoted 2026-05-05.
+- `tool` — External tool (software, API, service) for internal use. Promoted 2026-05-05.
 - `template` — Templater template or reusable skeleton. Promoted 2026-05-05.
 - `runbook` — Executable operational procedure (review, audit, backup). Promoted 2026-05-05.
 - `reference` — Canonical source of fact(s) or specification. Promoted 2026-05-05.
@@ -75,7 +75,7 @@ Canonical registry of all frontmatter keys used in Organon. For each key: descri
 
 ### Vocabulary: status (global)
 
-See controlled vocabulary note for complete list. Global value **`active`** (adopted 2026-05-05): note is in force/operational. Distinct from `accepted` (decisions/ADR only) and `done` (backlog items only).
+See controlled vocabulary note for complete list. Global value **`active`** (adopted 2026-05-05): note in force/operational. Distinct from `accepted` (decisions/ADR only) and `done` (backlog items only).
 
 ## Keys for type: person
 
@@ -114,7 +114,7 @@ Aligned with schema.org Book.
 | Key | Description | Required | Type | Vocabulary | Standard |
 |---|---|---|---|---|---|
 | `id` | Stable identifier. | yes | string | `FIN-DEC-NNNN` | Organon |
-| `date-decided` | Date decision was made. | yes | date | `YYYY-MM-DD` | Organon, ISO 8601 |
+| `date-decided` | Date decision made. | yes | date | `YYYY-MM-DD` | Organon, ISO 8601 |
 | `status` | Decision lifecycle. | yes | enum | `proposed` \| `accepted` \| `rejected` \| `superseded` \| `deprecated` | Organon (Nygard 2011, ADR canon) |
 | `references` | Referenced notes. | no | list<wikilink> | wikilinks | Organon |
 
@@ -124,7 +124,7 @@ Aligned with schema.org Book.
 
 Subdomains use global frontmatter + `id:` field: `FIN-HYP-*` (hypothesis), `FIN-TOOL-*` (tool), `FIN-RULE-*` (rule), `FIN-REF-*` (reference), `FIN-BL-*` (backlog item), `FIN-ETAT-*` (state snapshot), `FIN-RB-*` (runbook).
 
-**No FIN-specific keys since 2026-05-05** — all thematic classification via `tags:` (namespaces `topic/finance/<area>`, `topic/system/<name>`, `topic/item-type/<value>`). Retired keys: `domain`, `item-type`, `tool-type`, `target-type`, `scope`, `category`, `related-decisions`, `snapshot-date`. See **Retired Keys** section.
+**No FIN-specific keys since 2026-05-05** — thematic classification via `tags:` (namespaces `topic/finance/<area>`, `topic/system/<name>`, `topic/item-type/<value>`). Retired keys: `domain`, `item-type`, `tool-type`, `target-type`, `scope`, `category`, `related-decisions`, `snapshot-date`. See **Retired Keys** section.
 
 ## Keys for domain: VLT (99 - Méta/Outils/Accès à Obsidian par Claude/)
 
@@ -208,11 +208,11 @@ For notes with formal versioned lifecycle (e.g. **Modèle opérationnel — Clau
 | `issued` | Publication date of current version. Distinct from `created` (note creation) and `modified` (last file touch). | if note is versioned | date | `YYYY-MM-DD` | Organon, ISO 8601 |
 | `supersedes` | Version/note replaced by this one (inverse of `superseded-by`). `null` if v1.0 initial. | if versioned ≠ v1.0 initial | wikilink or null | wikilink | Organon |
 
-**Versioning governance:** (documented on stable pointer note for each versioned family, e.g. **Modèle opérationnel — Claude × Organon**):
+**Versioning governance** (documented on stable pointer note for each versioned family, e.g. **Modèle opérationnel — Claude × Organon**):
 1. New version created as `(vYYYY-MM-DD).md` with `status: draft`.
 2. Iterate on draft without version bump.
 3. Activate: old → `status: superseded` + `superseded-by:` filled; new → `status: active`; pointer note updated.
-4. Superseded versions remain in place (not archived away); history preserved.
+4. Superseded versions remain in place; history preserved.
 
 **Scope:** architecture pivot notes only. Not a general-purpose vault pattern.
 
@@ -285,7 +285,7 @@ tags
 
 **Key placement principles:** Most-consulted first (`title`, `aliases`, `description`, `type`, `content-model`, `lang`). `ulid` follows `id`. Authorship + system timestamps grouped (`creator`, `created`, `modified`). Lifecycle grouped (`status`, `archived`, `archived-date`, `closed-date`). Navigation relations last. Tags always last.
 
-**Action (2026-04-25):** Update `.obsidian/plugins/obsidian-linter/data.json` rule `yaml-key-sort.yaml-key-priority-sort-order` array: replace `shape` with `content-model` at the same position (between `type` and `lang`). Linter reverts to alphabetic sort without this fix.
+**Action (2026-04-25):** Update `.obsidian/plugins/obsidian-linter/data.json` rule `yaml-key-sort.yaml-key-priority-sort-order` array: replace `shape` with `content-model` at same position (between `type` and `lang`). Linter reverts to alphabetic sort without this fix.
 
 ## Retired Keys (Migration Completed)
 
@@ -294,16 +294,16 @@ tags
 | `shape` | `content-model` | Renamed 2026-04-25. 19 notes migrated. |
 | `first-name` (kebab) | `given-name` | Linter `remove-yaml-keys` migrated. |
 | `last-name` (kebab) | `family-name` | Linter `remove-yaml-keys` migrated. |
-| `date updated` (spaced) | `modified` | Never observed in production; in Linter removal list. |
+| `date updated` (spaced) | `modified` | Never in production; in Linter removal list. |
 | Tag `notetype/archive` | `archived: true` + `archived-date:` | Migrated. |
 | Tag `notetype/personne` | `type: person` | Migrated. |
 | `section-source` | — | Dropped Phase 4B. 178 occurrences removed. |
 | `legacy-q-id` | — | Dropped Phase 4B. |
 | `legacy-id` | — | Dropped Phase 4B. |
 | `down` | — | Deprecated; backlinks via Bases suffice. Removed from 2 notes 2026-05-03. Remove from Linter sort order. |
-| `amends` | `supersedes` (full supersession) | Deprecated 2026-05-05. Affected 2 FIN-DEC chains; converted to full supersession or `references:`. |
+| `amends` | `supersedes` (full supersession) | Deprecated 2026-05-05. 2 FIN-DEC chains converted to full supersession or `references:`. |
 | `amended-by` | `superseded-by` (full supersession) | Deprecated 2026-05-05. Co-migrated with `amends`. |
-| `domain` | `tags:` namespace `topic/finance/<area>` | Deprecated 2026-05-05. 115 occurrences migrated (108 FIN-BL + 7 FIN-REF). Drop (not rename); thematic classification now via `topic/*` namespace. Avoids collision with template arg `tp.user.domain`. |
+| `domain` | `tags:` namespace `topic/finance/<area>` | Deprecated 2026-05-05. 115 occurrences migrated (108 FIN-BL + 7 FIN-REF). Drop (not rename); thematic classification via `topic/*` namespace. Avoids collision with template arg `tp.user.domain`. |
 | `item-type` | `tags:` namespace `topic/item-type/<value>` | Deprecated 2026-05-05. 108 FIN-BL migrated; values (`maintenance`, `recurring`, `decision-pending`, `parking`) become tags. Value `backlog` (68 notes) dropped—redundant with folder `Backlog/Items/`. French `décision à prendre` → `decision-pending`. |
 | `tool-type` | (drop—redundant with ID prefix) | Deprecated 2026-05-05. 19 FIN-TOOL occurrences removed; prefix encodes tool class. |
 | `target-type` | (drop—redundant with filename) | Deprecated 2026-05-05. 6 FIN-TOOL-GAB occurrences removed; filename encodes target. |

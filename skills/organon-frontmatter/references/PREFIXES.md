@@ -1,13 +1,13 @@
 # Préfixes d'identifiants
 
-Exhaustive registry of Organon identifier prefixes. Each ID has form `DOMAIN-TYPE[-SUBTYPE]-NNN` with 3–4 digits per domain volumetry. IDs are immutable; block-references (`^<ID>`) must be declared in note headers.
+Registry of Organon identifier prefixes. Form: `DOMAIN-TYPE[-SUBTYPE]-NNN`, 3–4 digits per domain volumetry. IDs immutable; block-refs (`^<ID>`) declared in note headers.
 
 ## Core principles
 
-1. **Domain, not tool.** Prefixes reflect domain (`VLT`, `FIN`, `SD`) not tool (`OBS`, `YNAB`). Domains survive tool migration.
-2. **Stability.** IDs never change. Reclassify via new ID + redirection, never reuse.
-3. **Atomicity.** One ID = one `.md` file. Registers/journals link only; content lives in the fiche.
-4. **Block-ref anchor.** Each fiche declares `^<ID>` under its title for stable links.
+1. **Domain, not tool.** Prefixes reflect domain (`VLT`, `FIN`, `SD`), not tool (`OBS`, `YNAB`). Domains survive tool migration.
+2. **Stability.** IDs never change. Reclassify via new ID + redirection; never reuse.
+3. **Atomicity.** One ID = one `.md` file. Registers/journals link only; content in fiche.
+4. **Block-ref anchor.** Each fiche declares `^<ID>` under title for stable links.
 
 ## Prefix registry
 
@@ -34,31 +34,31 @@ Exhaustive registry of Organon identifier prefixes. Each ID has form `DOMAIN-TYP
 ## Creation protocol
 
 **New domain prefix:**
-1. Check existing registry & reserved names (`ORG`, `OBS`, `CLD`, `DEBT`).
-2. Verify it names a domain, not a tool.
-3. Add to registry as `Réservé` with scope & index note.
-4. Activate (status → `Actif`) when first fiche is created.
+1. Check registry & reserved names (`ORG`, `OBS`, `CLD`, `DEBT`).
+2. Must name a domain, not a tool.
+3. Add as `Réservé` with scope & index note.
+4. Activate (`Actif`) when first fiche created.
 5. Sync `Vocabulaire — domain` frontmatter value.
 
 **New type within existing domain:**
 1. Verify no existing type covers it.
-2. Add row to domain's table; specify 3 or 4 digits per expected volume.
-3. Create folder if volumetry justifies it.
-4. Document observed subtypes (e.g., `FIN-RULE-GOV`, `FIN-TOOL-YNAB`) if they appear in future.
+2. Add row; specify 3 or 4 digits per expected volume.
+3. Create folder if volumetry justifies.
+4. Document observed subtypes (e.g., `FIN-RULE-GOV`, `FIN-TOOL-YNAB`) as they appear.
 
 ## Anti-patterns
 
-- Invent ID mid-session without registry entry → silent collision risk.
-- Use tool name as prefix (`YNAB-001`) → breaks on tool change.
-- Renumber after creation → breaks all backlinks; create new ID + redirect instead.
-- Delete a fiche → use `status: archived` or `status: superseded-by: [[<new>]]`; never remove (traceability).
-- 2-letter prefix (`OB`, `FI`) → ambiguous with future abbreviations; use 3+.
-- "Technical debt" third type → always resolve with backlog; debt is action, action is backlog.
+- Invent ID mid-session without registry entry → silent collision.
+- Tool name as prefix (`YNAB-001`) → breaks on tool change.
+- Renumber after creation → breaks all backlinks; new ID + redirect instead.
+- Delete fiche → use `status: archived` or `status: superseded-by: [[<new>]]`; never remove (traceability).
+- 2-letter prefix (`OB`, `FI`) → ambiguous; use 3+.
+- "Technical debt" type → resolve with backlog; debt is action, action is backlog.
 
-## Reserved prefixes (not allocated, to avoid future collision)
+## Reserved prefixes (not allocated)
 
-- `ORG` — too close to "Organon"; unused to avoid confusion with `VLT`.
-- `OBS` — too tightly bound to Obsidian tool.
+- `ORG` — too close to "Organon"; avoids confusion with `VLT`.
+- `OBS` — too tightly bound to Obsidian.
 - `CLD` — scopes to agent, not domain.
 - `DEBT` — (rejected 2026-04-19) distinction from backlog was cosmetic; items are backlog.
 

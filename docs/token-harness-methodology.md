@@ -81,6 +81,7 @@ Per skill:
 |---|---|---|---|
 | organon-frontmatter | SKILL.md | references/PROPERTIES.md | references/VOCABULARIES.md |
 | organon-vault-write | SKILL.md | (none) | (none) |
+| organon-vault-read | SKILL.md | (none) | references/READ_TOOL_MATRIX.md |
 | organon-markdown-style | SKILL.md | references/MARKDOWN_SYNTAX.md, references/CALLOUTS.md, references/EMBEDS.md | (none) |
 | organon-bases | SKILL.md | references/BASES_SYNTAX.md, references/FUNCTIONS_REFERENCE.md | (none) |
 | organon-canvas | SKILL.md | references/CANVAS_SPEC.md, references/EXAMPLES.md | (none) |
@@ -93,7 +94,7 @@ The harness models this as core-only post-absorption — the gain from
 inline absorption shows up indirectly via other skills that share the
 absorbed content.
 
-## Session shapes (10 sessions)
+## Session shapes (13 sessions)
 
 Each session represents a realistic Organon task and lists which skills
 trigger plus which references the task genuinely needs (would consume
@@ -112,6 +113,14 @@ re-runs the measurement.
 | S08 | Diagramming triage (mermaid vs canvas decision) | diagramming | (none) |
 | S09 | Vault-write append (heading patch, no schema) | vault-write | (none) |
 | S10 | Sweep / refactor wave (frontmatter migration N notes) | frontmatter, vault-write, session-discipline | VOCABULARIES.md |
+| S11 | Atomic frontmatter write (`set_note_property`, 1-3 keys) | frontmatter, vault-write | (none) |
+| S12 | Partial read (`get_vault_file_partial mode=heading`) | vault-read | (none) |
+| S13 | Exploratory semantic pre-filter (`search_vault_smart` → top-3 partial reads) | session-discipline, vault-read | READ_TOOL_MATRIX.md |
+
+S11-S13 added in v1.1.0 to measure the post-refactor leverage of atomic
+frontmatter tools, partial reads, and the Rule 8 semantic pre-filter.
+These shapes were not measurable before the connector exposed the new
+tools and the vault-read skill was authored.
 
 Sessions S01, S03, S04, S08, S09 are the « lean » shapes where the
 absorption savings are largest (eager cascade load avoided entirely).

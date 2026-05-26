@@ -31,7 +31,7 @@ Hooks declared in `.claude/settings.json` fire only when working in **this** sou
 | Path | Purpose |
 |---|---|
 | `.claude-plugin/plugin.json` | Plugin manifest. |
-| `skills/<name>/SKILL.md` | 9 skills (7 description-triggered, 2 user-only). |
+| `skills/<name>/SKILL.md` | 10 skills (8 description-triggered, 2 user-only). |
 | `skills/<name>/<agent>.md` | Co-located executor/author agents; symlinked from `.claude/agents/`. |
 | `kepano-version.txt` | Pinned upstream sha for absorbed content. |
 | `scripts/token-harness.py` | Cost measurement; methodology in `docs/token-harness-methodology.md`. |

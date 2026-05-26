@@ -22,17 +22,17 @@ Agent({
 
 ## Args to forward
 
-- **Repo root absolute path** — the absolute path to the organon-plugin repo on the current filesystem (e.g. `/Users/pierreandre/Developer/organon-plugin`). Required for all filesystem-dependent operations (pole 1 reads, integrity gate scripts, drift ledger paths).
-- **Per-pole scope flag** — if the user passed `--scope=global`, `--scope=project[=<slug>]`, or `--scope=all`, forward it verbatim. If absent, the executor defaults to `--scope=global`.
-- **Interaction mode flag** — if the user passed `--mode=interactive` or `--mode=report-only`, forward it verbatim. Executor defaults to `--mode=interactive`.
-- **Surface override** — if the user passed `--surface=code|cowork|chat`, forward it. Executor will skip surface-detection probes and use the specified branch.
+- **Repo root absolute path** — absolute path to organon-plugin repo (e.g. `/Users/pierreandre/Developer/organon-plugin`). Required for pole 1 reads, integrity gate scripts, drift ledger paths.
+- **Per-pole scope flag** — forward `--scope=global`, `--scope=project[=<slug>]`, or `--scope=all` verbatim. Default: `--scope=global`.
+- **Interaction mode flag** — forward `--mode=interactive` or `--mode=report-only` verbatim. Default: `--mode=interactive`.
+- **Surface override** — forward `--surface=code|cowork|chat` if passed; executor skips surface-detection probes.
 
 ## When NOT to delegate
 
-There are no edge cases that justify inline execution. This skill is read-only and the executor is sonnet-pinned; the full audit runbook (surface detection, three-pole reads, integrity gate, four-bucket triage, interactive walk) is maintained exclusively in the executor agent file.
+No edge case justifies inline execution. Skill is read-only; executor is sonnet-pinned; full runbook (surface detection, three-pole reads, integrity gate, four-bucket triage, interactive walk) lives exclusively in the executor agent file.
 
-The only legitimate reason not to delegate is if `memory-audit-executor` itself is unavailable (e.g. the agent file is missing or broken). In that case, fix the executor — do not work around it by running the runbook inline.
+Only skip delegation if `memory-audit-executor` is unavailable (missing or broken agent file). Fix the executor — do not run the runbook inline.
 
 ## Runbook location
 
-The full audit runbook is in `.claude/agents/memory-audit-executor.md`.
+`.claude/agents/memory-audit-executor.md`.

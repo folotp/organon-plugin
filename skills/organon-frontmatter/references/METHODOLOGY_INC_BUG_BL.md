@@ -38,8 +38,8 @@ bug: "[[<DOMAIN>-BUG-NNN]]"
 
 **Lifecycle rules**:
 - Append-only. Never rewrite past content.
-- IF a cause hypothesis arises during observation → record it in a BUG fiche, NOT here.
-- IF a `bug:` link is added later → update `status: assigned`.
+- IF cause hypothesis arises during observation → record in BUG fiche, NOT here.
+- IF `bug:` link added later → update `status: assigned`.
 
 ---
 
@@ -116,8 +116,8 @@ effort: <value>
 ```
 
 **Lifecycle rules**:
-- IF a BUG remediation is concrete enough to track → create BL; link in `bug.remédiation:`.
-- IF item is a micro-adjustment → keep in fiche journal, do NOT create a BL.
+- IF BUG remediation concrete enough to track → create BL; link in `bug.remédiation:`.
+- IF item is micro-adjustment → keep in fiche journal, do NOT create BL.
 - IF `status: done` but not yet observed without recurrence → stay `done`, not `verified`.
 
 ---
@@ -146,9 +146,9 @@ Why: VLT-BUG-005 / VLT-INC-0022 demonstrated silent mutation with no error retur
 
 ## Anti-patterns
 
-- Creating a BUG for each INC — dilutes the registry; wait for promotion criteria.
-- Recording hypotheses in an INC fiche — breaks append-only; hypotheses belong in BUG.
-- Closing a BUG at `fix-deployed` without a verified observation session.
+- Creating a BUG for each INC — dilutes registry; wait for promotion criteria.
+- Recording hypotheses in INC fiche — breaks append-only; hypotheses belong in BUG.
+- Closing BUG at `fix-deployed` without verified observation session.
 - Creating BL items for micro-adjustments — journal entries suffice.
 - Inventing a 4th type (debt, risk, observation…) — test INC/BUG/BL first.
 - Recycling an ID after supersession — retired IDs stay retired.

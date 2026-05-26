@@ -24,22 +24,22 @@ Agent({
 
 ## Args to forward
 
-- **Version bump type**: `patch`, `minor`, or `major` (see semver semantics in the executor runbook).
-- **Repo root absolute path**: the working directory; pass explicitly so the executor resolves all paths unambiguously.
-- **Release notes / maintainer notes**: any copy the user wants in the GitHub Release body; leave blank to let the executor apply the template.
-- **Dry-run flag**: `true` to run all pre-flight and packaging steps without pushing the tag or creating the Release.
+- **Version bump type**: `patch`, `minor`, or `major` (semver; semantics in executor runbook).
+- **Repo root absolute path**: pass explicitly; executor resolves all paths from it.
+- **Release notes / maintainer notes**: user copy for GitHub Release body; blank → executor applies template.
+- **Dry-run flag**: `true` = run pre-flight + packaging, skip tag push and Release creation.
 
 ## When NOT to delegate inline
 
-These edge cases still route through the executor, but with `dry-run: true` so the maintainer can intervene before the GitHub Release is created:
+Edge cases still route through executor with `dry-run: true` so maintainer can intervene before Release:
 
-- Release notes must be hand-authored before `gh release create` (pass them explicitly after review).
+- Release notes need hand-authoring before `gh release create` — pass explicitly after review.
 - Unusual asset name or non-standard archive contents (executor supports override flags).
-- Releasing from a branch other than `main` — confirm the branch name and pass it in the prompt.
-- Any doubt about pre-flight gate status — run dry-run, inspect output, then re-invoke without the flag.
+- Releasing from branch other than `main` — confirm branch name, pass in prompt.
+- Pre-flight gate status uncertain — run dry-run, inspect output, re-invoke without flag.
 
-In all cases, do **not** fall back to running the runbook steps directly in the main session.
+Never fall back to running runbook steps directly in the main session.
 
 ## Runbook location
 
-The complete release runbook is in `.claude/agents/plugin-release-executor.md`.
+`.claude/agents/plugin-release-executor.md`
