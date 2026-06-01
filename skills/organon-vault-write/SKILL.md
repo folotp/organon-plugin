@@ -14,7 +14,7 @@ Edge cases → `get_vault_file('99 - Méta/AI/Vault Conventions.md')`. Read-side
 | `set_note_property` | Add/update single frontmatter key | Atomic. Bypasses full-frontmatter revalidation. Preferred over `patch_vault_file targetType:frontmatter`. |
 | `delete_note_property` | Remove single frontmatter key | Atomic. |
 | `patch_vault_file` | Heading / block / multi-key frontmatter rewrite | `targetType`: `heading` \| `block` \| `frontmatter`. `operation` REQUIRED, **no default** — `replace`/`append`/`prepend`. Prefer atomic tools for frontmatter. |
-| `search_and_replace` | Regex find/replace, vault-wide or scoped | `dry_run:"true"` is the **default** safety gate — pass `"false"` to apply. `g` flag always injected. ReDoS-guarded. Scope via `paths`. |
+| `search_and_replace` | Regex find/replace, vault-wide or scoped | `dry_run:"true"` is the **default** safety gate — pass `"false"` to apply. `g` flag always injected. ReDoS-guarded. Scope via `scope`. |
 | `create_vault_file` | Create note with full content | Auto-creates missing parent dirs (≥ 0.4.5). |
 | `append_to_vault_file` | Append raw content to existing note | Caller responsible for idempotency. |
 | `rename_heading` | Rename heading + update all vault refs | Link-safe. Replaces patch + manual sweep. |
@@ -59,10 +59,10 @@ Arrays: pass real JSON array.
 
 ### `search_and_replace` (scoped regex edit)
 
-Preferred for find/replace across one or many notes. `dry_run:"true"` is the **default** safety gate — it returns a match preview without mutating; pass `"false"` to apply. The `g` flag is always injected (all occurrences). ReDoS-guarded. Scope with `paths` to avoid vault-wide blast radius.
+Preferred for find/replace across one or many notes. `dry_run:"true"` is the **default** safety gate — it returns a match preview without mutating; pass `"false"` to apply. The `g` flag is always injected (all occurrences). ReDoS-guarded. Scope with `scope` (vault-relative paths or folder prefixes) to avoid vault-wide blast radius.
 
 ```json
-{ "find": "old-token", "replace": "new-token", "paths": ["Folder/Note.md"], "dry_run": "false" }
+{ "pattern": "old-token", "replacement": "new-token", "scope": ["Folder/Note.md"], "dry_run": "false" }
 ```
 
 **Anti-pattern (retired):** read full body → build a manual regex → `patch_vault_file`. Use scoped `search_and_replace` instead — fewer calls, no re-emission of the body, built-in dry-run.
