@@ -116,6 +116,8 @@ Templater injects ULID (`tp.user.ulid()`), resolves the sequential ID **server-s
 | BUG (VLT-BUG) | `titre` | `severity` (default `minor`), `component`, `first_incident`, `last_occurrence` |
 | INC (VLT-INC) | `titre`, `surface`, `layer`, `tool`, `operation` | — |
 
+**INC `surface` is controlled-vocab** — allowed: `claude-ai-web`, `claude-ai-mobile`, `cowork`, `desktop-chat`, `dispatch`, `claude-code`. Any other value fails-loud server-side (*"value '…' is not in the controlled vocabulary"*). Map the session's surface; don't pass freeform.
+
 **BUG post-create side-effect (manual).** Templater can't mutate sibling notes. After creating a BUG, each linked incident still needs `bug:` set + `status: assigned` applied afterward (loop `set_note_property` per incident note).
 
 ## Templater invariants (when authoring or debugging a template)
