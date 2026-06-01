@@ -32,6 +32,15 @@ Apply in order; first match wins.
 
 See `references/READ_TOOL_MATRIX.md` for cost-class table.
 
+## Integrity / graph-health scans
+
+Two vault-wide scan tools — not per-target reads. Use these instead of looping `get_outgoing_links` over every note when checking whole-vault health.
+
+- **`find_broken_links`** — scans the full vault for unresolvable links (wiki / embed / frontmatter). Per broken link: source path, 1-based line number, link type, and raw syntax. No arguments required; returns immediately.
+- **`find_orphaned_notes`** — lists notes with zero incoming links. `exclude_folders` filters the **output** only; all notes are still scanned internally. Useful as a first pass before deciding whether an isolated note is intentional or lost.
+
+Both are cheaper than an ad-hoc `get_outgoing_links` loop and produce structured, actionable output in a single call.
+
 ## Output shape reminders
 
 - `search_vault_smart` returns **paths + similarity scores, no body excerpts** — use as path-filter only.
