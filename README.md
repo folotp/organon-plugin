@@ -4,11 +4,11 @@ Organon vault conventions for Claude — packaged as a Cowork/Claude Code plugin
 
 ## What this plugin provides
 
-Ten skills total: eight description-triggered (load automatically when working with the Organon Obsidian vault at `~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Organon`) plus two user-only skills invoked via slash command. Targets `mcp-tools-istefox` ≥ 0.7.0.
+Ten skills total: eight description-triggered (load automatically when working with the Organon Obsidian vault at `~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Organon`) plus two user-only skills invoked via slash command. Targets `mcp-tools-istefox` ≥ 0.8.0.
 
 ### Core (5 skills)
 
-- **organon-vault-write** — MCP write discipline via `mcp-tools-istefox` ≥ 0.7.0. Atomic-always frontmatter writes (`set_note_property` / `delete_note_property`), canonical template paths for static gabarits (BL/BUG/INC/ADR) and active Templater shapes (Note/Concept/Person/Book/Quote/Index/Organization), link-safe `rename_heading` / `rename_vault_file`, heading-patch safety incl. the still-active fenced-code H2 trap (VLT-BUG-0022), EJS-literal-in-JS-comment Templater invariant, NFC normalization.
+- **organon-vault-write** — MCP write discipline via `mcp-tools-istefox` ≥ 0.8.0. Atomic-always frontmatter writes (`set_note_property` / `delete_note_property`), Templater-first routing to active domain-parameterised templates (auto-id shapes BL/BUG/INC/ADR via render-then-create; title-named Note/Concept/Person/Book/Quote/Index/Organization one-step), `search_and_replace` for scoped regex edits, link-safe `rename_heading` / `rename_vault_file`, heading-patch safety incl. the still-active fenced-code H2 trap (VLT-BUG-0022), EJS-literal-in-JS-comment Templater invariant, NFC normalization.
 - **organon-vault-read** (new in v1.1.0) — Read-side token-minimisation. Decision tree across atomic frontmatter (`get_note_property`), partial reads (`get_vault_file_partial` modes: frontmatter / heading / block / outline), graph nav (`get_backlinks`, `get_outgoing_links`), tag and property indexes (`list_tags`, `get_files_by_tag`, `list_property_values`), search (`search_vault_smart` → `search_vault_simple` fallback, `execute_dataview_query` in-process, `search_vault` DQL/JsonLogic), `get_recent_files`. Reserves full `get_vault_file` for cases where the whole body is genuinely required.
 - **organon-frontmatter** — Schema, key ordering, controlled vocabularies, ULID forward-only, `creator:` dual-mode (UI vs MCP), archive/supersession, alias-only versioning, ADR/BL/BUG/INC field requirements. Vocabularies externalized to `references/VOCABULARIES.md` (loaded on-demand).
 - **organon-markdown-style** — Body conventions: no H1 in body, language by folder (`99 - Méta/AI/` in EN, rest in FR), typographic apostrophes, no trailing whitespace, no systematic block anchors, table+block-ref pitfall.
@@ -164,7 +164,7 @@ Net effect: when `organon-frontmatter` triggers (drafting an ADR / VLT-BUG / FIN
 
 ## Installation
 
-Click "Install plugin" when this `.plugin` file appears in Cowork chat. The 7 description-triggered skills load automatically when working with the Organon vault; the 3 user-only skills (`/kepano-resync`, `/plugin-release`, `/organon-memory-audit`) are invoked explicitly via slash command.
+Click "Install plugin" when this `.plugin` file appears in Cowork chat. The 8 description-triggered skills load automatically when working with the Organon vault; the 2 user-only skills (`/plugin-release`, `/organon-memory-audit`) are invoked explicitly via slash command.
 
 ## Author
 

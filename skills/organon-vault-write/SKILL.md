@@ -69,9 +69,11 @@ Preferred for find/replace across one or many notes. `dry_run:"true"` is the **d
 
 ## Canonical template paths (Templater-first routing)
 
-All structured shapes route through **active, domain-parameterised** templates in **one step** (`createFile:"true"`). Templater injects ULID + sequential ID **server-side** — the session never resolves IDs. There is no separate static-gabarit path: the legacy `VLT-*-template.md` files are stale duplicates (deprecated; do not route to them).
+All structured shapes route through **active, domain-parameterised** templates. Templater resolves the ULID and sequential ID **server-side** — the session never computes them (no `list_vault_files` max-id dance, no manual ULID one-liner). The legacy `VLT-*-template.md` files are deprecated duplicates (archived under `99 - Méta/Templates/Déprécié/`); do not route to them.
 
-### Active Templater shapes — one-step (`createFile:"true"`)
+Two routing classes, split by **how the filename is determined**:
+
+### Auto-ID shapes — render-then-create (BL/BUG/INC/ADR)
 
 | Shape | Template path |
 |---|---|
@@ -79,6 +81,18 @@ All structured shapes route through **active, domain-parameterised** templates i
 | VLT-BUG | `99 - Méta/Templates/BUG-template.md` |
 | VLT-INC | `99 - Méta/Templates/INC-template.md` |
 | VLT-ADR / SD-ADR | `99 - Méta/Templates/ADR-template.md` |
+
+The filename **is** the id (`VLT-BL-0031.md`), and the id is generated *during* render — so the target path is unknown until after rendering. **In MCP mode the active templates do NOT self-relocate** (their `tp.file.move` runs in UI mode only). Two calls:
+
+1. **Render to inspect** — `execute_template{ templatePath, arguments:{ domain:"VLT", titre:"<summary, no code>", id:"", … } }` with **no** `createFile` and **no** `targetPath`. Returns the rendered markdown string with `id:` + `ulid:` already resolved server-side. Read the `id:` from its frontmatter.
+2. **Persist** — `create_vault_file{ path:"<cfg folder>/<id>.md", content:<the exact string from step 1> }`.
+
+**Never run a second `execute_template` (`createFile:"true"`) to do step 2** — re-rendering regenerates the ULID and re-resolves `next_id`, yielding a *different* id/ulid than you inspected. Persist the captured render via `create_vault_file`. This is the #44 fix: the old static-gabarit path forced a manual ULID one-liner + `list_vault_files` max-id discovery (~5 calls); now it is one render + one create with zero manual ID work.
+
+### Title-named shapes — one-step (`createFile:"true"`)
+
+| Shape | Template path |
+|---|---|
 | Note | `99 - Méta/Templates/Note template.md` |
 | Concept | `99 - Méta/Templates/Concept template.md` |
 | Person | `99 - Méta/Templates/Person template.md` |
@@ -90,23 +104,18 @@ All structured shapes route through **active, domain-parameterised** templates i
 | Note de journal personnel | `99 - Méta/Templates/Note de journal personnel.md` |
 | Note de bilan personnel | `99 - Méta/Templates/Note de bilan personnel.md` |
 
-Call shape:
+Filename derives from the title, so the caller knows `targetPath` up front — render-and-create in one call:
 
 ```js
 execute_template({
-  templatePath: "99 - Méta/Templates/BL-template.md",
-  targetPath: "<cfg folder>/<id>.md",   // omit + no createFile → returns render for inspection
-  createFile: "true",                    // STRING, not boolean
-  arguments: {                           // {string:string}, forwarded via tp.user.mcpTools.prompt(argName)
-    domain: "VLT",                       // defaults to "VLT" in MCP mode; SD shapes pass "SD"
-    titre: "<summary, no code>",
-    id: ""                               // empty → auto; never invent client-side
-    // + shape-specific args below
-  }
+  templatePath: "99 - Méta/Templates/Note template.md",
+  targetPath: "<folder>/<title>.md",
+  createFile: "true",          // STRING, not boolean
+  arguments: { /* {string:string}, forwarded via tp.user.mcpTools.prompt(argName) */ }
 })
 ```
 
-Templater injects ULID (`tp.user.ulid()`), resolves the sequential ID **server-side** via `tp.user.next_id(...)` — **no `list_vault_files` max-id dance** — resolves `cfg = tp.user.domain(domain)` for the target folder + id-digits, and writes Linter-ordered frontmatter, `creator: Claude` + `source/ia` (dual-mode via `tp.mcpTools`), `modified:`, and the full body skeleton. This directly answers #44: no manual ULID/ID discovery. Do not `create_vault_file` ad-hoc for these shapes — bypassing the template re-implements upstream work and risks subtle divergence.
+Templater writes Linter-ordered frontmatter, `creator: Claude` + `source/ia` (dual-mode via `tp.mcpTools`), `modified:`, and the full body skeleton. Do not `create_vault_file` ad-hoc from a hand-built skeleton — bypassing the template re-implements upstream work and risks subtle divergence.
 
 ### Per-shape arguments
 
