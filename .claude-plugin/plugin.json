@@ -1,6 +1,6 @@
 {
   "name": "organon",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Organon vault conventions for Claude (Code + Cowork) — 10 skills covering MCP read+write discipline (atomic frontmatter, partial reads, link-safe renames, in-process Dataview), frontmatter schema, body markdown style, session-discipline behavioral rules incl. semantic pre-filter, plus aux skills for Bases views, JSON Canvas cartography, and Mermaid/Excalidraw diagramming. Carries 9 kepano-adapted references pinned to one upstream sha (kepano-version.txt) and Organon-owned frontmatter / methodology references. Description-triggered skills load automatically on Organon vault paths; bases and canvas dispatch to sonnet author sub-agents for cost efficiency. Targets mcp-tools-istefox ≥ 0.8.0.",
   "author": {
     "name": "Pierre-André Folot"
