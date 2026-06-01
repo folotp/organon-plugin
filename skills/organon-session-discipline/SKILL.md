@@ -1,11 +1,11 @@
 ---
 name: organon-session-discipline
-description: Use at the start of any Claude session operating on the Organon vault (path contains `Organon`), or before any multi-step Organon task (drafting/updating an ADR, BL, BUG, INC, sweep, refactor wave, or any "check if an Organon note needs updating" prompt). 8 behavioral rules: arbitrate over over-clarify, read bootstrap, no in-fiche redundancy, confirm inferred mappings, propose generalizations, check meta-skills, language coherence by folder, semantic pre-filter before exploratory reads.
+description: Use at the start of any Claude session operating on the Organon vault (path contains `Organon`), or before any multi-step Organon task (drafting/updating an ADR, BL, BUG, INC, sweep, refactor wave, or any "check if an Organon note needs updating" prompt). 9 behavioral rules: arbitrate over over-clarify, read bootstrap, no in-fiche redundancy, confirm inferred mappings, propose generalizations, check meta-skills, language coherence by folder, semantic pre-filter before exploratory reads, test temp dirs outside vault mount.
 ---
 
 # organon-session-discipline
 
-8 behavioral rules (cf. VLT-ADR-012). For technical conventions, cascade to `organon-vault-write`, `organon-vault-read`, `organon-frontmatter`, `organon-markdown-style`.
+9 behavioral rules (cf. VLT-ADR-012). For technical conventions, cascade to `organon-vault-write`, `organon-vault-read`, `organon-frontmatter`, `organon-markdown-style`.
 
 ## 1. Arbitrate, don't over-clarify
 
@@ -50,3 +50,7 @@ Before calling `get_vault_file` on unknown path (not hardcoded in skill or given
 **Provider-not-ready fallback:** If `search_vault_smart` errors or times out, fall back to `search_vault_simple` (keyword). Don't skip pre-filtering entirely.
 
 **Why:** Without this rule, exploratory reads default to full `get_vault_file` on uncertain paths, burning context tokens on irrelevant notes. `search_vault_smart` is a cheap path-filter before committing to any body read.
+
+## 9. Test-framework temp dirs must be outside the vault mount
+
+Never point pytest `tmp_path` (or any test-framework temporary directory) at the MCP-mounted vault path. The vault mount's cleanup walks the filesystem recursively, which recurses into the MCP mount and raises a `RecursionError` (observed: telemetry session S4). Use `tempfile.mkdtemp()` or a path under `/tmp` that is outside the vault root.

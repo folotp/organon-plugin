@@ -7,18 +7,19 @@ description: Use before any MCP write against the Organon vault (path contains `
 
 Edge cases → `get_vault_file('99 - Méta/AI/Vault Conventions.md')`. Read-side → `organon-vault-read`.
 
-## MCP write-tool surface (mcp-tools-istefox ≥ 0.7.0)
+## MCP write-tool surface (mcp-tools-istefox ≥ 0.8.0)
 
 | Tool | Use for | Notes |
 |---|---|---|
 | `set_note_property` | Add/update single frontmatter key | Atomic. Bypasses full-frontmatter revalidation. Preferred over `patch_vault_file targetType:frontmatter`. |
 | `delete_note_property` | Remove single frontmatter key | Atomic. |
-| `patch_vault_file` | Heading / block / multi-key frontmatter rewrite | `targetType`: `heading` \| `block` \| `frontmatter`; `operation`: `replace`/`append`/`prepend`. Prefer atomic tools for frontmatter. |
+| `patch_vault_file` | Heading / block / multi-key frontmatter rewrite | `targetType`: `heading` \| `block` \| `frontmatter`. `operation` REQUIRED, **no default** — `replace`/`append`/`prepend`. Prefer atomic tools for frontmatter. |
+| `search_and_replace` | Regex find/replace, vault-wide or scoped | `dry_run:"true"` is the **default** safety gate — pass `"false"` to apply. `g` flag always injected. ReDoS-guarded. Scope via `paths`. |
 | `create_vault_file` | Create note with full content | Auto-creates missing parent dirs (≥ 0.4.5). |
 | `append_to_vault_file` | Append raw content to existing note | Caller responsible for idempotency. |
 | `rename_heading` | Rename heading + update all vault refs | Link-safe. Replaces patch + manual sweep. |
 | `rename_vault_file` | Rename file + preserve all incoming links | Link-safe. Replaces filesystem rename + sweep. |
-| `execute_template` | Render Templater template | `createFile: false` → returns rendered string; `createFile: true` → creates file at `targetPath`. |
+| `execute_template` | Render Templater template | `createFile:"false"` (string) → returns rendered string; `createFile:"true"` → creates file at `targetPath`. `arguments` is `{string:string}`. |
 | `get_or_create_daily_note` / `get_or_create_periodic_note` | Ensure + return periodic note | Idempotent. |
 | `append_to_periodic_note` | Append to periodic note (today or specified) | Combine with periodic-note ensure for journal flows. |
 | `create_vault_directory` / `delete_vault_directory` / `delete_vault_file` | Filesystem ops | `delete_vault_file` requires explicit filename — never `delete_active_file`. |
@@ -56,32 +57,28 @@ Arrays: pass real JSON array.
 { "content": "\"Value with : colon\"", "contentType": "application/json" }
 ```
 
+### `search_and_replace` (scoped regex edit)
+
+Preferred for find/replace across one or many notes. `dry_run:"true"` is the **default** safety gate — it returns a match preview without mutating; pass `"false"` to apply. The `g` flag is always injected (all occurrences). ReDoS-guarded. Scope with `paths` to avoid vault-wide blast radius.
+
+```json
+{ "find": "old-token", "replace": "new-token", "paths": ["Folder/Note.md"], "dry_run": "false" }
+```
+
+**Anti-pattern (retired):** read full body → build a manual regex → `patch_vault_file`. Use scoped `search_and_replace` instead — fewer calls, no re-emission of the body, built-in dry-run.
+
 ## Canonical template paths (Templater-first routing)
 
-Two shape families, both routed through `execute_template`. **Static** (instruction gabarit only — IDs NOT injected) vs **active** (Templater injects ULID, sequential ID, creator, key order).
+All structured shapes route through **active, domain-parameterised** templates in **one step** (`createFile:"true"`). Templater injects ULID + sequential ID **server-side** — the session never resolves IDs. There is no separate static-gabarit path: the legacy `VLT-*-template.md` files are stale duplicates (deprecated; do not route to them).
 
-### Static gabarits — two-step (resolve ID externally → `create_vault_file`)
+### Active Templater shapes — one-step (`createFile:"true"`)
 
 | Shape | Template path |
 |---|---|
-| VLT-BL | `99 - Méta/Templates/VLT-BL-template.md` |
-| VLT-BUG | `99 - Méta/Templates/VLT-BUG-template.md` |
-| VLT-INC | `99 - Méta/Templates/VLT-INC-template.md` |
+| VLT-BL / SD-BL | `99 - Méta/Templates/BL-template.md` |
+| VLT-BUG | `99 - Méta/Templates/BUG-template.md` |
+| VLT-INC | `99 - Méta/Templates/INC-template.md` |
 | VLT-ADR / SD-ADR | `99 - Méta/Templates/ADR-template.md` |
-| SD-BL | `99 - Méta/Templates/BL-template.md` |
-
-Workflow:
-1. `execute_template{ templatePath, createFile: false }` → returns gabarit body verbatim (structural reference).
-2. Resolve sequential ID: `list_vault_files` on domain Backlog folder → pick `max(id) + 1`.
-3. Generate ULID (bash `python -c "import ulid; print(ulid.new())"` or equivalent Crockford base32).
-4. `create_vault_file{ filename: "<folder>/<id>.md", content: <filled-in render> }`.
-
-Templates do **not** inject IDs — session must.
-
-### Active Templater shapes — one-step (`createFile: true`)
-
-| Shape | Template path |
-|---|---|
 | Note | `99 - Méta/Templates/Note template.md` |
 | Concept | `99 - Méta/Templates/Concept template.md` |
 | Person | `99 - Méta/Templates/Person template.md` |
@@ -93,17 +90,33 @@ Templates do **not** inject IDs — session must.
 | Note de journal personnel | `99 - Méta/Templates/Note de journal personnel.md` |
 | Note de bilan personnel | `99 - Méta/Templates/Note de bilan personnel.md` |
 
-Workflow:
+Call shape:
 
 ```js
 execute_template({
-  templatePath: "99 - Méta/Templates/Note template.md",
-  targetPath: "<domain folder>/<filename>.md",
-  createFile: true
+  templatePath: "99 - Méta/Templates/BL-template.md",
+  targetPath: "<cfg folder>/<id>.md",   // omit + no createFile → returns render for inspection
+  createFile: "true",                    // STRING, not boolean
+  arguments: {                           // {string:string}, forwarded via tp.user.mcpTools.prompt(argName)
+    domain: "VLT",                       // defaults to "VLT" in MCP mode; SD shapes pass "SD"
+    titre: "<summary, no code>",
+    id: ""                               // empty → auto; never invent client-side
+    // + shape-specific args below
+  }
 })
 ```
 
-Templater injects ULID (via `tp.user.ulid()` from `99 - Méta/Templates/scripts/ulid.js`), Linter-conformant key order, `creator: Claude` + `source/ia` tag (dual-mode detection via `tp.mcpTools`), and `modified:` timestamp. Do not `create_vault_file` ad-hoc for these shapes — bypassing template re-implements upstream work and risks subtle divergence.
+Templater injects ULID (`tp.user.ulid()`), resolves the sequential ID **server-side** via `tp.user.next_id(...)` — **no `list_vault_files` max-id dance** — resolves `cfg = tp.user.domain(domain)` for the target folder + id-digits, and writes Linter-ordered frontmatter, `creator: Claude` + `source/ia` (dual-mode via `tp.mcpTools`), `modified:`, and the full body skeleton. This directly answers #44: no manual ULID/ID discovery. Do not `create_vault_file` ad-hoc for these shapes — bypassing the template re-implements upstream work and risks subtle divergence.
+
+### Per-shape arguments
+
+| Shape | Required | Optional / defaulted |
+|---|---|---|
+| BL (VLT-BL / SD-BL) | `titre` | `priority` (default `medium`), `origin` (default `misc`), `linked_bug` (conditional) |
+| BUG (VLT-BUG) | `titre` | `severity` (default `minor`), `component`, `first_incident`, `last_occurrence` |
+| INC (VLT-INC) | `titre`, `surface`, `layer`, `tool`, `operation` | — |
+
+**BUG post-create side-effect (manual).** Templater can't mutate sibling notes. After creating a BUG, each linked incident still needs `bug:` set + `status: assigned` applied afterward (loop `set_note_property` per incident note).
 
 ## Templater invariants (when authoring or debugging a template)
 
@@ -136,7 +149,10 @@ Templater injects ULID (via `tp.user.ulid()` from `99 - Méta/Templates/scripts/
 
 1. Before `patch_vault_file targetType: heading`: read via `get_vault_file_partial mode=outline` (cheap) — abort if heading absent.
 2. `createTargetIfMissing: true` (default ≥ 0.4.5) silently appends to EOF when heading missing — do not rely on it as safety net.
-3. H1-free notes (title in frontmatter, body starts at H2) accepted on ≥ 0.4.10 via `allowRootHeadings`. Pre-0.4.10 "root-orphan" rejection retired.
+3. **H2-rooted (H1-free) notes require `allowRootHeadings:true` passed EXPLICITLY.** Title in frontmatter, body starts at H2 → the patch is rejected unless the flag is set (error: *"Heading is level-4 with no H1 parent — allowRootHeadings:true required"*). It is **not** accepted automatically. Wire:
+   ```json
+   { "targetType": "heading", "target": "Objet", "operation": "replace", "allowRootHeadings": true, "content": "…" }
+   ```
 4. `targetType: block` rejected fail-loud if block ref inside table cell or fenced-code boundary.
 5. **`targetType: heading` with `operation: replace` traverses H2 boundaries inside fenced code blocks** (VLT-BUG-0022, still active). Target section with fenced block containing `## ` lines: heading walker treats internal `## ` as real boundaries — replace stops at first one, orphaning rest of code block and promoting internal `## ` to real H2. Silent corruption.
    - **Discipline:** before heading replace, read target section via `get_vault_file_partial mode=heading`, scan for fenced blocks with `## ` lines. If present, route to `create_vault_file` (full-file rewrite).
@@ -163,6 +179,8 @@ Do not rename via `create_vault_file` + `delete_vault_file` — breaks all incom
 - MCP write followed by manual UI save can be overwritten by Obsidian's re-import. Wait for "Re-import" banner to clear before saving in UI.
 - Do not pre-create parent dirs; `create_vault_file`, `append_to_vault_file`, `execute_template` auto-mkdirp since 0.4.5.
 - No "verify MCP is alive" ping before writes. Let real call surface failures; retry only on abnormal signals.
-- `execute_template` on static gabarit returns body verbatim — does NOT inject IDs. Session responsible for ID resolution before `create_vault_file`.
+- `patch_vault_file` `operation` is **required, no default** — omit it and the call is rejected (*"operation must be 'append','prepend' or 'replace' (was missing)"*). Always pass `replace`/`append`/`prepend`.
+- **mcp-tools-istefox has NO bash tool.** `mcp__mcp-tools-istefox__bash` → *"No such tool available"*. Run shell via Code `Bash` or Cowork `mcp__workspace__bash`.
+- `get_vault_file` timeout / *"server unavailable"* is an **abnormal signal** → retry once before escalating to PA.
 
 Frontmatter schema → `organon-frontmatter`. Body prose → `organon-markdown-style`. Read-side → `organon-vault-read`.
