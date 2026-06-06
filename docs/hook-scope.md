@@ -28,7 +28,7 @@ jq '.. | objects | select(.command) | .command' .claude/settings.json | grep -v 
 | `userprompt-branch-check.sh` (UserPromptSubmit) | same | no |
 | `stop-shellcheck.sh` (Stop) | same | no |
 
-The distributed `.plugin` archive contains `.claude-plugin/plugin.json` (no hook key), `skills/`, `scripts/`, `docs/`, `README.md`, and `kepano-version.txt` — never `.claude/settings.json`. Consumer Code or Cowork sessions install the plugin's skills and commands; they do not inherit any hook from this repo.
+The distributed `.plugin` archive contains `.claude-plugin/plugin.json` (no hook key), `.mcp.json` (the bundled remote MCP server — this one *does* ship to consumers, unlike hooks), `skills/`, `scripts/`, `docs/`, `README.md`, and `kepano-version.txt` — never `.claude/settings.json`. Consumer Code or Cowork sessions install the plugin's skills, commands, and MCP server; they do not inherit any hook from this repo.
 
 ## v1.0.0 history
 
