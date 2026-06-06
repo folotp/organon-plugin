@@ -191,7 +191,7 @@ Do not rename via `create_vault_file` + `delete_vault_file` — breaks all incom
 - Do not pre-create parent dirs; `create_vault_file`, `append_to_vault_file`, `execute_template` auto-mkdirp since 0.4.5.
 - No "verify MCP is alive" ping before writes. Let real call surface failures; retry only on abnormal signals.
 - `patch_vault_file` `operation` is **required, no default** — omit it and the call is rejected (*"operation must be 'append','prepend' or 'replace' (was missing)"*). Always pass `replace`/`append`/`prepend`.
-- **mcp-tools-istefox has NO bash tool.** `mcp__mcp-tools-istefox__bash` → *"No such tool available"*. Run shell via Code `Bash` or Cowork `mcp__workspace__bash`.
+- **mcp-tools-istefox has NO bash tool.** `mcp__plugin_organon_organon__bash` → *"No such tool available"*. Run shell via Code `Bash` or Cowork `mcp__workspace__bash`.
 - `get_vault_file` timeout / *"server unavailable"* is an **abnormal signal** → retry once before escalating to PA.
 
 Frontmatter schema → `organon-frontmatter`. Body prose → `organon-markdown-style`. Read-side → `organon-vault-read`.

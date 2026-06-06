@@ -45,11 +45,16 @@ Net effect: when `organon-frontmatter` triggers (drafting an ADR / VLT-BUG / FIN
 
 ## Changes since v0.1.0
 
+### v1.3.1 (MCP packaging fix — nest + rename)
+
+- **`.mcp.json` switched to the plugin (top-level) server-map shape**, dropping the project-style `mcpServers:` wrapper. The wrapper made Claude Code list the server as a standalone entry; the top-level map nests it under the `organon` plugin in `/plugin` (matching e.g. the GitHub plugin).
+- **Server key renamed `mcp-tools-istefox` → `organon`.** The connector is still `istefox/obsidian-mcp-connector`; `organon` is just the bundled-server identity. Tool prefix is therefore `mcp__plugin_organon_organon__*`.
+- **All skill references + the local allowlist updated** from the old `mcp__mcp-tools-istefox__*` to `mcp__plugin_organon_organon__*`. (Plugin-bundled MCP tools are always namespaced `mcp__plugin_<plugin>_<server>__<tool>` — the v1.3.0 references were stale.)
+
 ### v1.3.0 (bundled remote MCP server)
 
-- **Plugin now ships the MCP server config.** New root `.mcp.json` declares `mcp-tools-istefox` as a remote Streamable-HTTP server at `https://obsidian-mcp.folot.net/mcp` (same `istefox/obsidian-mcp-connector`, exposed via a named cloudflared tunnel). Consumers no longer configure the connector themselves — Cowork / Claude for Excel can reach it, and Claude Code picks it up automatically.
+- **Plugin now ships the MCP server config.** New root `.mcp.json` declares the remote Obsidian MCP server as a Streamable-HTTP endpoint at `https://obsidian-mcp.folot.net/mcp` (`istefox/obsidian-mcp-connector`, exposed via a named cloudflared tunnel). Consumers no longer configure the connector themselves — Cowork / Claude for Excel can reach it, and Claude Code picks it up automatically.
 - **Auth is Cloudflare Access OAuth (OIDC).** Browser flow on first connect; no token in the config. The origin Bearer is injected at the Cloudflare edge (Transform Rule), transparent to the client.
-- **Server key unchanged** (`mcp-tools-istefox`) → tool prefix `mcp__mcp-tools-istefox__*` and all existing skill references / allowlists are stable.
 - Claude Code (loopback OAuth callback) requires its redirect URI to be whitelisted in the Cloudflare Access OAuth app; claude.ai / Cowork already work.
 
 ### v1.1.0 (mcp-tools-istefox 0.7.0 refactor + caveman compression)

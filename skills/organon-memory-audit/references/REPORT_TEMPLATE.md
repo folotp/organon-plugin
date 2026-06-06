@@ -111,7 +111,7 @@ For each finding:
 - Bucket 0 (if any): resolve before continuing the audit.
 - Bucket 1: walk per-finding `apply / skip / defer` (interactive mode) or apply manually after triage (report-only).
 - Bucket 2: edit ~/.claude/CLAUDE.md and project CLAUDE.md directly; for Settings → General and Cowork → Global, copy the proposed text and paste on the matching surface.
-- Bucket 4: patch the canonical vault note via mcp__mcp-tools-istefox__patch_vault_file (consult organon-vault-write for wire-format invariants).
+- Bucket 4: patch the canonical vault note via mcp__plugin_organon_organon__patch_vault_file (consult organon-vault-write for wire-format invariants).
 - Bucket 3: open a tracking issue at folotp/organon-plugin for any candidate you want to act on.
 
 ## Empty-report short form

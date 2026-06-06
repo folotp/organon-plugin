@@ -32,7 +32,7 @@ Probe in order, log each result in the report header:
 
 1. Read `~/.claude/projects/` — if it exists and lists project dirs, surface = **Code**. (Use `~` / `$HOME` so the probe works on remote Code agents and other macOS users, not just PA's local account.)
 2. Else, attempt to read `/` via the Read tool — if a Cowork-style mount is visible (typically `/mnt/...` or `/workspace/...`), surface = **Cowork**.
-3. Else, surface = **Chat**. Probe MCP availability via `mcp__mcp-tools-istefox__get_server_info`. If absent → web/mobile (paste-only mode); if present → Desktop Chat.
+3. Else, surface = **Chat**. Probe MCP availability via `mcp__plugin_organon_organon__get_server_info`. If absent → web/mobile (paste-only mode); if present → Desktop Chat.
 
 If `--surface=` is passed, skip probes.
 
@@ -84,8 +84,8 @@ On Cowork / Chat (filesystem not available the same way): infer pole 1 from the 
 Via MCP (works on Code, Cowork, Desktop Chat):
 
 ```
-mcp__mcp-tools-istefox__get_vault_file "99 - Méta/AI/Claude/Canonical snippets — per-canal Claude instructions.md"
-mcp__mcp-tools-istefox__get_vault_file "99 - Méta/AI/Claude/Claude surfaces and instruction inheritance.md"
+mcp__plugin_organon_organon__get_vault_file "99 - Méta/AI/Claude/Canonical snippets — per-canal Claude instructions.md"
+mcp__plugin_organon_organon__get_vault_file "99 - Méta/AI/Claude/Claude surfaces and instruction inheritance.md"
 ```
 
 Capture `Last synced` markers from each per-surface bloc inside the canonical note.
@@ -178,7 +178,7 @@ Output: source memory file, proposed target skill (or "new skill needed"), propo
 
 The per-surface store(s) are correct (match plugin reality) but the canonical vault note is stale, or one of its per-surface blocs disagrees with plugin reality. Updating the canonical doc is the fix.
 
-Output: vault path, section, current text, proposed text, `Why:`. `apply` patches via `mcp__mcp-tools-istefox__patch_vault_file` — refer to `organon-vault-write` for the wire-format invariants before applying.
+Output: vault path, section, current text, proposed text, `Why:`. `apply` patches via `mcp__plugin_organon_organon__patch_vault_file` — refer to `organon-vault-write` for the wire-format invariants before applying.
 
 ### Decision tie-breakers
 
