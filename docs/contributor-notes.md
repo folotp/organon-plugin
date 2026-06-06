@@ -4,7 +4,7 @@ Operational detail moved out of `CLAUDE.md` so the always-loaded orientation sta
 
 ## Tooling floor
 
-- `mcp-tools-istefox` ≥ 0.4.5 — consumer expectation for users of the plugin, not a build dep on this repo.
+- `mcp-tools-istefox` ≥ 0.8.0 — the connector the plugin's bundled MCP server (`.mcp.json`) talks to; describes the tool surface the remote endpoint must expose, not a build dep on this repo. The endpoint (`https://obsidian-mcp.folot.net/mcp`) is PA's Obsidian instance behind a cloudflared tunnel + Cloudflare Access.
 - `tiktoken` (Python) — required by `scripts/token-harness.py`. Install: `pip install --user tiktoken`.
 - `jq`, `gh`, `git`, `zip`, `shasum`/`sha256sum` — used by scripts and hooks.
 

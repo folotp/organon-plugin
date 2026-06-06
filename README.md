@@ -4,7 +4,7 @@ Organon vault conventions for Claude — packaged as a Cowork/Claude Code plugin
 
 ## What this plugin provides
 
-Ten skills total: eight description-triggered (load automatically when working with the Organon Obsidian vault at `~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Organon`) plus two user-only skills invoked via slash command. Targets `mcp-tools-istefox` ≥ 0.8.0.
+Ten skills total: eight description-triggered (load automatically when working with the Organon Obsidian vault at `~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Organon`) plus two user-only skills invoked via slash command. Bundles the remote Obsidian MCP server (`mcp-tools-istefox` ≥ 0.8.0) at `https://obsidian-mcp.folot.net/mcp` via `.mcp.json` — no manual MCP setup; Cloudflare Access OAuth runs in the browser on first connect.
 
 ### Core (5 skills)
 
@@ -44,6 +44,13 @@ Net effect: when `organon-frontmatter` triggers (drafting an ADR / VLT-BUG / FIN
 - Detailed results in `refactor-phase4/wave-1-skills-bootstrap/eval-workspace/` of the Organon project workspace.
 
 ## Changes since v0.1.0
+
+### v1.3.0 (bundled remote MCP server)
+
+- **Plugin now ships the MCP server config.** New root `.mcp.json` declares `mcp-tools-istefox` as a remote Streamable-HTTP server at `https://obsidian-mcp.folot.net/mcp` (same `istefox/obsidian-mcp-connector`, exposed via a named cloudflared tunnel). Consumers no longer configure the connector themselves — Cowork / Claude for Excel can reach it, and Claude Code picks it up automatically.
+- **Auth is Cloudflare Access OAuth (OIDC).** Browser flow on first connect; no token in the config. The origin Bearer is injected at the Cloudflare edge (Transform Rule), transparent to the client.
+- **Server key unchanged** (`mcp-tools-istefox`) → tool prefix `mcp__mcp-tools-istefox__*` and all existing skill references / allowlists are stable.
+- Claude Code (loopback OAuth callback) requires its redirect URI to be whitelisted in the Cloudflare Access OAuth app; claude.ai / Cowork already work.
 
 ### v1.1.0 (mcp-tools-istefox 0.7.0 refactor + caveman compression)
 
