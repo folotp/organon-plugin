@@ -1,6 +1,6 @@
 # Bases Syntax
 
-Adapted from kepano/obsidian-skills@fa1e131. See docs/refreshing-kepano.md.
+Adapted from kepano/obsidian-skills@c4728b3. See docs/refreshing-kepano.md.
 
 ## Schema
 
@@ -34,19 +34,37 @@ Single filter:
 filters: 'status == "done"'
 ```
 
-Recursive (and/or/not):
+Recursive filter object — **exactly one key**: `and`, `or`, or `not`. Do not stack `and`/`or`/`not` in the same object; combine via nesting.
+
 ```yaml
+# and — all must match
 filters:
   and:
     - 'status == "done"'
     - 'priority > 3'
+```
+```yaml
+# or — any may match
+filters:
   or:
     - 'file.hasTag("tag")'
+    - 'file.hasTag("other")'
+```
+```yaml
+# not — none may match
+filters:
   not:
     - 'file.hasTag("archived")'
 ```
 
-Nested combinations:
+Nested combinations (the one way to mix and/or/not):
+```yaml
+filters:
+  and:
+    - 'status == "active"'
+    - not:
+        - 'file.hasTag("archived")'
+```
 ```yaml
 filters:
   or:
