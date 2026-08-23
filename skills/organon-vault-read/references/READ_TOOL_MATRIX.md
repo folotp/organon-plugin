@@ -22,6 +22,7 @@ Cost classes: **S** = single field/scalar (cheapest). **M** = single section/hea
 | Keyword search with context | `search_vault_simple` | M | Short snippet windows. |
 | Recently edited notes | `get_recent_files` | S | Heuristic, not semantic. |
 | Full body | `get_vault_file` | L | Last resort. |
+| Full body of 2+ known paths | `get_vault_files` | L (batched) | ≤ 20 paths/call, one round-trip. Per-path errors don't fail the batch. |
 | Full body + every linked note | `get_vault_file` (loop) | XL | Almost always wrong — re-rank first. |
 
 ## Replacement table — old idiom → new canonical
@@ -35,6 +36,7 @@ Cost classes: **S** = single field/scalar (cheapest). **M** = single section/hea
 | `get_vault_file` to confirm block ref exists | `get_vault_file_partial mode=block target="<id>"` (errors if absent) |
 | `search_vault_simple` then full reads of every hit | `search_vault_smart` → top 3 → partial reads |
 | Manual DQL via REST | `execute_dataview_query` (if Dataview installed) |
+| Loop `get_vault_file` over a known path list | `get_vault_files{ paths }` (≤ 20 per call) |
 
 ## Quick rules of thumb
 

@@ -7,13 +7,13 @@ description: Use before any MCP write against the Organon vault (path contains `
 
 Edge cases → `get_vault_file('99 - Méta/AI/Vault Conventions.md')`. Read-side → `organon-vault-read`.
 
-## MCP write-tool surface (mcp-tools-istefox ≥ 0.8.0)
+## MCP write-tool surface (mcp-tools-istefox ≥ 2.1.0)
 
 | Tool | Use for | Notes |
 |---|---|---|
 | `set_note_property` | Add/update single frontmatter key | Atomic. Bypasses full-frontmatter revalidation. Preferred over `patch_vault_file targetType:frontmatter`. |
 | `delete_note_property` | Remove single frontmatter key | Atomic. |
-| `patch_vault_file` | Heading / block / multi-key frontmatter rewrite | `targetType`: `heading` \| `block` \| `frontmatter`. `operation` REQUIRED, **no default** — `replace`/`append`/`prepend`. Prefer atomic tools for frontmatter. |
+| `patch_vault_file` | Heading / block / multi-key frontmatter rewrite | `targetType`: `heading` \| `block` \| `frontmatter`. `operation` REQUIRED, **no default** — `replace`/`append`/`prepend`. Prefer atomic tools for frontmatter. `operation:"replace"` takes `path` (not `filename`/`filepath`) and, if "Require a write precondition" is on, needs `expectedContent` — see below. |
 | `search_and_replace` | Regex find/replace, vault-wide or scoped | `dry_run:"true"` is the **default** safety gate — pass `"false"` to apply. `g` flag always injected. ReDoS-guarded. Scope via `scope`. |
 | `create_vault_file` | Create note with full content | Auto-creates missing parent dirs (≥ 0.4.5). |
 | `append_to_vault_file` | Append raw content to existing note | Caller responsible for idempotency. |
@@ -156,6 +156,12 @@ Templater writes Linter-ordered frontmatter, `creator: Claude` + `source/ia` (du
 - No tags: omit key, or `tags: []`.
 - **Why:** YAML 1.1 silently parses `tags: 4` as `[Number(4)]`; plugins calling `.startsWith()` crash.
 
+## Write precondition (`expectedContent`)
+
+If PA has "Require a write precondition" enabled (Settings → MCP Connector), `patch_vault_file`/`patch_active_file` refuse an `operation:"replace"` unless `expectedContent` is set to the text currently occupying the target — this catches replacing a section PA edited after the last read. Whitespace-insensitive; ignored for `append`/`prepend`.
+
+**Discipline:** immediately before a `replace`, read the target (`get_vault_file_partial mode=heading|block|frontmatter`, or `get_vault_file`) and pass that text as `expectedContent`. Don't reuse content read earlier in a long session — re-read right before the write. A refusal here (*"expected content does not match current content"*) is not a retry-as-is situation: re-read the target, decide whether your edit still applies, and resubmit.
+
 ## Heading-patch safety
 
 1. Before `patch_vault_file targetType: heading`: read via `get_vault_file_partial mode=outline` (cheap) — abort if heading absent.
@@ -167,6 +173,7 @@ Templater writes Linter-ordered frontmatter, `creator: Claude` + `source/ia` (du
 4. `targetType: block` rejected fail-loud if block ref inside table cell or fenced-code boundary.
 5. **`targetType: heading` with `operation: replace` traverses H2 boundaries inside fenced code blocks** (VLT-BUG-0022, still active). Target section with fenced block containing `## ` lines: heading walker treats internal `## ` as real boundaries — replace stops at first one, orphaning rest of code block and promoting internal `## ` to real H2. Silent corruption.
    - **Discipline:** before heading replace, read target section via `get_vault_file_partial mode=heading`, scan for fenced blocks with `## ` lines. If present, route to `create_vault_file` (full-file rewrite).
+6. **Duplicate heading name in the same note → "Ambiguous heading target" (recurring).** A bare `target` (e.g. `"Catalogue"`) matches every heading with that text, at any level, anywhere in the file — patch refuses to guess which one. Check the outline (`get_vault_file_partial mode=outline`) for repeats before patching. Disambiguate by ancestor path, joined with `targetDelimiter` (default `::`): `target: "Parent Heading::Catalogue"`. If the outline shows the duplicate itself is unintentional (e.g. an earlier bug left two `## Catalogue`), fix the duplication first — don't just target around it.
 - Post-write: on first heading patch of session, verify mtime + diff before proceeding.
 
 ## Renaming — prefer the link-safe tools
@@ -193,5 +200,6 @@ Do not rename via `create_vault_file` + `delete_vault_file` — breaks all incom
 - `patch_vault_file` `operation` is **required, no default** — omit it and the call is rejected (*"operation must be 'append','prepend' or 'replace' (was missing)"*). Always pass `replace`/`append`/`prepend`.
 - **mcp-tools-istefox has NO bash tool.** `mcp__plugin_organon_organon__bash` → *"No such tool available"*. Run shell via Code `Bash` or Cowork `mcp__workspace__bash`.
 - `get_vault_file` timeout / *"server unavailable"* is an **abnormal signal** → retry once before escalating to PA.
+- **Recurring param-name mistake**: every write tool here takes `path` for the file — not `filename` or `filepath`. Directory-taking tools (`create_vault_directory`, `delete_vault_directory`) take `path` too, not `folder`. Guessing the wrong key fails loud (*"Key '…' does not exist on schema"*) — check the tool's actual schema, don't pattern-match from a different tool.
 
 Frontmatter schema → `organon-frontmatter`. Body prose → `organon-markdown-style`. Read-side → `organon-vault-read`.
