@@ -71,7 +71,8 @@ EXCLUDES=(
     'snippets/*'
     'snippets/**/*'
     '*.bak'
-    'zibn6G7I'
+    '.venv/*'
+    '.venv/**/*'
 )
 
 ZIP_EXCLUDE_ARGS=()
