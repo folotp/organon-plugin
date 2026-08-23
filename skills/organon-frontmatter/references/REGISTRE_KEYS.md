@@ -287,6 +287,10 @@ tags
 
 **Action (2026-04-25):** Update `.obsidian/plugins/obsidian-linter/data.json` rule `yaml-key-sort.yaml-key-priority-sort-order` array: replace `shape` with `content-model` at same position (between `type` and `lang`). Linter reverts to alphabetic sort without this fix.
 
+### Linter delegation via `execute_obsidian_command` (considered, not viable)
+
+`execute_obsidian_command{ commandId: "obsidian-linter:lint-file" }` was considered as a way to let the real plugin sort keys instead of replicating `yaml-key-priority-sort-order` by hand (a real drift source — the 2026-04-25 `shape`→`content-model` fix above is exactly this kind of drift). Two things rule it out as currently authorized (2026-08): `lint-file` isn't on PA's command allowlist (only `ignore-file`, `ignore-folder`, `lint-all-files` are), **and** it operates on Obsidian's currently-*focused* file — it takes no path parameter — so an MCP write with nothing open in the Obsidian UI has no file for it to act on regardless of authorization. `lint-all-files` (vault-wide) *is* authorized but is too blunt to invoke per single-note write — don't reach for it as a substitute. Keep hand-ordering the priority-sort-order above as the only currently-viable method. If PA later authorizes `lint-file` and the write flow reliably makes the target the active file first (e.g. via `show_file_in_obsidian`), this is worth revisiting — until then, don't invoke it.
+
 ## Retired Keys (Migration Completed)
 
 | Old Key | Replaced By | Notes |

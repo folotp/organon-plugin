@@ -75,12 +75,14 @@ Each skill's files fall into three categories:
 runtime savings. `own_refs` is unchanged across eras and contributes
 nothing to the ratio.
 
+**2026-08 backfill:** `organon-frontmatter`'s `REGISTRE_KEYS.md`, `PREFIXES.md`, `METHODOLOGY_ADR.md`, `METHODOLOGY_INC_BUG_BL.md` were always real lazy-loaded references (per the skill's own References table) but were never registered as `own_refs` here — a measurement blind spot, now fixed. None of the 13 session shapes currently declare a genuine need for them — S02/S07's Templater-first flow doesn't consult `REGISTRE_KEYS.md` (the template resolves key order server-side) — so this is a pure classification fix with zero effect on the reported ratios, not a new cost. `organon-vault-write` got its first-ever `own_refs` split (`EDGE_CASES.md`) in the same pass, extracting write-precondition/heading-patch-safety content that had been added straight to always-loaded `SKILL.md`.
+
 Per skill:
 
 | Skill | core | absorbed_refs | own_refs |
 |---|---|---|---|
-| organon-frontmatter | SKILL.md | references/PROPERTIES.md | references/VOCABULARIES.md |
-| organon-vault-write | SKILL.md | (none) | (none) |
+| organon-frontmatter | SKILL.md | references/PROPERTIES.md | references/VOCABULARIES.md, references/SHAPES_QUICKREF.md, references/REGISTRE_KEYS.md, references/PREFIXES.md, references/METHODOLOGY_ADR.md, references/METHODOLOGY_INC_BUG_BL.md |
+| organon-vault-write | SKILL.md | (none) | references/EDGE_CASES.md |
 | organon-vault-read | SKILL.md | (none) | references/READ_TOOL_MATRIX.md |
 | organon-markdown-style | SKILL.md | references/MARKDOWN_SYNTAX.md, references/CALLOUTS.md, references/EMBEDS.md | (none) |
 | organon-bases | SKILL.md | references/BASES_SYNTAX.md, references/FUNCTIONS_REFERENCE.md | (none) |
@@ -104,14 +106,14 @@ re-runs the measurement.
 | ID | Session shape | Triggered skills | Refs needed (post) |
 |---|---|---|---|
 | S01 | Frontmatter touch (1-2 keys, no schema lookup) | frontmatter, vault-write | (none) |
-| S02 | Structured note creation (ADR via Templater-first routing) | frontmatter, vault-write, session-discipline | PROPERTIES.md, VOCABULARIES.md |
+| S02 | Structured note creation (ADR via Templater-first routing) | frontmatter, vault-write, session-discipline | PROPERTIES.md, VOCABULARIES.md, SHAPES_QUICKREF.md |
 | S03 | Body markdown style edit (typographic, no H1) | markdown-style | (none) |
 | S04 | Bases simple filter add | bases | (none) |
 | S05 | Bases deep schema (formula columns + custom views) | bases | BASES_SYNTAX.md, FUNCTIONS_REFERENCE.md |
 | S06 | Canvas creation (file-node + group + edge) | canvas | CANVAS_SPEC.md, EXAMPLES.md |
-| S07 | Multi-artifact session (BL + ADR + INC sequential) | frontmatter, vault-write, session-discipline | PROPERTIES.md, VOCABULARIES.md |
+| S07 | Multi-artifact session (BL + ADR + INC sequential) | frontmatter, vault-write, session-discipline | PROPERTIES.md, VOCABULARIES.md, SHAPES_QUICKREF.md |
 | S08 | Diagramming triage (mermaid vs canvas decision) | diagramming | (none) |
-| S09 | Vault-write append (heading patch, no schema) | vault-write | (none) |
+| S09 | Vault-write append (heading patch, no schema) | vault-write | EDGE_CASES.md |
 | S10 | Sweep / refactor wave (frontmatter migration N notes) | frontmatter, vault-write, session-discipline | VOCABULARIES.md |
 | S11 | Atomic frontmatter write (`set_note_property`, 1-3 keys) | frontmatter, vault-write | (none) |
 | S12 | Partial read (`get_vault_file_partial mode=heading`) | vault-read | (none) |
