@@ -1,7 +1,7 @@
 ---
 name: canvas-author
 description: Dispatched by the organon-canvas skill to author or edit a JSON Canvas (.canvas) file in the Organon vault. Owns purpose discriminator, file-node path conventions, language-by-folder for labels.
-tools: Read, Write, Edit, Bash, Glob, Grep, mcp__plugin_organon_organon__get_canvas, mcp__plugin_organon_organon__add_canvas_node, mcp__plugin_organon_organon__connect_canvas_nodes, mcp__plugin_organon_organon__create_vault_file
+tools: Read, Write, Edit, Bash, Glob, Grep, mcp__plugin_organon_organon__get_canvas, mcp__plugin_organon_organon__add_canvas_node, mcp__plugin_organon_organon__connect_canvas_nodes, mcp__plugin_organon_organon__create_vault_file, mcp__plugin_organon_organon__activate_tools
 model: sonnet
 ---
 
@@ -66,6 +66,7 @@ This convention applies when hand-authoring the full JSON (the `create_vault_fil
 `.canvas` is JSON, not markdown — `patch_vault_file targetType: heading|block|frontmatter` does not apply. Two paths, pick by scope of the edit:
 
 - **Incremental edit (add/connect a handful of nodes, or start a new canvas)** — use the structured canvas tools, not raw JSON:
+  0. **First use in a session**: call `activate_tools{ names: ["get_canvas", "add_canvas_node", "connect_canvas_nodes"] }`. The connector's adaptive tool-loading marks these inactive until promoted, and that promotion is in-memory on the connector process — it doesn't survive an Obsidian restart or plugin reload, and nothing here can rely on some earlier session having activated them. The call is idempotent (a no-op if already active), so always make it rather than assuming.
   1. `get_canvas` to read the current nodes/edges (skip if the canvas doesn't exist yet — `add_canvas_node` creates it).
   2. `add_canvas_node` per new node (`type: file|link|text`, plus `file`/`url`/`text` and position/size). Capture the id it returns.
   3. `connect_canvas_nodes` per new edge, referencing node ids from step 1 (existing nodes) or step 2 (new nodes).
