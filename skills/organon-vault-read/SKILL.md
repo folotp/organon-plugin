@@ -28,7 +28,8 @@ Apply in order; first match wins.
 13. **Exploratory — don't know which note?** → `search_vault_smart{ query }`. Top 1-3 paths only (folder + title check); follow with cheapest partial-read from rules 1-6. Fallback if provider not ready: `search_vault_simple`. See `organon-session-discipline` Rule 8.
 14. **Keyword search with context windows?** → `search_vault_simple{ query }`.
 15. **Recently edited notes?** → `get_recent_files{ limit? }`. Context heuristic only — never primary semantic filter.
-16. **Genuinely need full body?** → `get_vault_file{ path }`. Acceptable: (a) refactor touching multiple sections, (b) faithful quotation, (c) note < ~80 lines where partial overhead dominates.
+16. **Full body of 2+ known paths (sweep, refactor wave, comparison)?** → `get_vault_files{ paths }` (≤ 20 per call, text or json format). One round-trip instead of N `get_vault_file` calls; a missing/binary/folder path errors per-entry without failing the rest.
+17. **Genuinely need full body of one note?** → `get_vault_file{ path }`. Acceptable: (a) single-note refactor touching multiple sections, (b) faithful quotation, (c) note < ~80 lines where partial overhead dominates.
 
 See `references/READ_TOOL_MATRIX.md` for cost-class table.
 
@@ -63,6 +64,7 @@ Same as `organon-vault-write`: apply NFC to every path/title with accented chara
 - `execute_dataview_query` requires Dataview plugin in Obsidian. On "Dataview not available" error, route to `search_vault` (JsonLogic).
 - `get_backlinks` and `get_outgoing_links` don't follow embeds (`![[…]]`). For embed graphs, read body.
 - `list_tags` includes legacy `notetype/*`, `statut/*`, `source/*`, `domain/*`, `topic/*` namespaces — filter caller-side per `organon-frontmatter` § Legacy namespaces.
+- **Recurring param-name mistake**: `path` (not `filename`/`filepath`) on every single-file tool; `directory` (not `folder`) on `list_vault_files`. Guessing the wrong key fails loud (*"Key '…' does not exist on schema"*) — check the tool's actual schema rather than pattern-matching from a different tool.
 
 ## Anti-patterns
 
