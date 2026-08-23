@@ -1,6 +1,6 @@
 # Embeds
 
-Adapted from kepano/obsidian-skills@fa1e131. See `docs/refreshing-kepano.md`.
+Adapted from kepano/obsidian-skills@a1dc48e. See `docs/refreshing-kepano.md`.
 
 ## Embed Notes
 
@@ -38,6 +38,13 @@ Adapted from kepano/obsidian-skills@fa1e131. See `docs/refreshing-kepano.md`.
 ![[document.pdf]]
 ![[document.pdf#page=3]]
 ![[document.pdf#height=400]]
+```
+
+## Embed Bases
+
+```markdown
+![[BaseFile.base]]
+![[BaseFile.base#View Name]]
 ```
 
 ## Embed Lists
