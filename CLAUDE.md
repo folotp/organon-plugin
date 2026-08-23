@@ -8,6 +8,7 @@ Release: /plugin-release runbook. Version SOT: .claude-plugin/plugin.json (semve
 Push main before tag. gh release create: --notes-from-tag incompatible with --repo — use --notes-file for cross-repo invocation.
 Kepano: 9 absorbed files pinned to kepano-version.txt sha. block-absorbed-edits.sh blocks direct edits; .organon-resync-token is the legitimate refresh path. See docs/refreshing-kepano.md.
 Hooks: fire in this source repo only — not in distributed plugin, not in consumer Code/Cowork sessions. See docs/hook-scope.md.
+Tool loading: adaptive, connector-side only. Persisted/on-demand/inactive classification + rationale: docs/mcp-tool-loading.md.
 </workflow>
 
 <constraints>

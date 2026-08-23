@@ -33,9 +33,21 @@ Apply in order; first match wins.
 
 See `references/READ_TOOL_MATRIX.md` for cost-class table.
 
+## On-demand tools — activate before first use
+
+Inactive by default, not in persisted set (`docs/mcp-tool-loading.md`): `get_files_by_tag`,
+`list_property_values`, `get_backlinks`, `get_outgoing_links`, `find_broken_links`, `find_orphaned_notes`,
+`execute_dataview_query`, `get_recent_files`, `get_vault_files`. First use per session:
+
+`activate_tools{ names: [...above] }`, `persist:false` (default).
+
+In-memory, connector-process-scoped — lost on restart/reload, no session carryover. Idempotent, always
+call. Pattern: `canvas-author.md` step 0.
+
 ## Integrity / graph-health scans
 
-Two vault-wide scan tools — not per-target reads. Use these instead of looping `get_outgoing_links` over every note when checking whole-vault health.
+Two vault-wide scan tools — not per-target reads. Inactive by default, see §On-demand tools above. Use
+these instead of looping `get_outgoing_links` over every note when checking whole-vault health.
 
 - **`find_broken_links`** — scans the full vault for unresolvable links (wiki / embed / frontmatter). Per broken link: source path, 1-based line number, link type, and raw syntax. No arguments required; returns immediately.
 - **`find_orphaned_notes`** — lists notes with zero incoming links. `exclude_folders` filters the **output** only; all notes are still scanned internally. Useful as a first pass before deciding whether an isolated note is intentional or lost.
@@ -63,6 +75,7 @@ Same as `organon-vault-write`: apply NFC to every path/title with accented chara
 - `get_vault_file_partial mode=heading` is heading-text-sensitive. Pass exactly as it appears in body (em-dashes, accents included). On miss, fall back to `get_vault_file_partial mode=outline` to discover actual text.
 - `execute_dataview_query` requires Dataview plugin in Obsidian. On "Dataview not available" error, route to `search_vault` (JsonLogic).
 - `get_backlinks` and `get_outgoing_links` don't follow embeds (`![[…]]`). For embed graphs, read body.
+- On-demand tools (§On-demand tools above) fail loud if called without activation first — activate, don't guess.
 - `list_tags` includes legacy `notetype/*`, `statut/*`, `source/*`, `domain/*`, `topic/*` namespaces — filter caller-side per `organon-frontmatter` § Legacy namespaces.
 - **Recurring param-name mistake**: `path` (not `filename`/`filepath`) on every single-file tool; `directory` (not `folder`) on `list_vault_files`. Guessing the wrong key fails loud (*"Key '…' does not exist on schema"*) — check the tool's actual schema rather than pattern-matching from a different tool.
 

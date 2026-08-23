@@ -24,6 +24,17 @@ Edge cases → `get_vault_file('99 - Méta/AI/Vault Conventions.md')`. Read-side
 | `append_to_periodic_note` | Append to periodic note (today or specified) | Combine with periodic-note ensure for journal flows. |
 | `create_vault_directory` / `delete_vault_directory` / `delete_vault_file` | Filesystem ops | `delete_vault_file` requires explicit filename — never `delete_active_file`. |
 
+## On-demand tools — activate before first use
+
+Inactive by default, not in persisted set (`docs/mcp-tool-loading.md`): `rename_heading`,
+`get_or_create_periodic_note`, `append_to_periodic_note`, `create_vault_directory`,
+`delete_vault_directory`, `delete_vault_file`. First use per session:
+
+`activate_tools{ names: [...above] }`, `persist:false` (default).
+
+In-memory, connector-process-scoped, idempotent. Pattern: `canvas-author.md` step 0. Note:
+`get_or_create_daily_note` is already baseline-active — exclude it from this call.
+
 ## Atomic-always for frontmatter (canonical)
 
 Use atomic tools (`set_note_property`, `delete_note_property`) over `patch_vault_file targetType:frontmatter`. Two reasons:
@@ -170,6 +181,8 @@ Doing a heading/block patch or a `replace` operation → `references/EDGE_CASES.
 
 Do not rename via `create_vault_file` + `delete_vault_file` — breaks all incoming `[[…]]`.
 
+`rename_heading` inactive by default — see §On-demand tools.
+
 ## NFC normalisation
 
 - Apply NFC to every path/title with accented characters before any MCP call.
@@ -184,5 +197,6 @@ Do not rename via `create_vault_file` + `delete_vault_file` — breaks all incom
 - `patch_vault_file` `operation` is **required, no default** — omit it and the call is rejected (*"operation must be 'append','prepend' or 'replace' (was missing)"*). Always pass `replace`/`append`/`prepend`.
 - **mcp-tools-istefox has NO bash tool.** `mcp__plugin_organon_organon__bash` → *"No such tool available"*. Run shell via Code `Bash` or Cowork `mcp__workspace__bash`.
 - `get_vault_file` timeout / *"server unavailable"* is an **abnormal signal** → retry once before escalating to PA.
+- On-demand tools (§On-demand tools above) fail loud if called without activation first — activate, don't guess.
 
 Frontmatter schema → `organon-frontmatter`. Body prose → `organon-markdown-style`. Read-side → `organon-vault-read`.

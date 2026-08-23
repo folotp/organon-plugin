@@ -44,3 +44,4 @@ Cost classes: **S** = single field/scalar (cheapest). **M** = single section/hea
 - **Search before reading.** `search_vault_smart` returns paths only; 3 partial reads cost less than 1 full body of wrong note.
 - **Backlinks aren't bodies.** `get_backlinks` = path list = graph query, not content fetch.
 - **Outline first on big notes.** `mode=outline` (S) reveals right `mode=heading target=…` to call next.
+- **Several rows above are inactive by default.** `get_files_by_tag`, `list_property_values`, `get_backlinks`, `get_outgoing_links`, `execute_dataview_query`, `get_recent_files`, `get_vault_files` need `activate_tools` first — see `SKILL.md` §On-demand tools.
