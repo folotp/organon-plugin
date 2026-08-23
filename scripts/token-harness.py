@@ -54,16 +54,32 @@ SKILLS: dict[str, dict[str, list[str] | str | None]] = {
         "core": ["SKILL.md"],
         "absorbed_refs": ["references/PROPERTIES.md"],
         # SHAPES_QUICKREF split out from core in v0.6.0 (perf trim).
+        # REGISTRE_KEYS/PREFIXES/METHODOLOGY_* were always real lazy-loaded
+        # references (see the skill's own References table) but were never
+        # registered here -- backfilled during the perf/token-harness-
+        # regression-cleanup pass (2026-08). None of the 13 session shapes
+        # below currently declare a genuine need for them (S02/S07's
+        # Templater-first flow doesn't consult REGISTRE_KEYS.md -- the
+        # template resolves key order server-side, per organon-vault-write's
+        # Canonical template paths section) -- correctly unused own_refs,
+        # noise-canceled per the methodology doc's own stated limitation.
         "own_refs": [
             "references/VOCABULARIES.md",
             "references/SHAPES_QUICKREF.md",
+            "references/REGISTRE_KEYS.md",
+            "references/PREFIXES.md",
+            "references/METHODOLOGY_ADR.md",
+            "references/METHODOLOGY_INC_BUG_BL.md",
         ],
         "dispatch_to": None,
     },
     "organon-vault-write": {
+        # EDGE_CASES.md split out from core in the perf/token-harness-
+        # regression-cleanup pass (2026-08) -- first own_refs split for
+        # this skill; previously 100% eager (core-only, no references/).
         "core": ["SKILL.md"],
         "absorbed_refs": [],
-        "own_refs": [],
+        "own_refs": ["references/EDGE_CASES.md"],
         "dispatch_to": None,
     },
     "organon-markdown-style": {
@@ -216,7 +232,9 @@ SESSIONS: list[dict] = [
         "id": "S09",
         "name": "Vault-write append (heading patch, no schema)",
         "skills": ["organon-vault-write"],
-        "needs": [],
+        "needs": [
+            ("organon-vault-write", "references/EDGE_CASES.md"),
+        ],
     },
     {
         "id": "S10",
