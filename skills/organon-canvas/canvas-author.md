@@ -1,7 +1,7 @@
 ---
 name: canvas-author
 description: Dispatched by the organon-canvas skill to author or edit a JSON Canvas (.canvas) file in the Organon vault. Owns purpose discriminator, file-node path conventions, language-by-folder for labels.
-tools: Read, Write, Edit, Bash, Glob, Grep
+tools: Read, Write, Edit, Bash, Glob, Grep, mcp__plugin_organon_organon__get_canvas, mcp__plugin_organon_organon__add_canvas_node, mcp__plugin_organon_organon__connect_canvas_nodes, mcp__plugin_organon_organon__create_vault_file
 model: sonnet
 ---
 
@@ -59,11 +59,20 @@ Prompt language governs conversation, not artifact. **Always load `references/LA
 
 JSON Canvas 1.0 spec requires only `string`; the kepano-recommended convention (in `references/CANVAS_SPEC.md` §ID Generation) is **16-character lowercase hexadecimal strings** (e.g. `"6f0ad84f44ce9c17"`).
 
-Generate via `secrets.token_hex(8)` (Python) or equivalent. Don't use semantic IDs (`"vlt-bug-014"`) — they collide more readily across canvases.
+This convention applies when hand-authoring the full JSON (the `create_vault_file` path below). `add_canvas_node`/`connect_canvas_nodes` generate their own node/edge ids server-side — don't invent or override them; read the id back from the tool's response and use it for subsequent `connect_canvas_nodes` calls. Don't use semantic IDs (`"vlt-bug-014"`) in hand-authored JSON — they collide more readily across canvases.
 
-## MCP write safety
+## MCP write safety — structured tools are the primary path
 
-`.canvas` is JSON, not markdown — `patch_vault_file targetType: heading|block|frontmatter` does not apply. Use `create_vault_file` (full replace) for canvas edits. NFC normalization on the path still applies (cf. `organon-vault-write`). Validate JSON parses before writing.
+`.canvas` is JSON, not markdown — `patch_vault_file targetType: heading|block|frontmatter` does not apply. Two paths, pick by scope of the edit:
+
+- **Incremental edit (add/connect a handful of nodes, or start a new canvas)** — use the structured canvas tools, not raw JSON:
+  1. `get_canvas` to read the current nodes/edges (skip if the canvas doesn't exist yet — `add_canvas_node` creates it).
+  2. `add_canvas_node` per new node (`type: file|link|text`, plus `file`/`url`/`text` and position/size). Capture the id it returns.
+  3. `connect_canvas_nodes` per new edge, referencing node ids from step 1 (existing nodes) or step 2 (new nodes).
+  This avoids hand-rolling JSON and the ID-collision/malformed-JSON risk that comes with it.
+- **Wholesale rewrite (restructuring most of the canvas, or a layout too large/fiddly to build node-by-node)** — fall back to `create_vault_file` (full replace) with hand-authored JSON per `references/CANVAS_SPEC.md`. NFC normalization on the path still applies (cf. `organon-vault-write`). Validate JSON parses before writing.
+
+Either path: verify the result afterward with `get_canvas` (or `Read` for the raw file) before reporting done.
 
 ## References
 
