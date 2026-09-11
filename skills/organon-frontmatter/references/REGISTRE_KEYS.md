@@ -113,7 +113,7 @@ Aligned with schema.org Book.
 
 | Key | Description | Required | Type | Vocabulary | Standard |
 |---|---|---|---|---|---|
-| `id` | Stable identifier. | yes | string | `FIN-DEC-NNNN` | Organon |
+| `id` | Stable identifier. | yes | string | `FIN-DEC-NNN` | Organon |
 | `date-decided` | Date decision made. | yes | date | `YYYY-MM-DD` | Organon, ISO 8601 |
 | `status` | Decision lifecycle. | yes | enum | `proposed` \| `accepted` \| `rejected` \| `superseded` \| `deprecated` | Organon (Nygard 2011, ADR canon) |
 | `references` | Referenced notes. | no | list<wikilink> | wikilinks | Organon |
