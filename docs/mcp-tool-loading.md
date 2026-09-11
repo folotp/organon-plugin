@@ -14,7 +14,7 @@ round-trip first).
 ## Verification recipe
 
 ```
-mcp__plugin_organon_organon__tool_catalog
+mcp__claude_ai_organon__tool_catalog
 ```
 
 Returns `{name, status: promoted|active|inactive, call_count}` per tool, vault-wide count (not per
