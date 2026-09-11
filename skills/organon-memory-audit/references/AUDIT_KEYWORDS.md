@@ -101,4 +101,6 @@ Profile preferences
 claude.ai project
 Custom connector
 Desktop Chat
+Settings → Memory
+claude.ai/settings/memory
 ```
