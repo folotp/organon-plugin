@@ -1,6 +1,6 @@
 <context>
 Repo: folotp/organon-plugin. Distributed via GitHub Release .plugin asset; consumed by folotp/claude-marketplace.
-.mcp.json bundles the remote Obsidian MCP server, keyed organon (→ obsidian-mcp.folot.net, HTTP). Ships to consumers; tool prefix mcp__claude_ai_organon__*.
+Uses the claude.ai-hosted Organon connector (→ obsidian-mcp.folot.net, HTTP) for the remote Obsidian MCP server — no bundled .mcp.json (removed 43a9042; was shadowing the connector). Tool prefix mcp__claude_ai_organon__*.
 </context>
 
 <workflow>

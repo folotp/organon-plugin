@@ -4,7 +4,7 @@ Organon vault conventions for Claude — packaged as a Cowork/Claude Code plugin
 
 ## What this plugin provides
 
-Ten skills total: eight description-triggered (load automatically when working with the Organon Obsidian vault at `~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Organon`) plus two user-only skills invoked via slash command. Bundles the remote Obsidian MCP server (`mcp-tools-istefox` ≥ 2.1.0) at `https://obsidian-mcp.folot.net/mcp` via `.mcp.json` — no manual MCP setup; Cloudflare Access OAuth runs in the browser on first connect.
+Ten skills total: eight description-triggered (load automatically when working with the Organon Obsidian vault at `~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Organon`) plus two user-only skills invoked via slash command. Uses the claude.ai-hosted Organon connector (`mcp-tools-istefox` ≥ 2.1.0) at `https://obsidian-mcp.folot.net/mcp` for the remote Obsidian MCP server — no bundled `.mcp.json`; Cloudflare Access OAuth runs in the browser on first connect.
 
 ### Core (5 skills)
 
