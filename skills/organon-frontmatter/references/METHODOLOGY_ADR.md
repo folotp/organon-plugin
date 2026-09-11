@@ -122,6 +122,7 @@ Not Linter-enforced; verified during monthly Organon maintenance.
 5. Update index's modifications journal if decision impacts in-force convention.
 
 ### Supersession
+Recommended: automate via `Supersede-ADR-template.md` (see `organon-vault-write` §Canonical template paths) — it performs steps 1–2 atomically, including the superseded callout, and is idempotent. Manual steps below remain the fallback if the template is unavailable.
 1. Create new ADR with `supersedes: "[[old]]"`.
 2. Update old ADR: `status: superseded` + `superseded-by: "[[new]]"` + insert superseded callout on first body line.
 3. Audit notes referencing old ADR — wikilinks still resolve, but pointed content may be obsolete.

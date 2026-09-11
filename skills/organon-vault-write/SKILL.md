@@ -128,6 +128,18 @@ execute_template({
 
 Templater writes Linter-ordered frontmatter, `creator: Claude` + `source/ia` (dual-mode via `tp.mcpTools`), `modified:`, and the full body skeleton. Do not `create_vault_file` ad-hoc from a hand-built skeleton — bypassing the template re-implements upstream work and risks subtle divergence.
 
+### Supersession — dedicated (`Supersede-ADR-template.md`)
+
+Fits neither routing class above: it consumes a sequential ID **and** patches an existing source fiche. Covers `VLT-ADR`, `SD-ADR`, `FIN-DEC` — per `SD-ADR-011`, complete supersession is the only valid pattern for modifying an `accepted` ADR or FIN-DEC.
+
+Path: `99 - Méta/Templates/Supersede-ADR-template.md`. Three-call MCP sequence (per the template's own header comment, SD-ADR-008 §Workflow MCP canonique):
+
+1. `execute_template{ templatePath:"99 - Méta/Templates/Supersede-ADR-template.md", arguments:{ source, titre, status?, topic? }, createFile:false }` — `source` (wikilink/basename of the fiche to supersede, required), `titre` (new fiche summary, no code, required), `status` (`proposed` | `accepted`, default `proposed`), `topic` (default depends on shape).
+2. Read `id:` from the rendered frontmatter.
+3. `create_vault_file{ path:"<canonical_folder>/<id>.md", content:<rendered> }`.
+
+**Divergence from the auto-ID class above**: step 1 already patches the *source* fiche in place (`status → superseded`, `superseded-by` set, `modified` bumped, superseded callout inserted) as a side effect of rendering — even with `createFile:false`. It is not a pure/inspect-only render; there is no dry-run. Idempotent: re-running against an already-`superseded` source silently no-ops on the source (a warning callout appears in the new fiche's body instead of an error).
+
 ### Per-shape arguments
 
 | Shape | Required | Optional / defaulted |
