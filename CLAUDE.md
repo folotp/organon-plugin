@@ -13,5 +13,5 @@ Tool loading: adaptive, connector-side only. Persisted/on-demand/inactive classi
 
 <constraints>
 Never commit directly to main. Prefixes: feat/ fix/ chore/ perf/ docs/.
-Never edit kepano-pinned files directly; don't run kepano-check-upstream.sh without --no-fetch in tight loops. Don't commit .plugin archives.
+Never edit kepano-pinned files directly. kepano-check-upstream.sh fetches on every call — pass --no-fetch in tight loops to skip the redundant network round-trip. Don't commit .plugin archives.
 </constraints>

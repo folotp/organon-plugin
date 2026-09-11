@@ -7,9 +7,7 @@ allowed-tools:
 
 # organon-bases
 
-> **BLOCKING REQUIREMENT — DO NOT PROCEED INLINE**
->
-> The first and only action this skill takes is to dispatch the `bases-author` sub-agent. The main session MUST NOT execute the `.base` authoring runbook inline. All tool-choice policy, Excluded-files diagnostic, Organon-vocabulary filters, file placement, and embedding rules live in `.claude/agents/bases-author.md`. This skill is a routing shim — its entire job is to hand off to that agent on sonnet.
+This skill is a routing shim: its only action is to dispatch the `bases-author` sub-agent rather than run the `.base` authoring runbook inline. Tool-choice policy, the Excluded-files diagnostic, vocabulary filters, file placement, and embedding rules all live in `.claude/agents/bases-author.md`, loaded on sonnet — this keeps that kepano-absorbed grammar off the main opus context.
 
 ## How to dispatch
 
