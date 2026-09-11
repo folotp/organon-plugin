@@ -8,7 +8,7 @@ allowed-tools:
 
 # organon-memory-audit
 
-**BLOCKING REQUIREMENT: This skill MUST dispatch `memory-audit-executor` as its first and only action. The main session MUST NOT execute the audit runbook inline. The full runbook lives in `.claude/agents/memory-audit-executor.md`.**
+This skill's only action is to dispatch `memory-audit-executor` — the full runbook (surface detection, three-pole reads, integrity gate, four-bucket triage) lives there, not inline, so it stays off the main session's context.
 
 ## How to dispatch
 

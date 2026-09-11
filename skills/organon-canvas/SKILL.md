@@ -7,9 +7,7 @@ allowed-tools:
 
 # organon-canvas
 
-> **BLOCKING REQUIREMENT — DO NOT PROCEED INLINE**
->
-> The first and only action this skill takes is to dispatch the `canvas-author` sub-agent. The main session MUST NOT execute the `.canvas` authoring runbook inline. All purpose-discriminator logic, file-node path conventions, language-by-folder enforcement, ID generation, and MCP write safety live in `.claude/agents/canvas-author.md`. This skill is a routing shim — its entire job is to hand off to that agent on sonnet.
+This skill is a routing shim: its only action is to dispatch the `canvas-author` sub-agent rather than run the `.canvas` authoring runbook inline. Purpose-discriminator logic, file-node path conventions, language-by-folder enforcement, ID generation, and MCP write safety all live in `.claude/agents/canvas-author.md`, loaded on sonnet — this keeps that kepano-absorbed spec off the main opus context.
 
 ## How to dispatch
 

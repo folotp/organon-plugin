@@ -8,9 +8,7 @@ allowed-tools:
 
 # plugin-release
 
-> **BLOCKING REQUIREMENT — DO NOT PROCEED INLINE**
->
-> **THE FIRST AND ONLY ACTION THIS SKILL TAKES IS TO DISPATCH THE `plugin-release-executor` SUB-AGENT.** The main session MUST NOT execute the release runbook inline. All pre-flight checks, version bumping, packaging, tagging, and GitHub Release creation live in `.claude/agents/plugin-release-executor.md`. This skill is a routing shim — its entire job is to hand off to that agent.
+This skill is a routing shim: its only action is to dispatch the `plugin-release-executor` sub-agent rather than run the release runbook inline. Pre-flight checks, version bumping, packaging, tagging, and GitHub Release creation all live in `.claude/agents/plugin-release-executor.md` — a release touches tags and a public GitHub Release, so routing through the dedicated executor keeps that consistent every time.
 
 ## How to dispatch
 
