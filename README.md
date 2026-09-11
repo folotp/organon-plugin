@@ -48,8 +48,8 @@ Net effect: when `organon-frontmatter` triggers (drafting an ADR / VLT-BUG / FIN
 ### v1.3.1 (MCP packaging fix — nest + rename)
 
 - **`.mcp.json` switched to the plugin (top-level) server-map shape**, dropping the project-style `mcpServers:` wrapper. The wrapper made Claude Code list the server as a standalone entry; the top-level map nests it under the `organon` plugin in `/plugin` (matching e.g. the GitHub plugin).
-- **Server key renamed `mcp-tools-istefox` → `organon`.** The connector is still `istefox/obsidian-mcp-connector`; `organon` is just the bundled-server identity. Tool prefix is therefore `mcp__plugin_organon_organon__*`.
-- **All skill references + the local allowlist updated** from the old `mcp__mcp-tools-istefox__*` to `mcp__plugin_organon_organon__*`. (Plugin-bundled MCP tools are always namespaced `mcp__plugin_<plugin>_<server>__<tool>` — the v1.3.0 references were stale.)
+- **Server key renamed `mcp-tools-istefox` → `organon`.** The connector is still `istefox/obsidian-mcp-connector`; `organon` is just the bundled-server identity. Tool prefix is therefore `mcp__claude_ai_organon__*`.
+- **All skill references + the local allowlist updated** from the old `mcp__mcp-tools-istefox__*` to `mcp__claude_ai_organon__*`. (Plugin-bundled MCP tools are always namespaced `mcp__plugin_<plugin>_<server>__<tool>` — the v1.3.0 references were stale.)
 
 ### v1.3.0 (bundled remote MCP server)
 
