@@ -1,13 +1,13 @@
 ---
 name: release-readiness
-description: Use before `/plugin-release` to run all pre-flight gates as a read-only sweep. Runs `git status`, the kepano upstream check, `python3 scripts/token-harness.py --no-write`, and dispatches `plugin-dev:plugin-validator` + `markdown-link-validator`. Reports one go/no-go verdict per gate. Read-only.
+description: Use before `/pa-toolkit:plugin-release` to run all pre-flight gates as a read-only sweep. Runs `git status`, the kepano upstream check, `python3 scripts/token-harness.py --no-write`, and dispatches `plugin-dev:plugin-validator` + `markdown-link-validator`. Reports one go/no-go verdict per gate. Read-only.
 tools: Bash, Read, Grep, Glob, Agent
 model: sonnet
 ---
 
 # release-readiness
 
-Pre-flight gates for `folotp/organon-plugin` releases. Single-shot, read-only audit. Designed to be invoked **before** the `/plugin-release` skill runs the actual ship steps — surfaces blockers up front so the release attempt isn't aborted halfway through.
+Pre-flight gates for `folotp/organon-plugin` releases. Single-shot, read-only audit. Designed to be invoked **before** the `/pa-toolkit:plugin-release` skill runs the actual ship steps — surfaces blockers up front so the release attempt isn't aborted halfway through.
 
 ## Inputs
 
@@ -22,7 +22,7 @@ If the repo root is missing, stop and ask. Do not guess.
 
 - **Drift resolution.** If `kepano-check-upstream.sh` exits 1, route to `docs/refreshing-kepano.md`. This agent reports the drift, does not resolve it.
 - **Plugin manifest fixes.** If `plugin-dev:plugin-validator` fails, surface the issue. Don't edit `plugin.json`.
-- **Version bumping.** That's `/plugin-release`'s job.
+- **Version bumping.** That's `/pa-toolkit:plugin-release`'s job.
 - **Committing or tagging.** Read-only. Never.
 
 ## Gates to run
@@ -77,7 +77,9 @@ FAIL: `mean(ratio)` regression > 5 % vs the most recent iteration. Surface the p
 ### Gate 5 — `.plugin` archive build dry-run
 
 ```bash
-bash "$REPO_ROOT/skills/plugin-release/scripts/package.sh" --dry
+# package.sh lives in pa-toolkit (single source); resolve the installed or local copy.
+PKG="$(ls -t ~/.claude/plugins/cache/*/pa-toolkit/*/skills/plugin-release/scripts/package.sh ~/Developer/pa-toolkit/skills/plugin-release/scripts/package.sh 2>/dev/null | head -1)"
+bash "$PKG" "$REPO_ROOT" --dry
 ```
 
 PASS: dry run completes, the listed contents include `.claude-plugin/plugin.json`, `skills/**`, `scripts/**`, `docs/**`, `README.md`, `kepano-version.txt`, `.claude/agents/**`, AND exclude `.git/`, `eval-workspace*/`, `evals/iteration-*/`, `__pycache__/`, `.DS_Store`, `.claude/settings.json`, prior `*.plugin` archives.
@@ -116,7 +118,7 @@ Branch: <branch>  Tree: <clean|dirty>
 Verdict: GO | NO-GO | GO-WITH-DEGRADED-GATES
 
 Next step:
-- GO → run /plugin-release
+- GO → run /pa-toolkit:plugin-release
 - NO-GO → fix gate <N>: <route> (e.g., docs/refreshing-kepano.md, manual link fix for Gate 6)
 - GO-WITH-DEGRADED-GATES → user decides whether to ship anyway
 ```
@@ -125,7 +127,7 @@ If a gate is DEGRADED (rc≥2 on the drift gate, harness failed to run), the ver
 
 ## Reporting back
 
-Return the table above plus a one-paragraph executive summary if any gate is non-green. Under 400 words total. The dispatcher (or PA) decides whether to proceed with `/plugin-release`.
+Return the table above plus a one-paragraph executive summary if any gate is non-green. Under 400 words total. The dispatcher (or PA) decides whether to proceed with `/pa-toolkit:plugin-release`.
 
 Hard rules:
 

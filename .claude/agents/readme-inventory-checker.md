@@ -1,6 +1,6 @@
 ---
 name: readme-inventory-checker
-description: Use before `/plugin-release` to verify `README.md` matches the shipped surface. Diffs README enumerations against `plugin.json`, `skills/*/SKILL.md` frontmatter, and `commands/*.md`. Reports MATCH | DRIFT per dimension. Read-only.
+description: Use before `/pa-toolkit:plugin-release` to verify `README.md` matches the shipped surface. Diffs README enumerations against `plugin.json`, `skills/*/SKILL.md` frontmatter, and `commands/*.md`. Reports MATCH | DRIFT per dimension. Read-only.
 tools: Bash, Read, Grep, Glob
 model: haiku
 ---

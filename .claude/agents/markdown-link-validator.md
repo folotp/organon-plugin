@@ -1,6 +1,6 @@
 ---
 name: markdown-link-validator
-description: Use before `/plugin-release` or after renaming any file under `skills/`, `commands/`, `docs/`, `.claude/agents/`, or `README.md` to verify all relative Markdown links and bare path mentions resolve. Reports MATCH | DRIFT per scope with one line per dead link.
+description: Use before `/pa-toolkit:plugin-release` or after renaming any file under `skills/`, `commands/`, `docs/`, `.claude/agents/`, or `README.md` to verify all relative Markdown links and bare path mentions resolve. Reports MATCH | DRIFT per scope with one line per dead link.
 tools: Bash, Read, Grep, Glob
 model: haiku
 ---
@@ -156,7 +156,7 @@ If `DRIFT-FOUND`, append a per-drift list under headings:
 ## Dead explicit links
 
 - skills/organon-frontmatter/SKILL.md:L42 → references/SCHEMA.md (not found; closest: REGISTRE_KEYS.md)
-- commands/plugin-release.md:L18 → ../skills/plugin-release/SKILL.md  → resolves: ✓
+- commands/organon-memory-audit.md:L5 → ../skills/organon-memory-audit/SKILL.md  → resolves: ✓
   (only listed because the dispatcher asked for verbose mode)
 
 ## Dead bare-path mentions (lower severity)

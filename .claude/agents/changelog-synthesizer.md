@@ -1,6 +1,6 @@
 ---
 name: changelog-synthesizer
-description: Dispatched during `/plugin-release` to draft a release-notes body from merge commits since the last tag. Reads `git log --merges <last-tag>..HEAD`, categorises by branch prefix (`feat/`, `fix/`, `chore/`, `perf/`, `docs/`), renders against `skills/plugin-release/references/release-notes-template.md`. Output: Markdown on stdout.
+description: Dispatched during `/pa-toolkit:plugin-release` to draft a release-notes body from merge commits since the last tag. Reads `git log --merges <last-tag>..HEAD`, categorises by branch prefix (`feat/`, `fix/`, `chore/`, `perf/`, `docs/`), renders against pa-toolkit's `skills/plugin-release/references/release-notes-template.md`. Output: Markdown on stdout.
 tools: Bash, Read, Glob, Grep
 model: haiku
 ---
@@ -118,7 +118,7 @@ Surface the synthesised summary in the draft heading AND in a comment line so th
 
 ## Output format
 
-Print exactly one Markdown block to stdout, structured per `skills/plugin-release/references/release-notes-template.md`. Fill empty sections with the literal `none` rather than omitting — keeps the template skeleton recognisable for the maintainer.
+Print exactly one Markdown block to stdout, structured per pa-toolkit's `skills/plugin-release/references/release-notes-template.md`. Fill empty sections with the literal `none` rather than omitting — keeps the template skeleton recognisable for the maintainer.
 
 ```markdown
 # organon v<version> — <summary>
