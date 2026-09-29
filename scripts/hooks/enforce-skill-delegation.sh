@@ -9,8 +9,10 @@
 # runbook instead of delegating.
 #
 # Covered skills (blocking mandate):
-#   plugin-release       → plugin-release-executor
 #   organon-memory-audit → memory-audit-executor
+#
+# plugin-release moved to folotp/pa-toolkit (/pa-toolkit:plugin-release),
+# whose shim dispatches pa-toolkit:plugin-release-executor itself.
 #
 # Excluded by design:
 #   organon-diagramming  — delegation is advisory/optional, not blocking.
@@ -33,9 +35,6 @@ skill_name="$(printf '%s' "$input" | jq -r '(.tool_input.skill // .tool_input.sk
 [[ -n "$skill_name" ]] || exit 0
 
 case "$skill_name" in
-    plugin-release)
-        executor="plugin-release-executor"
-        ;;
     organon-memory-audit)
         executor="memory-audit-executor"
         ;;

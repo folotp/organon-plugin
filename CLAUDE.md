@@ -4,7 +4,7 @@ Uses the claude.ai-hosted Organon connector (→ obsidian-mcp.folot.net, HTTP) f
 </context>
 
 <workflow>
-Release: /plugin-release runbook. Version SOT: .claude-plugin/plugin.json (semver). .plugin = gitignored, Release asset only.
+Release: /pa-toolkit:plugin-release (folotp/pa-toolkit, single source of the release runbook for all PA plugins). Repo pre-flight for it: .claude/agents/release-readiness.md gates, incl. ./scripts/kepano-check-upstream.sh. Version SOT: .claude-plugin/plugin.json (semver). .plugin = gitignored, Release asset only.
 Push main before tag. gh release create: --notes-from-tag incompatible with --repo — use --notes-file for cross-repo invocation.
 Kepano: 9 absorbed files pinned to kepano-version.txt sha. block-absorbed-edits.sh blocks direct edits; .organon-resync-token is the legitimate refresh path. See docs/refreshing-kepano.md.
 Hooks: fire in this source repo only — not in distributed plugin, not in consumer Code/Cowork sessions. See docs/hook-scope.md.

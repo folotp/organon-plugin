@@ -177,7 +177,7 @@ Output: store name, location (path or "paste-only"), current text, proposed text
 
 A memory (typically a `feedback` or `project` entry) documents a recurring behavioral rule, correction, or pattern *not yet captured* in any organon skill. Memory is the wrong long-term home — a skill rule is more durable.
 
-Output: source memory file, proposed target skill (or "new skill needed"), proposed rule shape, rationale. **Recommendation only** — the audit never edits plugin source. Actual plugin work goes through the normal `/plugin-release` flow on a feature branch.
+Output: source memory file, proposed target skill (or "new skill needed"), proposed rule shape, rationale. **Recommendation only** — the audit never edits plugin source. Actual plugin work goes through the normal `/pa-toolkit:plugin-release` flow on a feature branch.
 
 ### Bucket 4 — Canonical-snippets edit
 
@@ -243,7 +243,7 @@ If PA pastes a report from a prior `--mode=report-only` run and asks to walk fin
 
 Hard rules for scheduled runs: `--mode=report-only` enforced; no edits ever; if Bucket 3 candidates surface, the report suggests opening a tracking issue in `folotp/organon-plugin` but does not create one.
 
-Recommended cadence: weekly + ad-hoc after every `/plugin-release`.
+Recommended cadence: weekly + ad-hoc after every `/pa-toolkit:plugin-release`.
 
 ## Anti-patterns
 

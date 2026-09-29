@@ -83,7 +83,7 @@ For each finding:
   ```
 - **Rationale**: why this belongs in plugin source rather than memory.
 
-Recommendation only — plugin work goes through `/plugin-release` on a feature branch.
+Recommendation only — plugin work goes through `/pa-toolkit:plugin-release` on a feature branch.
 
 ### Bucket 4 — Canonical-snippets edits (<N>)
 

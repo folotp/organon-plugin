@@ -20,9 +20,10 @@ Ten skills total: eight description-triggered (load automatically when working w
 - **organon-canvas** — Purpose discriminator (cartography of existing notes vs. freeform sketches), placement beside the domain, file-node filename-only paths for vault-move robustness, language by folder for labels, ID convention (kepano 16-char hex).
 - **organon-diagramming** — Tool-selection decision tree (Mermaid for code-expressible flows, Canvas for note-cartography, Excalidraw via connector+bridge for freeform, SVG for throwaways), Excalidraw bridge skeleton, plugin compression-OFF invariant, preview-before-persist pattern.
 
-### User-only (2 skills, invoked via slash command — `disable-model-invocation: true`)
+### User-only (1 skill, invoked via slash command — `disable-model-invocation: true`)
 
-- **plugin-release** (`/plugin-release`, since v0.4.1) — Cut releases: bump version in `plugin.json`, package the `.plugin` archive, tag, create the GitHub Release with the archive uploaded as a Release asset.
+Releases moved out of this plugin: they are cut with `/pa-toolkit:plugin-release` from [`folotp/pa-toolkit`](https://github.com/folotp/pa-toolkit), the single generalized release runbook for all of PA's plugins (it was `/plugin-release` here from v0.4.1).
+
 - **organon-memory-audit** (`/organon-memory-audit`, since v0.5.0) — Three-pole drift audit aligning plugin/skill/tool reality, the canonical-snippets vault note, and per-surface implementations (Code / Cowork / Chat). Two scope modes (`--scope=global|project|all`) and two interaction modes (`--mode=interactive|report-only`). Edits never auto-applied — drifts and staleness are raised for human-in-the-loop approval.
 
 ## Absorbed kepano content — version-pin model (since v1.0.0)
@@ -176,7 +177,7 @@ Net effect: when `organon-frontmatter` triggers (drafting an ADR / VLT-BUG / FIN
 
 ## Installation
 
-Click "Install plugin" when this `.plugin` file appears in Cowork chat. The 8 description-triggered skills load automatically when working with the Organon vault; the 2 user-only skills (`/plugin-release`, `/organon-memory-audit`) are invoked explicitly via slash command.
+Click "Install plugin" when this `.plugin` file appears in Cowork chat. The 8 description-triggered skills load automatically when working with the Organon vault; the user-only skill `/organon-memory-audit` is invoked explicitly via slash command.
 
 ## Author
 

@@ -21,7 +21,7 @@ If repo root is missing, stop and ask. Do not guess.
 
 ## Out of scope (escalate, don't auto-fix)
 
-- **Writing a new iteration directory.** That's a release-time action (formal iteration freeze), owned by `/plugin-release`. This agent uses `--no-write`.
+- **Writing a new iteration directory.** That's a release-time action (formal iteration freeze), owned by `/pa-toolkit:plugin-release`. This agent uses `--no-write`.
 - **Editing skill files to fix a regression.** Surface the regression. Let PA decide whether the cost is acceptable or which skill to trim.
 - **Updating the harness methodology.** If the harness fails to run because of a methodology drift (new skill not registered in `SESSIONS`, etc.), surface the cause but do not edit `scripts/token-harness.py`.
 
@@ -116,7 +116,7 @@ Verdict: PASS | FAIL | IMPROVED | DEGRADED
 Next step:
   PASS     → safe to merge; no harness change required.
   FAIL     → surface to PA; trim or accept the cost.
-  IMPROVED → consider /plugin-release iteration freeze (the harness will write
+  IMPROVED → consider /pa-toolkit:plugin-release iteration freeze (the harness will write
              a new eval-workspace/iteration-N/ on the formal release run).
   DEGRADED → diagnostic in the note column; not a merge blocker by itself.
 ```
