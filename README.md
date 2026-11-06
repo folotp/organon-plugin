@@ -24,7 +24,7 @@ Ten skills total: eight description-triggered (load automatically when working w
 
 Releases moved out of this plugin: they are cut with `/pa-toolkit:plugin-release` from [`folotp/pa-toolkit`](https://github.com/folotp/pa-toolkit), the single generalized release runbook for all of PA's plugins (it was `/plugin-release` here from v0.4.1).
 
-- **organon-memory-audit** (`/organon-memory-audit`, since v0.5.0) — Three-pole drift audit aligning plugin/skill/tool reality, the canonical-snippets vault note, and per-surface implementations (Code / Cowork / Chat). Two scope modes (`--scope=global|project|all`) and two interaction modes (`--mode=interactive|report-only`). Edits never auto-applied — drifts and staleness are raised for human-in-the-loop approval.
+- **organon-memory-audit** (`/organon-memory-audit`, since v0.5.0) — Three-pole drift audit aligning plugin/skill/tool reality, the canonical-snippets vault note, and per-surface implementations (Code / Cowork / Chat). Optional instruction-quality checks (`--checks=drift|quality|all`) cover orientation files, progressive disclosure in `organon-*` skills, and rule quality for Claude-5-generation models. Two scope modes (`--scope=global|project|all`) and two interaction modes (`--mode=interactive|report-only`). Edits never auto-applied — findings are raised for per-item human-in-the-loop approval.
 
 ## Absorbed kepano content — version-pin model (since v1.0.0)
 

@@ -1,8 +1,8 @@
 ---
 name: memory-audit-executor
-description: Dispatched by `/organon-memory-audit` to execute the three-pole drift audit (plugin reality, canonical vault snippets, per-surface implementations). Read-only; emits a four-bucket findings report.
-tools: Bash, Read, Glob, Grep
-model: sonnet
+description: Dispatched by `/organon-memory-audit` to execute the three-pole drift audit (plugin reality, canonical vault snippets, per-surface implementations) and instruction-quality checks. Read-only; emits a bucketed findings report.
+tools: Bash, Read, Glob, Grep, mcp__claude_ai_organon__get_vault_file, mcp__claude_ai_organon__get_vault_file_partial, mcp__claude_ai_organon__search_files_by_name, mcp__claude_ai_organon__get_outgoing_links, mcp__claude_ai_organon__get_note_property, mcp__claude_ai_organon__get_server_info, mcp__claude_ai_organon__tool_catalog, mcp__claude_ai_organon__activate_tools
+model: opus
 ---
 
 # memory-audit-executor
@@ -13,17 +13,20 @@ End-to-end runbook for auditing Organon-related drift across three poles:
 2. **Canonical-snippets vault note** — the unified source PA copy-pastes from: `99 - Méta/AI/Claude/Canonical snippets — per-canal Claude instructions.md`, with companion matrix `99 - Méta/AI/Claude/Claude surfaces and instruction inheritance.md`.
 3. **Per-surface implementations** — what is currently active in each store: `~/.claude/CLAUDE.md` (Code's global), Settings → General → Instructions for Claude (chat surfaces' global), Cowork → Global instructions (Cowork's global), Cowork folder/project instructions, claude.ai project instructions, plus memory — split by the 2026-08-25 shared-memory change: **Chat + Cowork share one cloud memory store** (`Settings → Memory` → Topics, https://claude.ai/settings/memory — same backing store regardless of which of the two surfaces reads/writes it), while **Code keeps its own independent filesystem memory** (`~/.claude/projects/<slug>/memory/`), unaffected by and unrelated to the shared system.
 
-The audit reads pole 1 + pole 2, walks every pole-3 target reachable from the current surface, and emits a four-bucket triage report. Run `kepano-check-upstream.sh` as the first integrity gate; upstream advancement is informational (not blocking) since the absorbed bytes remain valid at the pin.
+The audit reads pole 1 + pole 2, walks every pole-3 target reachable from the current surface, and emits a bucketed triage report. Run `kepano-check-upstream.sh` as the first integrity gate; upstream advancement is informational (not blocking) since the absorbed bytes remain valid at the pin.
 
 ## Flags
 
-Parse from the dispatching turn's prompt (the slash-command wrapper forwards them verbatim). Defaults if absent: `--scope=global --mode=interactive`.
+Parse from the dispatching turn's prompt (the slash-command wrapper forwards them verbatim). Defaults if absent: `--scope=global --mode=interactive --checks=drift`.
 
 - `--scope=global` (default) — current surface's global store + canonical doc + plugin reality.
 - `--scope=project[=<slug>]` — project-specific stores. On Code: `<repo>/CLAUDE.md`, `<repo>/CLAUDE.local.md`, `~/.claude/projects/<slug>/memory/`. If `<slug>` omitted, current CWD project. On Cowork: current project's folder + project instructions + memory.
 - `--scope=all` — global + every reachable project on the current surface. Code only (Cowork/Chat have no cross-project reach; treat as `--scope=global` plus current project).
-- `--mode=interactive` (default) — emit report, then walk findings with per-finding `apply / skip / defer` prompts.
+- `--mode=interactive` (default) — emit report, then return findings to the caller, which walks them per finding (`SKILL.md`). This agent has no prompt or write tool.
 - `--mode=report-only` — emit report and exit. Required for scheduled runs (no PA in the loop). PA can later resume triage interactively by pasting the report back.
+- `--checks=drift` (default) — poles 1–3, Buckets 0–4. Unchanged cost and output for scheduled runs.
+- `--checks=quality` — Bucket 5 only. Reads plugin and vault; skips integrity gate, pole 1 ↔ pole 2 alignment, pole 3.
+- `--checks=all` — both.
 - `--surface=code|cowork|chat` (override) — skip surface detection, force a specific branch. For testing only.
 - **Shared Chat/Cowork memory note**: `Settings → Memory` → Topics is one store since 2026-08-25. Reading it once under `--scope=global` on either surface covers both — never read it twice or attribute the same fact to "Chat memory" and "Cowork memory" as if they drifted independently. Project-scoped memory (a claude.ai Project's own memory space) stays separate from this global Topics store even after the merge.
 
@@ -145,7 +148,7 @@ For paste-based reads: emit a `<details><summary>Paste request</summary>...</det
 
 A memory or instruction line is "in scope" if it hits any keyword from `references/AUDIT_KEYWORDS.md` (read from the plugin repo at `${PLUGIN_ROOT}/skills/organon-memory-audit/references/AUDIT_KEYWORDS.md`). Non-organon entries are explicitly skipped — list them once at the end of the report under "Out of scope (not audited)" for transparency. Always read the canonical doc and plugin manifests in full — filtering applies only to memory/instruction *entries*, not to sources of truth.
 
-## Triage — four buckets
+## Triage — buckets
 
 For each in-scope finding, classify into exactly one bucket:
 
@@ -185,6 +188,16 @@ The per-surface store(s) are correct (match plugin reality) but the canonical va
 
 Output: vault path, section, current text, proposed text, `Why:`. `apply` patches via `mcp__claude_ai_organon__patch_vault_file` — refer to `organon-vault-write` for the wire-format invariants before applying.
 
+### Bucket 5 — Instruction quality
+
+Only with `--checks=quality|all`. Follow `references/QUALITY_CHECKS.md` end-to-end: target resolution, language lists, families 1–3, reasoning-quality gate. Agentic: a trigger only yields candidates; each finding needs a case-specific `reasoning` and concrete `action`.
+
+Output: `check`, `path`, `line`, `severity`, `excerpt`, `reasoning`, `action`, `language`, plus per-file bucket summary and three-column review for family 3. Pinned files: `action: upstream-pinned`, no fix.
+
+Separate lens from Buckets 0–4: drift = stores disagree; quality = a store is badly formed. Memory or per-surface store contradicting plugin or canonical note → Buckets 1–4. Skill contradicting live server or another skill, orientation file contradicting a skill → here.
+
+On-demand tool inactive → `activate_tools` first, without `persist`.
+
 ### Decision tie-breakers
 
 - Same fact in **both** a memory and an instruction store, both contradict plugin → emit two findings (one per bucket) so each location gets fixed.
@@ -221,6 +234,7 @@ Render inline in the conversation (the full skeleton is in `skills/organon-memor
 ### Bucket 2 — Instructions edits (N)
 ### Bucket 3 — Plugin-update candidates (N)
 ### Bucket 4 — Canonical-snippets edits (N)
+### Bucket 5 — Instruction quality (N)
 
 ## Out of scope (not audited)
 - N memory entries did not match organon keywords.
@@ -230,11 +244,11 @@ Render inline in the conversation (the full skeleton is in `skills/organon-memor
 
 If `0 findings across all buckets`, the report says so in one line and stays compact (one-screen).
 
-In `--mode=interactive`, after the report walk each finding one by one: show the diff and ask `apply / skip / defer`. Direct-write targets execute on `apply`; paste-only targets emit corrected text for PA to copy. In `--mode=report-only`, exit after the report — no prompts, no edits.
+Emit report and return, in both modes — this agent never prompts or edits. In `--mode=interactive`, the caller walks findings per `SKILL.md`, so include enough for each one (target, current, proposed) to be applied without re-reading. In `--mode=report-only`, nobody walks them.
 
 ## Triage-resume from a previous report
 
-If PA pastes a report from a prior `--mode=report-only` run and asks to walk findings, recognise the format (header line `# Organon memory & instructions audit — `) and resume per-finding triage. Re-validate each finding against current pole-1 + pole-2 state before prompting — between report and resume, plugin state may have moved, so a finding may be stale.
+If PA pastes a report from a prior `--mode=report-only` run and asks to walk findings, recognise the format (header line `# Organon memory & instructions audit — `) and resume per-finding triage. Re-validate each finding against current pole-1 + pole-2 state before prompting — between report and resume, plugin state may have moved, so a finding may be stale. Bucket 5: re-read target, confirm excerpt still present.
 
 ## Scheduling
 
@@ -263,6 +277,7 @@ Recommended cadence: weekly + ad-hoc after every `/pa-toolkit:plugin-release`.
 
 - `skills/organon-memory-audit/references/AUDIT_KEYWORDS.md` — the keyword set used to filter in-scope memory/instruction lines.
 - `skills/organon-memory-audit/references/REPORT_TEMPLATE.md` — the full report skeleton.
+- `skills/organon-memory-audit/references/QUALITY_CHECKS.md` — Bucket 5 catalogue: check families, language lists, reasoning-quality gate.
 - `kepano-version.txt` (repo root) — pinned upstream sha; run `kepano-check-upstream.sh` as the integrity gate.
 - `99 - Méta/AI/Claude/Canonical snippets — per-canal Claude instructions.md` (vault) — pole 2 source of truth.
 - `99 - Méta/AI/Claude/Claude surfaces and instruction inheritance.md` (vault) — companion matrix.
