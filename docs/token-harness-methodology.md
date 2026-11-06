@@ -117,7 +117,7 @@ re-runs the measurement.
 | S10 | Sweep / refactor wave (frontmatter migration N notes) | frontmatter, vault-write, session-discipline | VOCABULARIES.md |
 | S11 | Atomic frontmatter write (`set_note_property`, 1-3 keys) | frontmatter, vault-write | (none) |
 | S12 | Partial read (`get_vault_file_partial mode=heading`) | vault-read | (none) |
-| S13 | Exploratory semantic pre-filter (`search_vault_smart` → top-3 partial reads) | session-discipline, vault-read | READ_TOOL_MATRIX.md |
+| S13 | Exploratory semantic pre-filter (`search_vault_smart` → partial reads) | session-discipline, vault-read | READ_TOOL_MATRIX.md |
 
 S11-S13 added in v1.1.0 to measure the post-refactor leverage of atomic
 frontmatter tools, partial reads, and the Rule 8 semantic pre-filter.
