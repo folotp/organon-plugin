@@ -12,7 +12,7 @@ Nine skills total: eight description-triggered (load automatically when working 
 - **organon-vault-read** (new in v1.1.0) — Read-side token-minimisation. Decision tree across atomic frontmatter (`get_note_property`), partial reads (`get_vault_file_partial` modes: frontmatter / heading / block / outline), graph nav (`get_backlinks`, `get_outgoing_links`), tag and property indexes (`list_tags`, `get_files_by_tag`, `list_property_values`), search (`search_vault_smart` → `search_vault_simple` fallback, `execute_dataview_query` in-process, `search_vault` DQL/JsonLogic), `get_recent_files`. Reserves full `get_vault_file` for cases where the whole body is genuinely required.
 - **organon-frontmatter** — Schema, key ordering, controlled vocabularies, ULID forward-only, `creator:` dual-mode (UI vs MCP), archive/supersession, alias-only versioning, ADR/BL/BUG/INC field requirements. Vocabularies externalized to `references/VOCABULARIES.md` (loaded on-demand).
 - **organon-markdown-style** — Body conventions: no H1 in body, language by folder (`99 - Méta/AI/` in EN, rest in FR), typographic apostrophes, no trailing whitespace, no systematic block anchors, table+block-ref pitfall.
-- **organon-session-discipline** — 8 behavioral rules: arbitrate over over-clarify, read bootstrap before drafting, no in-fiche redundancy, confirm inferred mappings, propose generalizations, check meta-skills before producing typed artifacts, language coherence by folder, semantic pre-filter before exploratory reads (Rule 8, new in v1.1.0).
+- **organon-session-discipline** — 9 behavioral rules: arbitrate over over-clarify, read bootstrap before drafting, no in-fiche redundancy, confirm inferred mappings, propose generalizations, check meta-skills before producing typed artifacts, language coherence by folder, semantic pre-filter before exploratory reads (Rule 8, new in v1.1.0), test-framework temp dirs outside the vault mount.
 
 ### Aux (3 skills, new in v0.2.0 — chat 1.B)
 
@@ -45,6 +45,16 @@ Net effect: when `organon-frontmatter` triggers (drafting an ADR / VLT-BUG / FIN
 - Detailed results in `refactor-phase4/wave-1-skills-bootstrap/eval-workspace/` of the Organon project workspace.
 
 ## Changes since v0.1.0
+
+### v1.4.0 (memory-audit instruction-quality checks, connector corrections)
+
+- **`organon-memory-audit`** (#73): new `--checks=drift|quality|all` flag and Bucket 5 for instruction quality, covering orientation files, `organon-*` skills and rule classification. Default stays `drift`. Catalogue in `references/QUALITY_CHECKS.md`.
+- **Executor**: gains vault read tools and runs on the unversioned `opus` alias. The per-item walk moved to `SKILL.md`; the executor stays read-only.
+- **Connector corrections** (#74): `document-map` replaces `outline`; `get_vault_file_partial` takes `filename`; `createFile` and `dry_run` are booleans; periodic-note, daily-note and active-file tools are marked unavailable.
+- **Skills** (#74, #76): conflicts on block-ref IDs and new-key order resolved; Templater invariants merged into `organon-vault-write`; tables of contents on long references; `author` scoped to `type: book`; bases and canvas descriptions cover creation.
+- **`organon-session-discipline`** (#76): the 3-read budget and the rule 6 undertriggering rationale are removed.
+- **Release** (#70): `/plugin-release` moved to `/pa-toolkit:plugin-release`.
+- **Docs** (#72): Organon connector docs point at `organon-claude.folot.net`.
 
 ### v1.3.3 (pole-3 memory model fix, connector doc drift cleanup)
 
