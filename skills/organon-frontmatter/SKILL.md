@@ -37,7 +37,7 @@ description: Use when composing or editing frontmatter on an Organon vault note 
 
 **`creator:` dual-mode** — UI → `Pierre-André Folot`, no `source/ia` tag. MCP → `Claude`, add `source/ia`. Detection via `tp.mcpTools` in template prelude.
 
-**`creator` vs `author`** — `creator` = Organon note author. `author` = external work's author (`type: book` and similar only).
+**`creator` vs `author`** — `creator` = Organon note author. `author` = external work's author (`type: book` only).
 
 **Archive** — `archived: true` + `archived-date: YYYY-MM-DD` (pair required; orthogonal to `status:`).
 
