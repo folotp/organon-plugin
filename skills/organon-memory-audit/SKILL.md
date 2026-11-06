@@ -32,7 +32,7 @@ Agent({
 
 ## When NOT to delegate
 
-No edge case justifies inline audit. Executor is read-only and sonnet-pinned; runbook lives exclusively in its agent file. Walk below stays here: subagent can't prompt or write.
+No edge case justifies inline audit. Executor is read-only and runs on Opus (unversioned alias, tracks latest); runbook lives exclusively in its agent file. Walk below stays here: subagent can't prompt or write.
 
 Only skip delegation if `memory-audit-executor` is unavailable (missing or broken agent file). Fix the executor — do not run the runbook inline.
 

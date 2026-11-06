@@ -2,7 +2,7 @@
 name: memory-audit-executor
 description: Dispatched by `/organon-memory-audit` to execute the three-pole drift audit (plugin reality, canonical vault snippets, per-surface implementations) and instruction-quality checks. Read-only; emits a bucketed findings report.
 tools: Bash, Read, Glob, Grep, mcp__claude_ai_organon__get_vault_file, mcp__claude_ai_organon__get_vault_file_partial, mcp__claude_ai_organon__search_files_by_name, mcp__claude_ai_organon__get_outgoing_links, mcp__claude_ai_organon__get_note_property, mcp__claude_ai_organon__get_server_info, mcp__claude_ai_organon__tool_catalog, mcp__claude_ai_organon__activate_tools
-model: sonnet
+model: opus
 ---
 
 # memory-audit-executor
