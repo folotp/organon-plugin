@@ -262,7 +262,7 @@ SESSIONS: list[dict] = [
     },
     {
         "id": "S13",
-        "name": "Exploratory semantic pre-filter (search_vault_smart → top-3 partial)",
+        "name": "Exploratory semantic pre-filter (search_vault_smart → partial reads)",
         "skills": ["organon-session-discipline", "organon-vault-read"],
         "needs": [
             ("organon-vault-read", "references/READ_TOOL_MATRIX.md"),

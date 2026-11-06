@@ -34,7 +34,7 @@ Cost classes: **S** = single field/scalar (cheapest). **M** = single section/hea
 | Full read + scan for `[[X]]` references | `get_backlinks{ path: "X" }` |
 | Manual scan for heading `## Section` | `get_vault_file_partial mode=heading target="Section"` |
 | `get_vault_file` to confirm block ref exists | `get_vault_file_partial mode=block target="<id>"` (errors if absent) |
-| `search_vault_simple` then full reads of every hit | `search_vault_smart` → top 3 → partial reads |
+| `search_vault_simple` then full reads of every hit | `search_vault_smart` → plausible matches → partial reads |
 | Manual DQL via REST | `execute_dataview_query` (if Dataview installed) |
 | Loop `get_vault_file` over a known path list | `get_vault_files{ paths }` (≤ 20 per call) |
 

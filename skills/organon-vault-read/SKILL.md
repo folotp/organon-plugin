@@ -82,7 +82,7 @@ Same as `organon-vault-write`: apply NFC to every path/title with accented chara
 ## Anti-patterns
 
 - Full `get_vault_file` to inspect one key → use `get_note_property`.
-- Loop `get_vault_file` over N candidates from `search_vault_simple` → re-rank via `search_vault_smart`, partial-read top 1-3.
+- Loop `get_vault_file` over N candidates from `search_vault_simple` → re-rank via `search_vault_smart`, partial-read plausible matches.
 - Manual regex on full body to extract heading → use `get_vault_file_partial mode=heading`.
 - Pre-fetch every backlink body when only count matters → `get_backlinks` returns list; partial-read only what matters.
 

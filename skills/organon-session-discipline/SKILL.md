@@ -41,9 +41,9 @@ Before calling `get_vault_file` on unknown path (not hardcoded in skill or given
 
 **When to use:** Finding relevant notes, checking prior art, identifying context before multi-step task. Exempt: skill-hardcoded paths (`AI Bootstrap`, `Vault Conventions.md`, `references/*`), paths given explicitly by PA.
 
-**Result interpretation:** Results are similarity-ranked. Read only top 1-3, only when path (folder + title) plausibly matches query — `search_vault_smart` returns paths and scores, no body excerpts. Off-topic top result (wrong domain folder, unrelated title) = skip.
+**Result interpretation:** Results are similarity-ranked. Read in rank order, only when path (folder + title) plausibly matches query — `search_vault_smart` returns paths and scores, no body excerpts. Off-topic result (wrong domain folder, unrelated title) = skip.
 
-**Read budget:** At most 3 reads per smart-search result set before re-evaluating. Prefer `get_vault_file_partial` (frontmatter / heading / document-map) over full `get_vault_file` — see `organon-vault-read` for decision tree. All 3 candidates low-relevance → report to PA instead of reading further.
+**Reading:** Prefer `get_vault_file_partial` (frontmatter / heading / document-map) over full `get_vault_file` — see `organon-vault-read` for decision tree. Stop when the question is answered. No plausible candidate → report to PA.
 
 **Provider-not-ready fallback:** If `search_vault_smart` errors or times out, fall back to `search_vault_simple` (keyword). Don't skip pre-filtering entirely.
 
