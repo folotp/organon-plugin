@@ -13,7 +13,9 @@ Render inline in conversation. Write to file only if PA explicitly asks — conv
 - Mode: <interactive | report-only>
 - Plugin source: <readable at <path> | inferred from harness skill list>
 - Canonical vault note: <read at <vault path> | not reachable (no MCP) | paste-driven>
-- Integrity gate: <kepano-sync exit 0 | DRIFT — see Bucket 0>
+- Checks: <drift | quality | all>
+- Integrity gate: <kepano-sync exit 0 | DRIFT — see Bucket 0 | skipped (--checks=quality)>
+- Quality targets: <resolved orientation files, skills, rule files; or "not run">
 
 ## Sources of truth
 - Plugin v<X.Y.Z> @ <git short SHA> (<commit date>)
@@ -22,7 +24,9 @@ Render inline in conversation. Write to file only if PA explicitly asks — conv
 - MCP server floor: mcp-tools-istefox >= <X.Y.Z>
 - kepano-sync: <N>/<N> in-sync (or list drifted sections with their drift_status)
 - Canonical snippets last synced: <date from each per-surface bloc>
-- Stable run hash: <sha256 short>
+- Stable run hash: <sha256 short> (pole 1 + 2 only — same hash doesn't mean quality targets unchanged)
+
+Under `--checks=quality`: MCP floor, kepano-sync, last synced, run hash → `n/a`.
 
 ## Findings
 
@@ -101,6 +105,45 @@ For each finding:
   ```
 - **Why**: <citation against pole 1 or pole 3>
 
+### Bucket 5 — Instruction quality (<N>)
+
+Omit section if `--checks=drift`. Family with no findings → `No findings for family <N>`, never omitted.
+
+Per family:
+
+- **Gate**: <candidates> candidates, <discarded> discarded, <findings> findings; sampled <n>, paraphrases <n>, re-run <y/n>, dropped <n>
+
+For each finding (families 1, 2):
+
+- **Check**: <Q1.2 — specificity>
+- **Location**: <path>:<line>
+- **Severity**: <warn | fail>
+- **Language**: <en | fr — FR heuristic, uncalibrated>
+- **Excerpt**:
+  ```
+  <verbatim>
+  ```
+- **Reasoning**: <specific to this line and file>
+- **Action**: <concrete fix | upstream-pinned>
+
+Family 3, per file:
+
+```
+<path>
+RETIRED n → delete | BARE PROHIBITION n → rewrite | ONE-SIDED n → add counterweight
+AGGRESSIVE n → soften | OBVIOUS n → delete | UNSURE n → ask PA
+KEEP (hard rule) n → untouched | KEEP (gotcha) n → untouched | OK n | est. line reduction x%
+```
+
+| Line | Original | Proposed or DELETE | Reason + bucket |
+|---|---|---|---|
+
+`UNSURE` lines: question for PA in place of proposed text.
+
+#### Off-catalogue
+
+Defects no check id covers, or KEEP lines factually wrong. Same fields, `Check: off-catalogue`.
+
 ## Out of scope (not audited)
 
 - <N> memory entries did not match organon keywords (see `references/AUDIT_KEYWORDS.md`):
@@ -113,6 +156,7 @@ For each finding:
 - Bucket 2: edit ~/.claude/CLAUDE.md and project CLAUDE.md directly; for Settings → General and Cowork → Global, copy the proposed text and paste on the matching surface.
 - Bucket 4: patch the canonical vault note via mcp__claude_ai_organon__patch_vault_file (consult organon-vault-write for wire-format invariants).
 - Bucket 3: open a tracking issue at folotp/organon-plugin for any candidate you want to act on.
+- Bucket 5: walk per-finding `apply-now / edit-first / decline`. Never bulk-applied.
 
 ## Empty-report short form
 
@@ -121,7 +165,7 @@ All buckets 0:
 ```markdown
 # Organon memory & instructions audit — <YYYY-MM-DD HH:MM>
 - Surface / scope / mode: <…>
-- All four buckets empty. Stable run hash: <sha>.
+- All buckets run were empty. Stable run hash: <sha>.
 - Pole 1 ↔ pole 2 ↔ pole 3 aligned. Next scheduled run: <if known>.
 ```
 ```
