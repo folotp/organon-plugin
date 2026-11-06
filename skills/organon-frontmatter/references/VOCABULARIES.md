@@ -1,6 +1,29 @@
 # Organon — frontmatter controlled vocabularies
 
-Lazy-loaded reference for closed vocabularies. For frontmatter schema, see `REGISTRE_KEYS.md`. For identifier prefixes, see `PREFIXES.md`.
+Lazy-loaded offline snapshot of closed vocabularies, kept deliberately for token cost. Source of truth: `99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — <key>.md`. For frontmatter schema, see `REGISTRE_KEYS.md`. For identifier prefixes, see `PREFIXES.md`.
+
+## Contents
+
+- `type:` (16 values)
+- `content-model:`
+- `status:` (unified cross-domain)
+- `adr-status` / `vlt-adrs:status` / `vlt-dec:status`
+- `vlt-bl-status` / `sd-bl-status`
+- `vlt-bl-priority` / `sd-bl-priority`
+- `vlt-bl-origin` / `sd-bl-origin`
+- `vlt-bug-status`
+- `vlt-bug-severity`
+- `vlt-inc-status`
+- `vlt-inc-surface` (Claude interface)
+- `vlt-inc-layer` (technical layer)
+- `vlt-inc-operation` (operation type)
+- `domain` (functional domain)
+- `topic` (cross-cutting, `#topic/*`)
+- Tag namespaces (Organon-curated)
+- `lang:` (BCP 47)
+- Person fields (`type: person` only)
+- Book fields (`type: book` only)
+- Validation
 
 ## `type:` (16 values)
 
@@ -269,4 +292,4 @@ Aligned with schema.org Book. Full table: see `REGISTRE_KEYS.md` §Book.
 
 ## Validation
 
-New keys require `REGISTRE_KEYS.md` entry before use. Vocabulary extensions require vault registre and re-sync via `scripts/sync-vault.sh`.
+New keys require `REGISTRE_KEYS.md` entry before use. Vocabulary extensions: edit vault vocab note first, then update this snapshot by hand.

@@ -4,6 +4,23 @@ Canonical registry of all frontmatter keys in Organon. Per key: description, sco
 
 **Controlled vocabularies:** authoritative value lists in `99 - Méta/Système documentaire/Vocabulaires/Vocabulaire — <key>.md`. Vault-wide (Templater, Linter, Bases, audits). On disagreement, vocabulary note is canonical.
 
+## Contents
+
+- Key Legend
+- Global Keys (all notes)
+- Keys for type: person
+- Keys for type: book
+- Keys for domain: Finance (01 - Finances et patrimoine/)
+- Keys for domain: VLT (99 - Méta/Outils/Accès à Obsidian par Claude/)
+- Keys for domain: SD (99 - Méta/Système documentaire/)
+- Keys for type: ADR (VLT-ADR-NNN and SD-ADR-NNN)
+- Keys for Versioned Notes
+- Linter Sort Order (yaml-key-sort)
+- Retired Keys (Migration Completed)
+- Keys In Migration (Vault-wide Incomplete)
+- Open Questions
+- Related
+
 ## Key Legend
 
 - **Scope**: `global` (all notes), `type X` (type X only), `domain Y` (domain Y only).

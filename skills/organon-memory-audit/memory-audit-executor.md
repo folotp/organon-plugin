@@ -9,7 +9,7 @@ model: opus
 
 End-to-end runbook for auditing Organon-related drift across three poles:
 
-1. **Plugin / skill / tool capabilities** — runtime ground truth (`plugin.json`, `kepano-version.txt`, every `skills/*/SKILL.md` description, `commands/*.md`, MCP server floor).
+1. **Plugin / skill / tool capabilities** — runtime ground truth (`.claude-plugin/plugin.json`, `kepano-version.txt`, every `skills/*/SKILL.md` description, `commands/*.md`, MCP server floor).
 2. **Canonical-snippets vault note** — the unified source PA copy-pastes from: `99 - Méta/AI/Claude/Canonical snippets — per-canal Claude instructions.md`, with companion matrix `99 - Méta/AI/Claude/Claude surfaces and instruction inheritance.md`.
 3. **Per-surface implementations** — what is currently active in each store: `~/.claude/CLAUDE.md` (Code's global), Settings → General → Instructions for Claude (chat surfaces' global), Cowork → Global instructions (Cowork's global), Cowork folder/project instructions, claude.ai project instructions, plus memory — split by the 2026-08-25 shared-memory change: **Chat + Cowork share one cloud memory store** (`Settings → Memory` → Topics, https://claude.ai/settings/memory — same backing store regardless of which of the two surfaces reads/writes it), while **Code keeps its own independent filesystem memory** (`~/.claude/projects/<slug>/memory/`), unaffected by and unrelated to the shared system.
 

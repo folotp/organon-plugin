@@ -1,13 +1,13 @@
 # Préfixes d'identifiants
 
-Registry of Organon identifier prefixes. Form: `DOMAIN-TYPE[-SUBTYPE]-NNN`, 3–4 digits per domain volumetry. IDs immutable; block-refs (`^<ID>`) declared in note headers.
+Registry of Organon identifier prefixes. Form: `DOMAIN-TYPE[-SUBTYPE]-NNN`, 3–4 digits per domain volumetry. IDs immutable.
 
 ## Core principles
 
 1. **Domain, not tool.** Prefixes reflect domain (`VLT`, `FIN`, `SD`), not tool (`OBS`, `YNAB`). Domains survive tool migration.
 2. **Stability.** IDs never change. Reclassify via new ID + redirection; never reuse.
 3. **Atomicity.** One ID = one `.md` file. Registers/journals link only; content in fiche.
-4. **Block-ref anchor.** Each fiche declares `^<ID>` under title for stable links.
+4. **No ID block-ref.** Link by `[[ID]]`. `^<token>` last resort only, descriptive, never note ID (`organon-markdown-style`).
 
 ## Prefix registry
 

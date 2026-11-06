@@ -24,7 +24,7 @@ Agent({
 
 ## Args to forward
 
-- **Repo root absolute path** — absolute path to organon-plugin repo (e.g. `/Users/pierreandre/Developer/organon-plugin`). Required for pole 1 reads, integrity gate scripts, drift ledger paths.
+- **Repo root absolute path** — absolute path to organon-plugin repo (e.g. `/Users/pierreandre/Developer/organon-plugin`). Required for pole 1 reads, integrity gate script.
 - **Per-pole scope flag** — forward `--scope=global`, `--scope=project[=<slug>]`, or `--scope=all` verbatim. Default: `--scope=global`.
 - **Interaction mode flag** — forward `--mode=interactive` or `--mode=report-only` verbatim. Default: `--mode=interactive`.
 - **Checks flag** — forward `--checks=drift`, `--checks=quality`, or `--checks=all` verbatim. Default: `--checks=drift`. Catalogue: `references/QUALITY_CHECKS.md`.
@@ -34,7 +34,7 @@ Agent({
 
 No edge case justifies inline audit. Executor is read-only and runs on Opus (unversioned alias, tracks latest); runbook lives exclusively in its agent file. Walk below stays here: subagent can't prompt or write.
 
-Only skip delegation if `memory-audit-executor` is unavailable (missing or broken agent file). Fix the executor — do not run the runbook inline.
+Executor unavailable (missing/broken agent file) → stop and fix it; no inline run — runbook stays off main context.
 
 ## Walk (`--mode=interactive`, after executor returns)
 

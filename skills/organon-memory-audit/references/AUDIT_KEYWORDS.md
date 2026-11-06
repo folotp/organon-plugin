@@ -2,6 +2,16 @@
 
 In-scope filter. Substring match, case-insensitive, unless marked exact-token.
 
+## Contents
+
+- Plugin / skills / commands (exact tokens)
+- Vault
+- MCP / tooling
+- Diagramming
+- Kepano (v1.0.0+)
+- Methodologies / vocabularies
+- Instruction surfaces
+
 ## Plugin / skills / commands (exact tokens)
 
 ```
@@ -17,6 +27,7 @@ organon-diagramming
 plugin-release
 organon-memory-audit
 /plugin-release
+/pa-toolkit:plugin-release
 /organon-memory-audit
 ```
 

@@ -47,7 +47,7 @@ mechanism).
 | Tool | Owning skill | Guard location |
 |---|---|---|
 | `get_files_by_tag`, `list_property_values`, `get_backlinks`, `get_outgoing_links`, `find_broken_links`, `find_orphaned_notes`, `execute_dataview_query`, `get_recent_files`, `get_vault_files` | organon-vault-read | `SKILL.md` §On-demand tools |
-| `rename_heading`, `get_or_create_periodic_note`, `append_to_periodic_note`, `create_vault_directory`, `delete_vault_directory`, `delete_vault_file` | organon-vault-write | `SKILL.md` §On-demand tools |
+| `rename_heading`, `create_vault_directory`, `delete_vault_directory`, `delete_vault_file` | organon-vault-write | `SKILL.md` §On-demand tools |
 | `get_canvas`, `add_canvas_node`, `connect_canvas_nodes` | organon-canvas | `canvas-author.md` step 0 (PR #55) |
 
 All 18: no promotion evidence yet (0 calls). Deliberately not persisted — let real demand (auto-promote at

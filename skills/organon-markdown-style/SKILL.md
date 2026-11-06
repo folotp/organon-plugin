@@ -8,7 +8,7 @@ description: Use when writing prose body for an Organon vault note (path contain
 ## Headings
 
 - **No H1 in body.** H2 (`##`) is first body level, then H3, H4. `title:` frontmatter is the title; Obsidian renders it above body automatically.
-- Removing legacy `# Title`: delete the line — do not downgrade to `## Title`.
+- Removing legacy `# Title`: delete the line — `## Title` would repeat `title:`, already rendered above body.
 
 ## Language by folder — canonical rule (all other skills reference here, do not duplicate)
 
@@ -23,7 +23,7 @@ description: Use when writing prose body for an Organon vault note (path contain
 
 ## Typographic style
 
-- Apostrophes: `'` (typographic), not `'` (ASCII). Linter-compliant on first write.
+- Apostrophes: `’` (typographic), not `'` (ASCII). Linter-compliant on first write.
 - Em-dash `—` in titles and series filenames (`NN — Title`). Hyphen `-` in codes (`FIN-DEC-001`) and frontmatter keys.
 - No tab indentation.
 
