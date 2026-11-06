@@ -14,7 +14,7 @@ Render inline in conversation. Write to file only if PA explicitly asks — conv
 - Plugin source: <readable at <path> | inferred from harness skill list>
 - Canonical vault note: <read at <vault path> | not reachable (no MCP) | paste-driven>
 - Checks: <drift | quality | all>
-- Integrity gate: <kepano-sync exit 0 | DRIFT — see Bucket 0 | skipped (--checks=quality)>
+- Integrity gate: <kepano-check-upstream exit 0 | DRIFT — see Bucket 0 | skipped (--checks=quality)>
 - Quality targets: <resolved orientation files, skills, rule files; or "not run">
 
 ## Sources of truth
@@ -22,25 +22,22 @@ Render inline in conversation. Write to file only if PA explicitly asks — conv
 - Skills (<N>): <comma-separated names, with `(user-only)` annotation for disable-model-invocation: true>
 - Commands (<N>): <comma-separated names>
 - MCP server floor: mcp-tools-istefox >= <X.Y.Z>
-- kepano-sync: <N>/<N> in-sync (or list drifted sections with their drift_status)
+- Kepano pin: <in-sync at <sha> | upstream advanced (pinned <sha>, HEAD <sha>) | gate unavailable rc=N>
 - Canonical snippets last synced: <date from each per-surface bloc>
 - Stable run hash: <sha256 short> (pole 1 + 2 only — same hash doesn't mean quality targets unchanged)
 
-Under `--checks=quality`: MCP floor, kepano-sync, last synced, run hash → `n/a`.
+Under `--checks=quality`: MCP floor, kepano pin, last synced, run hash → `n/a`.
 
 ## Findings
 
 ### Bucket 0 — Plugin internal drift (<N>)
 
-For each drifted entry:
+One finding:
 
-- **Source**: kepano-sync
-- **Section**: <name>
-- **Status**: <upstream-changed | heading-removed | section-missing>
+- **Source**: kepano-check-upstream
+- **Status**: upstream advanced (pinned <sha>, HEAD <sha>)
 - **Routing**: docs/refreshing-kepano.md
-- **Why**: pole 1 must be self-consistent before pole 3 can be audited against it.
-
-Non-empty Bucket 0 halts audit. PA fixes pole-1 drift, then re-runs.
+- **Why**: absorbed bytes stay valid at the pin, so this is informational. Audit continues.
 
 ### Bucket 1 — Memory edits (<N>)
 
@@ -151,7 +148,7 @@ Defects no check id covers, or KEEP lines factually wrong. Same fields, `Check: 
 
 ## Recommended next step
 
-- Bucket 0 (if any): resolve before continuing the audit.
+- Bucket 0 (if any): informational; refresh via docs/refreshing-kepano.md when convenient.
 - Bucket 1: walk per-finding `apply / skip / defer` (interactive mode) or apply manually after triage (report-only).
 - Bucket 2: edit ~/.claude/CLAUDE.md and project CLAUDE.md directly; for Settings → General and Cowork → Global, copy the proposed text and paste on the matching surface.
 - Bucket 4: patch the canonical vault note via mcp__claude_ai_organon__patch_vault_file (consult organon-vault-write for wire-format invariants).

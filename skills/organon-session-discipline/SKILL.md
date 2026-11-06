@@ -17,7 +17,7 @@ If decision is inferable from context (ADRs, conventions, transcript), make the 
 
 ## 3. No in-fiche redundancy
 
-If info exists in table, list, or frontmatter, don't restate it in prose before or after. One canonical form per fact.
+If info exists in table, list, or frontmatter, don't restate it in prose before or after. One canonical form per fact. Exception: `description:` scope line, or one sentence a reader needs to interpret the table.
 
 ## 4. Confirm inferred mappings explicitly
 
@@ -25,7 +25,7 @@ When mapping across systems (`VLT-BUG-NNN ↔ GitHub issue #N`, `ADR ↔ problem
 
 ## 5. Propose generalizations when patterns recur
 
-When 2+ similar artifacts are produced (sweeps, layers, BL templates, parallel-structure fiches), propose a meta-pattern or template. Don't wait for PA to ask.
+When 2+ similar artifacts are produced (sweeps, layers, BL templates, parallel-structure fiches), propose a meta-pattern or template, once, in one line. Skip if a template already covers it.
 
 ## 6. Check meta-skills before producing typed artifacts
 

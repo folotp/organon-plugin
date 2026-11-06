@@ -6,6 +6,18 @@ Cross-refs: `REGISTRE_KEYS.md` §Clés pour les ADR · `VOCABULARIES.md` §`adr-
 
 ---
 
+## Contents
+
+- Scope
+- Write-or-not rules
+- Required sections
+- Frontmatter template
+- Status transitions
+- Immutability rule (CRITICAL)
+- Superseded callout (mandatory)
+- Workflows
+- Anti-patterns
+
 ## Scope
 
 | Prefix | Domain | Folder |

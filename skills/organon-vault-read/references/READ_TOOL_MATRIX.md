@@ -8,10 +8,10 @@ Cost classes: **S** = single field/scalar (cheapest). **M** = single section/hea
 |---|---|---|---|
 | One frontmatter key | `get_note_property` | S | Atomic. No body read. |
 | Enumerate key values vault-wide | `list_property_values` | S | Distinct values + counts. |
-| Full frontmatter only | `get_vault_file_partial mode=frontmatter` | S | Strict parser — quoted scalars required. |
+| Full frontmatter only | `get_note_properties` (inactive — activate first) | S | Strict parser — quoted scalars required. |
 | One heading section | `get_vault_file_partial mode=heading` | M | Heading text must match exactly. |
 | One block ref `^id` | `get_vault_file_partial mode=block` | M | Rejected if inside table cell or fenced block. |
-| Heading outline (TOC) | `get_vault_file_partial mode=outline` | S | Heading tree only, no body. |
+| Heading outline (TOC) | `get_vault_file_partial mode=document-map` | S | Headings, block ids, frontmatter keys; no body. |
 | Notes with a tag | `get_files_by_tag` | S | Optional nested-tag traversal. |
 | Global tag list with counts | `list_tags` | S | Includes legacy namespaces — filter caller-side. |
 | Who links to a note | `get_backlinks` | S | No embeds. |
@@ -43,5 +43,5 @@ Cost classes: **S** = single field/scalar (cheapest). **M** = single section/hea
 - **One field → one S call.** Don't escalate past S unless enclosing context also needed.
 - **Search before reading.** `search_vault_smart` returns paths only; 3 partial reads cost less than 1 full body of wrong note.
 - **Backlinks aren't bodies.** `get_backlinks` = path list = graph query, not content fetch.
-- **Outline first on big notes.** `mode=outline` (S) reveals right `mode=heading target=…` to call next.
+- **Outline first on big notes.** `mode=document-map` (S) reveals right `mode=heading target=…` to call next.
 - **Several rows above are inactive by default.** `get_files_by_tag`, `list_property_values`, `get_backlinks`, `get_outgoing_links`, `execute_dataview_query`, `get_recent_files`, `get_vault_files` need `activate_tools` first — see `SKILL.md` §On-demand tools.

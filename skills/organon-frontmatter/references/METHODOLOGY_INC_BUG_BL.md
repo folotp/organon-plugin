@@ -7,6 +7,15 @@
 
 ---
 
+## Contents
+
+- INC — Incident
+- BUG — Bug
+- BL — Backlog
+- Cross-shape flow
+- MCP write discipline
+- Anti-patterns
+
 ## INC — Incident
 
 One observed occurrence. Immutable after recording.

@@ -67,4 +67,4 @@ Editing a legacy note triggers normalisation: `shape:` → `content-model:`, `no
 
 ## Governance
 
-No new key without `[[Registre des clés de frontmatter]]` entry. Also update `yaml-key-priority-sort-order`.
+New key order: `references/REGISTRE_KEYS.md` entry → `[[Registre des clés de frontmatter]]` reading copy → `yaml-key-priority-sort-order`.

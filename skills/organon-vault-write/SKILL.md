@@ -14,26 +14,25 @@ Edge cases → `get_vault_file('99 - Méta/AI/Vault Conventions.md')`. Read-side
 | `set_note_property` | Add/update single frontmatter key | Atomic. Bypasses full-frontmatter revalidation. Preferred over `patch_vault_file targetType:frontmatter`. |
 | `delete_note_property` | Remove single frontmatter key | Atomic. |
 | `patch_vault_file` | Heading / block / multi-key frontmatter rewrite | `targetType`: `heading` \| `block` \| `frontmatter`. `operation` REQUIRED, **no default** — `replace`/`append`/`prepend`. Prefer atomic tools for frontmatter. Heading/block patches and `replace` have edge cases — `references/EDGE_CASES.md`. |
-| `search_and_replace` | Regex find/replace, vault-wide or scoped | `dry_run:"true"` is the **default** safety gate — pass `"false"` to apply. `g` flag always injected. ReDoS-guarded. Scope via `scope`. |
+| `search_and_replace` | Regex find/replace, vault-wide or scoped | `dry_run:true` is the **default** safety gate — pass `false` to apply. `g` flag always injected. ReDoS-guarded. Scope via `scope`. |
 | `create_vault_file` | Create note with full content | Auto-creates missing parent dirs (≥ 0.4.5). |
 | `append_to_vault_file` | Append raw content to existing note | Caller responsible for idempotency. |
 | `rename_heading` | Rename heading + update all vault refs | Link-safe. Replaces patch + manual sweep. |
 | `rename_vault_file` | Rename file + preserve all incoming links | Link-safe. Replaces filesystem rename + sweep. |
-| `execute_template` | Render Templater template | `createFile:"false"` (string) → returns rendered string; `createFile:"true"` → creates file at `targetPath`. `arguments` is `{string:string}`. |
-| `get_or_create_daily_note` / `get_or_create_periodic_note` | Ensure + return periodic note | Idempotent. |
-| `append_to_periodic_note` | Append to periodic note (today or specified) | Combine with periodic-note ensure for journal flows. |
+| `execute_template` | Render Templater template | `createFile:false` → returns rendered string; `createFile:true` → creates file at `targetPath`. `arguments` is `{string:string}`. |
+| `get_or_create_daily_note` / `get_or_create_periodic_note` | Ensure + return periodic note | Idempotent. `unavailable` on connector (`tool_catalog`, 2026-11-06). |
+| `append_to_periodic_note` | Append to periodic note (today or specified) | `unavailable` on connector (`tool_catalog`, 2026-11-06). |
 | `create_vault_directory` / `delete_vault_directory` / `delete_vault_file` | Filesystem ops | `delete_vault_file` requires explicit filename — never `delete_active_file`. |
 
 ## On-demand tools — activate before first use
 
 Inactive by default, not in persisted set (`docs/mcp-tool-loading.md`): `rename_heading`,
-`get_or_create_periodic_note`, `append_to_periodic_note`, `create_vault_directory`,
+`create_vault_directory`,
 `delete_vault_directory`, `delete_vault_file`. First use per session:
 
 `activate_tools{ names: [...above] }`, `persist:false` (default).
 
-In-memory, connector-process-scoped, idempotent. Pattern: `canvas-author.md` step 0. Note:
-`get_or_create_daily_note` is already baseline-active — exclude it from this call.
+In-memory, connector-process-scoped, idempotent. Pattern: `canvas-author.md` step 0.
 
 ## Atomic-always for frontmatter (canonical)
 
@@ -70,10 +69,10 @@ Arrays: pass real JSON array.
 
 ### `search_and_replace` (scoped regex edit)
 
-Preferred for find/replace across one or many notes. `dry_run:"true"` is the **default** safety gate — it returns a match preview without mutating; pass `"false"` to apply. The `g` flag is always injected (all occurrences). ReDoS-guarded. Scope with `scope` (vault-relative paths or folder prefixes) to avoid vault-wide blast radius.
+Preferred for find/replace across one or many notes. `dry_run:true` is the **default** safety gate — it returns a match preview without mutating; pass `false` to apply. The `g` flag is always injected (all occurrences). ReDoS-guarded. Scope with `scope` (vault-relative paths or folder prefixes) to avoid vault-wide blast radius.
 
 ```json
-{ "pattern": "old-token", "replacement": "new-token", "scope": ["Folder/Note.md"], "dry_run": "false" }
+{ "pattern": "old-token", "replacement": "new-token", "scope": ["Folder/Note.md"], "dry_run": false }
 ```
 
 **Anti-pattern (retired):** read full body → build a manual regex → `patch_vault_file`. Use scoped `search_and_replace` instead — fewer calls, no re-emission of the body, built-in dry-run.
@@ -98,9 +97,9 @@ The filename **is** the id (`VLT-BL-0031.md`), and the id is generated *during* 
 1. **Render to inspect** — `execute_template{ templatePath, arguments:{ domain:"VLT", titre:"<summary, no code>", id:"", … } }` with **no** `createFile` and **no** `targetPath`. Returns the rendered markdown string with `id:` + `ulid:` already resolved server-side. Read the `id:` from its frontmatter.
 2. **Persist** — `create_vault_file{ path:"<cfg folder>/<id>.md", content:<the exact string from step 1> }`.
 
-**Never run a second `execute_template` (`createFile:"true"`) to do step 2** — re-rendering regenerates the ULID and re-resolves `next_id`, yielding a *different* id/ulid than you inspected. Persist the captured render via `create_vault_file`. This is the #44 fix: the old static-gabarit path forced a manual ULID one-liner + `list_vault_files` max-id discovery (~5 calls); now it is one render + one create with zero manual ID work.
+**Never run a second `execute_template` (`createFile:true`) to do step 2** — re-rendering regenerates the ULID and re-resolves `next_id`, yielding a *different* id/ulid than you inspected. Persist the captured render via `create_vault_file`. This is the #44 fix: the old static-gabarit path forced a manual ULID one-liner + `list_vault_files` max-id discovery (~5 calls); now it is one render + one create with zero manual ID work.
 
-### Title-named shapes — one-step (`createFile:"true"`)
+### Title-named shapes — one-step (`createFile:true`)
 
 | Shape | Template path |
 |---|---|
@@ -121,7 +120,7 @@ Filename derives from the title, so the caller knows `targetPath` up front — r
 execute_template({
   templatePath: "99 - Méta/Templates/Note template.md",
   targetPath: "<folder>/<title>.md",
-  createFile: "true",          // STRING, not boolean
+  createFile: true,
   arguments: { /* {string:string}, forwarded via tp.user.mcpTools.prompt(argName) */ }
 })
 ```
@@ -154,11 +153,14 @@ Path: `99 - Méta/Templates/Supersede-ADR-template.md`. Three-call MCP sequence 
 
 ## Templater invariants (when authoring or debugging a template)
 
-1. **Every fenced JS block must close correctly.** Mismatched `<% … %>` brackets corrupt render and can leave file unsaved.
+1. **Every fenced JS block must close correctly, with `-%>` (not `%>`).** Mismatched `<% … %>` brackets corrupt render and can leave file unsaved.
 2. **`tp.user.*` helpers live in `99 - Méta/Templates/scripts/`.** Confirm helper exists before referencing.
 3. **MCP-mode detection via `tp.mcpTools`.** Use dual-mode prelude (`if (tp.mcpTools) { creator = "Claude"; tags.push("source/ia") } else { creator = "Pierre-André Folot" }`).
 4. **Sequential IDs via `tp.user.next_id(<prefix>, <folder>)`.** Never invent IDs client-side for active-Templater shapes.
 5. **No EJS literals inside JS comments inside a Templater block.** EJS parser interprets `<%`, `%>`, `-%>`, `<%*` **even inside `//` or `/* */` comments**. Commented-out example tag still terminates surrounding block. Break across two strings (`"<" + "%"`) or move example outside the Templater block.
+6. **Title via arg, not `tp.file.title`.**
+7. **Template pre-exists in vault.**
+8. **Output is Linter-compliant** (key order, apostrophes, no trailing whitespace).
 
 ## YAML quoting rules
 
@@ -202,7 +204,6 @@ Do not rename via `create_vault_file` + `delete_vault_file` — breaks all incom
 
 ## Footguns
 
-- `delete_active_file` takes no arguments — deletes whatever is focused in Obsidian. Always use `delete_vault_file` with explicit filename.
 - MCP write followed by manual UI save can be overwritten by Obsidian's re-import. Wait for "Re-import" banner to clear before saving in UI.
 - Do not pre-create parent dirs; `create_vault_file`, `append_to_vault_file`, `execute_template` auto-mkdirp since 0.4.5.
 - No "verify MCP is alive" ping before writes. Let real call surface failures; retry only on abnormal signals.
