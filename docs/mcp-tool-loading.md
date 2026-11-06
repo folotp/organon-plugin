@@ -1,6 +1,6 @@
 # MCP tool loading — persisted vs on-demand vs unused
 
-The istefox connector (`obsidian-mcp.folot.net`) uses adaptive tool loading: every tool starts `inactive`.
+The istefox connector (`organon-claude.folot.net`) uses adaptive tool loading: every tool starts `inactive`.
 `activate_tool`/`activate_tools` promotes a tool to `active` (`persist:false`, default — in-memory,
 connector-process-scoped, lost on restart/reload) or `promoted` (`persist:true` — connector-side, survives
 reloads). The connector also auto-promotes a tool after 3 calls. **100% connector-side state — no file in
