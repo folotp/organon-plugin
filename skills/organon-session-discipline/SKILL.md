@@ -31,8 +31,6 @@ When 2+ similar artifacts are produced (sweeps, layers, BL templates, parallel-s
 
 Before drafting typed artifact (SKILL.md, ADR, plugin, MCP server, manifest), scan `available_skills` for a meta-skill encoding structural best practices.
 
-**Why:** Claude undertriggers useful skills when local examples create false sense of full context.
-
 ## 7. Language coherence — folder default beats prompt language
 
 For vault artifacts (ADR, BL, BUG, INC, Concept, Note, etc.), language governed by folder, not prompt. Full rule and examples: `organon-markdown-style` §Langue par dossier (canonical home).
@@ -45,7 +43,7 @@ Before calling `get_vault_file` on unknown path (not hardcoded in skill or given
 
 **Result interpretation:** Results are similarity-ranked. Read only top 1-3, only when path (folder + title) plausibly matches query — `search_vault_smart` returns paths and scores, no body excerpts. Off-topic top result (wrong domain folder, unrelated title) = skip.
 
-**Read budget:** At most 3 reads per smart-search result set before re-evaluating. Prefer `get_vault_file_partial` (frontmatter / heading / outline) over full `get_vault_file` — see `organon-vault-read` for decision tree. All 3 candidates low-relevance → report to PA instead of reading further.
+**Read budget:** At most 3 reads per smart-search result set before re-evaluating. Prefer `get_vault_file_partial` (frontmatter / heading / document-map) over full `get_vault_file` — see `organon-vault-read` for decision tree. All 3 candidates low-relevance → report to PA instead of reading further.
 
 **Provider-not-ready fallback:** If `search_vault_smart` errors or times out, fall back to `search_vault_simple` (keyword). Don't skip pre-filtering entirely.
 
