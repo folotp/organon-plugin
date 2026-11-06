@@ -25,7 +25,7 @@ Apply in order; first match wins.
 10. **Where does a note link?** → `get_outgoing_links{ path }`.
 11. **DQL filter (TABLE / LIST / TASK)?** → `execute_dataview_query{ query }` (in-process, 0.7.0+). Prefer over `search_vault` when Dataview installed — same expressivity, no REST dependency.
 12. **JsonLogic / DQL via REST?** → `search_vault{ query }`. Only when `execute_dataview_query` unavailable.
-13. **Exploratory — don't know which note?** → `search_vault_smart{ query }`. Top 1-3 paths only (folder + title check); follow with cheapest partial-read from rules 1-6. Fallback if provider not ready: `search_vault_simple`. See `organon-session-discipline` Rule 8.
+13. **Exploratory — don't know which note?** → `search_vault_smart{ query }`. Read plausible paths in rank order (folder + title check); follow with cheapest partial-read from rules 1-6. Fallback if provider not ready: `search_vault_simple`. See `organon-session-discipline` Rule 8.
 14. **Keyword search with context windows?** → `search_vault_simple{ query }`.
 15. **Recently edited notes?** → `get_recent_files{ limit? }`. Context heuristic only — never primary semantic filter.
 16. **Full body of 2+ known paths (sweep, refactor wave, comparison)?** → `get_vault_files{ paths }` (≤ 20 per call, text or json format). One round-trip instead of N `get_vault_file` calls; a missing/binary/folder path errors per-entry without failing the rest.

@@ -18,7 +18,7 @@ Cost classes: **S** = single field/scalar (cheapest). **M** = single section/hea
 | Where note links | `get_outgoing_links` | S | No embeds. |
 | DQL filter / aggregation | `execute_dataview_query` | varies | In-process (0.7.0+). Requires Dataview plugin. |
 | DQL/JsonLogic via REST | `search_vault` | varies | When in-process DQL unavailable. |
-| Exploratory semantic search | `search_vault_smart` | S | Paths + scores only, no body. Top K then partial-read. |
+| Exploratory semantic search | `search_vault_smart` | S | Paths + scores only, no body. Plausible matches then partial-read. |
 | Keyword search with context | `search_vault_simple` | M | Short snippet windows. |
 | Recently edited notes | `get_recent_files` | S | Heuristic, not semantic. |
 | Full body | `get_vault_file` | L | Last resort. |
