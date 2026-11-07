@@ -10,7 +10,7 @@ Canvas in Organon = first-class nodes are vault notes; edges express relations b
 - If structured flow / state machine / decision tree expressible as code: use Mermaid inline.
 
 > **Bad**: a `.canvas` with text nodes describing a workflow that has no anchor in existing vault notes — that's Mermaid.
-> **Good**: a `.canvas` with file nodes pointing at `[[VLT-BUG-014]]`, `[[VLT-BUG-015]]`, `[[VLT-BUG-018]]` and edges showing their causal relationships — canvas is the right tool (cartography of existing notes).
+> **Good**: a `.canvas` with file nodes pointing at `[[VLT-ADR-004]]`, `[[VLT-ADR-010]]`, `[[VLT-ADR-012]]` and edges showing how the decisions build on each other — canvas is the right tool (cartography of existing notes).
 
 ## Placement — beside the domain
 
@@ -28,7 +28,7 @@ Filename: em-dash for series (`Carte — <domaine>.canvas`). Exception: under `9
 
 `file:` attribute takes a vault path. Obsidian resolves wiki links by filename, not path — the filename must be unique across the vault for stable resolution.
 
-For Organon notes with unique reference codes (`VLT-BUG-018`, `FIN-DEC-090`): prefer filename-only — survives folder reorganisations.
+For Organon notes with unique reference codes (`VLT-ADR-012`, `FIN-DEC-090`): prefer filename-only — survives folder reorganisations.
 
 > **Bad**: `"file": "01 - Finances et patrimoine/FIN-DEC-090.md"` — breaks on folder move.
 > **Good**: `"file": "FIN-DEC-090.md"` — Obsidian resolves by filename regardless of path.

@@ -149,7 +149,7 @@ After any `create_vault_file` / `patch_vault_file` / `append_to_vault_file` on a
 2. Compare `id:`, `status:`, `bug:`, `linked-bug:`, `up:`, and any `[[…]]` wikilink to intent.
 3. IF mismatch → do NOT retry same write; use `create_vault_file` (full rewrite) and record an INC.
 
-Why: VLT-BUG-005 / VLT-INC-0022 demonstrated silent mutation with no error returned.
+Why: silent content mutation with no error returned has been observed (see [[Pièges connus — Claude × Organon]] § Édition du corps).
 
 ---
 

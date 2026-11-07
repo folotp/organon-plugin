@@ -38,7 +38,7 @@ Drafting a whole note → load `organon-frontmatter` first. Before using `[[targ
 
 ## Pitfall — tables + block refs + fenced code
 
-`patch_vault_file targetType: block` rejected (istefox ≥ 0.4.2, VLT-BUG-015) if target `^id` is inside a table cell or fenced-code fence. Block ref stays valid for reads/embeds — only targeted patch is blocked.
+`patch_vault_file targetType: block` rejected (istefox ≥ 0.4.2; see [[Pièges connus — Claude × Organon]]) if target `^id` is inside a table cell or fenced-code fence. Block ref stays valid for reads/embeds — only targeted patch is blocked.
 
 Workaround: `targetType: heading` on parent section, or `create_vault_file` as last resort.
 
