@@ -48,6 +48,13 @@ Net effect: when `organon-frontmatter` triggers (drafting an ADR / VLT-BUG / FIN
 
 Historical record: each entry cites paths and components as they were at that release, and many have since been retired.
 
+### v1.5.2 (Author subagent fixes)
+
+- `organon:canvas-author` can now read vault notes.
+- Both author subagents re-read in sections when a read comes back cut short.
+- The bases runbook's example view name is in French.
+- Tested in headless Claude Code on the branch with a prompt naming the subagent; installed builds not yet tested.
+
 ### v1.5.1 (Bases and canvas dispatch)
 
 - **Dispatch**: the `organon-bases` and `organon-canvas` skills now dispatch their subagent first and fall back to the runbook when no subagent is available. Before this, Claude could read the runbook in the main session and never delegate. Tested with the Bases prompt in headless Claude Code on the branch; canvas dispatch and installed builds not yet tested.
