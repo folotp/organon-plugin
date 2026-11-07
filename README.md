@@ -54,9 +54,9 @@ Historical record: each entry cites paths and components as they were at that re
 - **Manifest**: root `plugin.json` is now the version source and follows Agent Plugins 1.0.0; `.claude-plugin/plugin.json` is a symlink to it.
 - **Subagents**: moved to `agents/`, which fixes them not loading from the installed plugin.
 - **`organon-memory-audit`**: now a Claude-only command.
-- **Creator**: `creator` accepts ChatGPT and Gemini, so non-Claude agents no longer write `creator: Claude`.
-- **Triggers**: skills now trigger when creating or drafting a note.
-- **Link-target check**: new check that link targets resolve.
+- **Creator**: `creator` accepts ChatGPT and Gemini, and the skills tell each agent to use its own name. Gemini still wrote `Claude` in some tests, and templates still hard-code it.
+- **Triggers**: `organon-frontmatter` now covers creating or drafting a note.
+- **Link targets**: new rule telling agents to confirm a link target exists before using it. It's guidance, not an automated check.
 - **Bases**: sort documented in `organon-bases`.
 
 ### v1.4.0 (memory-audit instruction-quality checks, connector corrections)
