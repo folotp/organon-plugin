@@ -25,7 +25,7 @@ compatibility: Requires the Organon MCP connector.
 
 ## Key rules
 
-**Linter order** — `yaml-key-priority-sort-order` in `.obsidian/plugins/obsidian-linter/data.json`. `ulid:` sits between `id:` and `creator:`, not after `modified:`. New key in Registre → also update `yaml-key-priority-sort-order`; else Linter falls back to alphabetical on next save.
+**Linter order** — `yaml-key-priority-sort-order` in `.obsidian/plugins/obsidian-linter/data.json`. `ulid:` sits between `id:` and `creator:`, not after `modified:`. Common keys in order: `title`, `aliases`, `description`, `type`, `content-model`, `lang`, `id`, `ulid`, `creator`, `created`, `modified`, `status`, `up`, `tags`. New key in Registre → also update `yaml-key-priority-sort-order`; else Linter falls back to alphabetical on next save.
 
 **Hand-ordering stays canonical.** Linter delegation via `execute_obsidian_command` was considered and isn't currently viable (not authorized, and the command targets Obsidian's active file, not a path) — see `references/REGISTRE_KEYS.md` § Linter delegation before reaching for it.
 
@@ -35,9 +35,9 @@ compatibility: Requires the Organon MCP connector.
 
 **`title:` Option C** — descriptive, human-readable. Notes with code: `"CODE — Titre descriptif"` (quote if contains `:` or `—`). `aliases:` carries code alone. Filename stays technical. Linter `yaml-title` disabled.
 
-**`ulid:`** — Crockford base32, 26 chars (`0–9 A–Z` minus `I L O U`), forward-only at creation. Always real value — never empty or placeholder. Lost ULIDs unrecoverable.
+**`ulid:`** — Crockford base32, 26 chars (`0–9 A–Z` minus `I L O U`), forward-only at creation. Always real value — never empty, placeholder or invented. Lost ULIDs unrecoverable. Draft with no template render → omit the key and say Templater fills it.
 
-**`creator:` dual-mode** — UI → `Pierre-André Folot`, no `source/ia` tag. MCP → your own product name (`Claude`, `ChatGPT`, `Gemini`), add `source/ia`. Detection via `tp.mcpTools` in template prelude.
+**`creator:` dual-mode** — UI → `Pierre-André Folot`, no `source/ia` tag. MCP → the product you are: Gemini writes `Gemini`, ChatGPT writes `ChatGPT`, Claude writes `Claude`; add `source/ia`. `Claude` in a template, prelude or older note is not a default for other agents: correct it before persisting.
 
 **`creator` vs `author`** — `creator` = Organon note author. `author` = external work's author (`type: book` only).
 
