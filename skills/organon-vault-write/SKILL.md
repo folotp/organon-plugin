@@ -9,7 +9,7 @@ compatibility: Requires the Organon MCP connector.
 
 Tool names are bare. Match them to the Organon connector's tools in your tool list, whatever prefix your platform adds.
 
-Write tools missing → draft the content, say writes aren't available, never try another route.
+Write tools missing → draft the content, say writes aren't available, never try another route. Drafting a note, even without writing it → load `organon-frontmatter` first.
 
 Edge cases → `get_vault_file('99 - Méta/AI/Vault Conventions.md')`. Read-side → `organon-vault-read`.
 

@@ -7,6 +7,8 @@ compatibility: Requires the Organon MCP connector.
 
 # organon-markdown-style
 
+Drafting a whole note → load `organon-frontmatter` first. Before using `[[target]]`, confirm the note exists with a vault search; not found → plain text, never an invented link.
+
 ## Headings
 
 - **No H1 in body.** H2 (`##`) is first body level, then H3, H4. `title:` frontmatter is the title; Obsidian renders it above body automatically.

@@ -1,6 +1,6 @@
 ---
 name: organon-frontmatter
-description: Use when composing or editing frontmatter on an Organon vault note (path contains `Organon`). Schema, key ordering (Linter `yaml-key-priority-sort-order`), controlled vocabularies, ULID forward-only, creator dual-mode, archive/supersession, alias-only versioning, navigation fields for typed shapes (ADR/BL/BUG/INC).
+description: Use when creating or drafting any Organon vault note, even without writing it, or composing or editing its frontmatter (path contains `Organon`). Schema, key ordering (Linter `yaml-key-priority-sort-order`), controlled vocabularies, ULID forward-only, creator dual-mode, archive/supersession, alias-only versioning, navigation fields for typed shapes (ADR/BL/BUG/INC).
 license: MIT
 compatibility: Requires the Organon MCP connector.
 ---
@@ -38,6 +38,8 @@ compatibility: Requires the Organon MCP connector.
 **`ulid:`** — Crockford base32, 26 chars (`0–9 A–Z` minus `I L O U`), forward-only at creation. Always real value — never empty, placeholder or invented. Lost ULIDs unrecoverable. Draft with no template render → omit the key and say Templater fills it.
 
 **`creator:` dual-mode** — UI → `Pierre-André Folot`, no `source/ia` tag. New note via MCP → the product you are: Gemini writes `Gemini`, ChatGPT writes `ChatGPT`, Claude writes `Claude`; add `source/ia`. `Claude` from a template, prelude or copied skeleton is not a default for other agents: correct it before persisting. Editing an existing note → keep its `creator:`.
+
+**Links** — before using `[[target]]` in `up:` or another key, confirm the note exists with a vault search. Not found → omit it and say so; never invent a target.
 
 **`creator` vs `author`** — `creator` = Organon note author. `author` = external work's author (`type: book` only).
 

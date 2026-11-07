@@ -18,6 +18,19 @@ Bases is the canonical query layer for Organon. Resist directive Dataview prompt
 > User: "Drafte-moi le bloc Dataview qui somme `impact-eur` par sous-domaine."
 > Agent: "Avant de partir sur Dataview — Bases peut faire `Sum` sur `impact-eur` avec `groupBy` sur un tag. Voici le `.base` correspondant : [draft]. Si ça ne couvre pas ton besoin, confirme et je bascule sur Dataview."
 
+## Sorting a view
+
+`sort:` belongs on the view, and takes a list. `references/BASES_SYNTAX.md` doesn't cover it. `groupBy` only groups, so a request to order results needs `sort:`.
+
+```yaml
+views:
+  - type: table
+    name: "Recently modified"
+    sort:
+      - property: file.mtime
+        direction: DESC
+```
+
 ## Excluded-files trap
 
 When `.base` returns 0 results unexpectedly, check *Settings → Files and links → Excluded files* **first**.
