@@ -350,12 +350,14 @@ def session_costs(session: dict, token_cache: dict[Path, int]) -> dict:
 
         # If the skill dispatches, count the sub-agent's body too.
         if dispatches:
-            agent_path = SKILLS_DIR / skill / f"{spec['dispatch_to']}.md"
-            if agent_path.is_file():
-                t = cached(agent_path)
-                subagent_files.append(
-                    (str(agent_path.relative_to(REPO_ROOT)), t)
-                )
+            # The agent file is a thin Claude shim; the runbook lives in the skill.
+            for path in (
+                REPO_ROOT / "agents" / f"{spec['dispatch_to']}.md",
+                SKILLS_DIR / skill / "references" / "AUTHOR_RUNBOOK.md",
+            ):
+                if not path.is_file():
+                    raise FileNotFoundError(f"{skill}: dispatch file missing: {path}")
+                subagent_files.append((str(path.relative_to(REPO_ROOT)), cached(path)))
 
     pre_tokens = sum(t for _, t in pre_files)
     post_tokens = sum(t for _, t in post_files)
