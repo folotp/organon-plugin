@@ -2,7 +2,19 @@
 
 Adapted from kepano/obsidian-skills@fa1e131. See docs/refreshing-kepano.md.
 
-<!-- kepano-sync: see kepano-sync.json for body_sha256 + drift status -->
+## Contents
+
+- Internal Links (Wikilinks)
+- Embeds
+- Callouts
+- Properties (Frontmatter)
+- Inline Tags
+- Comments
+- Highlighting
+- Math (LaTeX)
+- Diagrams (Mermaid)
+- Footnotes
+- References
 
 ## Internal Links (Wikilinks)
 

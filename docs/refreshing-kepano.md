@@ -33,6 +33,11 @@ The plugin pins one upstream sha for `kepano/obsidian-skills` in `kepano-version
 Upstream links are relative to the upstream layout. Keep these rewrites when adopting new content, and check links with the `markdown-link-validator` agent after a refresh:
 
 - `skills/organon-markdown-style/references/MARKDOWN_SYNTAX.md`: `references/EMBEDS.md` → `EMBEDS.md`, `references/CALLOUTS.md` → `CALLOUTS.md`, `references/PROPERTIES.md` → `../../organon-frontmatter/references/PROPERTIES.md`.
+- `skills/organon-bases/references/BASES_SYNTAX.md`, `skills/organon-bases/references/FUNCTIONS_REFERENCE.md`, `skills/organon-markdown-style/references/MARKDOWN_SYNTAX.md`: keep the `## Contents` list after the `Adapted from` line, and update it to match the file's `##` headings. Anthropic's skill authoring guidance asks for a table of contents on reference files over 100 lines. Add one to any other absorbed file that passes 100 lines.
+
+Don't re-add the retired `kepano-sync` provenance comments.
+
+The tables of contents and comment removal were applied at the unchanged pin in #81, as a one-off exception PA approved to the rule that the resync token is for refreshes only.
 
 ## Markers
 

@@ -2,7 +2,19 @@
 
 Adapted from kepano/obsidian-skills@fa1e131. See docs/refreshing-kepano.md.
 
-<!-- kepano-sync: derived from upstream; see kepano-sync.json and vault-sync.json for drift status -->
+## Contents
+
+- Global Functions
+- Any Type Functions
+- Date Functions & Fields
+- Duration Type
+- String Functions
+- Number Functions
+- List Functions
+- File Functions
+- Link Functions
+- Object Functions
+- Regular Expression Functions
 
 ## Global Functions
 

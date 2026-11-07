@@ -2,8 +2,6 @@
 
 Adapted from kepano/obsidian-skills@fa1e131. See docs/refreshing-kepano.md.
 
-<!-- kepano-sync: see kepano-sync.json for body_sha256 + drift status -->
-
 ## Text and Edges (Simple Hub)
 
 ```json
