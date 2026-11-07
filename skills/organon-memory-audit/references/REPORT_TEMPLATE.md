@@ -2,7 +2,12 @@
 
 Render inline in conversation. Write to file only if PA explicitly asks — conversation is the persistence.
 
-`Stable run hash`: sha256 of `(plugin.json content + kepano-version.txt content + canonical vault note body + companion matrix body)`. Same hash on two consecutive runs = pole 1 + pole 2 unchanged.
+`Stable run hash`: sha256 of `(.claude-plugin/plugin.json content + kepano-version.txt content + canonical vault note body + companion matrix body)`. Same hash on two consecutive runs = pole 1 + pole 2 unchanged.
+
+## Contents
+
+- Report skeleton: Run, Sources of truth, Findings, Out of scope, Recommended next step
+- Empty-report short form
 
 ````markdown
 # Organon memory & instructions audit — <YYYY-MM-DD HH:MM>
@@ -59,7 +64,7 @@ For each finding:
 
 For each finding:
 
-- **Store**: <~/.claude/CLAUDE.md | <repo>/CLAUDE.md | Settings → General | Cowork → Global | Cowork folder | Cowork project | claude.ai project>
+- **Store**: <~/.claude/CLAUDE.md | <repo>/CLAUDE.md or <repo>/.claude/CLAUDE.md | Settings → General | Cowork → Global | Cowork folder | Cowork project | claude.ai project>
 - **Location**: <path | "paste-only — skill cannot write">
 - **Current**:
   ```

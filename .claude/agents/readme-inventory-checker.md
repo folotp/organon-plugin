@@ -1,6 +1,6 @@
 ---
 name: readme-inventory-checker
-description: Use before `/pa-toolkit:plugin-release` to verify `README.md` matches the shipped surface. Diffs README enumerations against `plugin.json`, `skills/*/SKILL.md` frontmatter, and `commands/*.md`. Reports MATCH | DRIFT per dimension. Read-only.
+description: Use before `/pa-toolkit:plugin-release` to verify `README.md` matches the shipped surface. Diffs README enumerations against `.claude-plugin/plugin.json`, `skills/*/SKILL.md` frontmatter, and `commands/*.md`. Reports MATCH | DRIFT per dimension. Read-only.
 tools: Bash, Read, Grep, Glob
 model: haiku
 ---
@@ -20,7 +20,7 @@ If the repo root is missing, stop and ask. Do not guess.
 ## Out of scope (escalate, don't auto-fix)
 
 - **Editing `README.md`.** Read-only. Never. Surface drifts; PA edits.
-- **Editing `plugin.json` or `SKILL.md` frontmatter.** Same.
+- **Editing `.claude-plugin/plugin.json` or `SKILL.md` frontmatter.** Same.
 - **Style or wording opinions on README prose.** Limit to inventory and version consistency.
 
 ## Checks to run
@@ -33,9 +33,9 @@ Run all five in parallel where possible — the file reads are independent.
 jq -r '.version' "$REPO_ROOT/.claude-plugin/plugin.json"
 ```
 
-Then grep `README.md` for any `v<MAJOR>.<MINOR>.<PATCH>` mention near the top of the file or in a "Changes since" section header. The README enumerates per-version changelogs (`### v0.6.0`, `### v0.5.0`, …) — the **highest** version mentioned in those headers must match `plugin.json`.
+Then grep `README.md` for any `v<MAJOR>.<MINOR>.<PATCH>` mention near the top of the file or in a "Changes since" section header. The README enumerates per-version changelogs (`### v0.6.0`, `### v0.5.0`, …) — the **highest** version mentioned in those headers must match `.claude-plugin/plugin.json`.
 
-MATCH: highest README version header equals `plugin.json` `version`.
+MATCH: highest README version header equals `.claude-plugin/plugin.json` `version`.
 DRIFT: README is one or more versions behind (a release was cut without a README update).
 
 ### Check 2 — Skill inventory
@@ -126,6 +126,6 @@ Return the table plus the suggested-edits block (if any) under 350 words. The di
 
 Hard rules:
 
-- Read-only. Never edit `README.md`, `plugin.json`, or any `SKILL.md`.
+- Read-only. Never edit `README.md`, `.claude-plugin/plugin.json`, or any `SKILL.md`.
 - If `jq` is missing on PATH, surface `DEGRADED` for Check 1 and 5 rather than failing the whole sweep.
 - Do not flag prose-quality issues unrelated to inventory drift — that's CLAUDE.md's voice, not this agent's.

@@ -14,14 +14,14 @@ Pre-flight gates for `folotp/organon-plugin` releases. Single-shot, read-only au
 The dispatching turn must hand you, in the prompt:
 
 - The repo root path (absolute) — typically `~/Developer/organon-plugin`.
-- Optional: the version being cut (e.g. `0.6.1`). If omitted, the current `plugin.json` version is treated as the candidate.
+- Optional: the version being cut (e.g. `0.6.1`). If omitted, the current `.claude-plugin/plugin.json` version is treated as the candidate.
 
 If the repo root is missing, stop and ask. Do not guess.
 
 ## Out of scope (escalate, don't auto-fix)
 
 - **Drift resolution.** If `kepano-check-upstream.sh` exits 1, route to `docs/refreshing-kepano.md`. This agent reports the drift, does not resolve it.
-- **Plugin manifest fixes.** If `claude plugin validate` fails, surface the issue. Don't edit `plugin.json`.
+- **Plugin manifest fixes.** If `claude plugin validate` fails, surface the issue. Don't edit `.claude-plugin/plugin.json`.
 - **Version bumping.** That's `/pa-toolkit:plugin-release`'s job.
 - **Committing or tagging.** Read-only. Never.
 

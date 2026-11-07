@@ -46,6 +46,8 @@ Net effect: when `organon-frontmatter` triggers (drafting an ADR / VLT-BUG / FIN
 
 ## Changes since v0.1.0
 
+Historical record: each entry cites paths and components as they were at that release, and many have since been retired.
+
 ### v1.4.0 (memory-audit instruction-quality checks, connector corrections)
 
 - **`organon-memory-audit`** (#73): new `--checks=drift|quality|all` flag and Bucket 5 for instruction quality, covering orientation files, `organon-*` skills and rule classification. Default stays `drift`. Catalogue in `references/QUALITY_CHECKS.md`.
@@ -203,8 +205,18 @@ Net effect: when `organon-frontmatter` triggers (drafting an ADR / VLT-BUG / FIN
 
 ## Installation
 
-Click "Install plugin" when this `.plugin` file appears in Cowork chat. The 8 description-triggered skills load automatically when working with the Organon vault; the user-only skill `/organon-memory-audit` is invoked explicitly via slash command.
+Claude Code:
+
+```
+/plugin install organon --marketplace folotp/claude-marketplace
+```
+
+Cowork: click "Install plugin" when this `.plugin` file appears in chat. The 8 description-triggered skills load automatically when working with the Organon vault; the user-only skill `/organon-memory-audit` is invoked explicitly via slash command.
 
 ## Author
 
 Pierre-André Folot · 2026-04-29 · Phase 5 wave 1 chat 1.B of the Claude × Organon refactor.
+
+## License
+
+MIT. See [`LICENSE`](LICENSE), which also carries the notice for the kepano-absorbed references.

@@ -5,6 +5,8 @@ description: "Use before any MCP read against the Organon vault (path contains `
 
 # organon-vault-read
 
+Tool names are bare: all are Organon connector tools (full name `mcp__claude_ai_organon__<tool>`).
+
 Token-minimisation for vault reads. Mirror of `organon-vault-write`. Assume cheaper read exists; reach for full `get_vault_file` only after decision tree rules out every partial path.
 
 Unfamiliar key → `get_vault_file('99 - Méta/AI/Vault Conventions.md')`.
@@ -65,7 +67,7 @@ Both are cheaper than an ad-hoc `get_outgoing_links` loop and produce structured
 
 Same as `organon-vault-write`: apply NFC to every path/title with accented characters before any MCP call. On 404 for a path that should exist: try NFC variant → `list_vault_files` parent → byte-compare. Common offenders: `é`, `à`, `ç`, `œ`.
 
-## YAML quoting — partial-read parser (cross-link to #36)
+## YAML quoting — partial-read parser
 
 `get_vault_file_partial mode=frontmatter` uses strict parser that rejects unquoted scalars containing `:`. If partial read returns "File has no frontmatter" on a note that has one, suspect unquoted scalar with `:`. Fix: `set_note_property` with quoted value (or `patch_vault_file targetType:frontmatter` rewrite). Write-side risk retired in mcp-tools-istefox 0.4.x — strict parser bites only on partial reads now.
 

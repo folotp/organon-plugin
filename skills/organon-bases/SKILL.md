@@ -7,7 +7,7 @@ allowed-tools:
 
 # organon-bases
 
-This skill is a routing shim: its only action is to dispatch the `bases-author` sub-agent rather than run the `.base` authoring runbook inline. Tool-choice policy, the Excluded-files diagnostic, vocabulary filters, file placement, and embedding rules all live in `.claude/agents/bases-author.md`, loaded on sonnet — this keeps that kepano-absorbed grammar off the main opus context.
+This skill is a routing shim: its only action is to dispatch the `bases-author` subagent rather than run the `.base` authoring runbook inline. Tool-choice policy, the Excluded-files diagnostic, vocabulary filters, file placement, and embedding rules all live in `.claude/agents/bases-author.md`, loaded on sonnet — this keeps that kepano-absorbed grammar off the main opus context.
 
 ## How to dispatch
 
@@ -19,7 +19,7 @@ Agent({
 })
 ```
 
-Forward user constraints verbatim (folder, filter shape, summary type). Sub-agent owns the full runbook and lazy-loads `references/BASES_SYNTAX.md` + `references/FUNCTIONS_REFERENCE.md` — sonnet keeps kepano-absorbed grammar off main opus context.
+Forward user constraints verbatim (folder, filter shape, summary type). Subagent owns the full runbook and lazy-loads `references/BASES_SYNTAX.md` + `references/FUNCTIONS_REFERENCE.md`.
 
 ## Runbook location
 
