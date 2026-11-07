@@ -8,9 +8,9 @@ allowed-tools: Agent
 
 # organon-canvas
 
-Follow `references/AUTHOR_RUNBOOK.md` end-to-end. It lazy-loads `references/CANVAS_SPEC.md` + `references/EXAMPLES.md` + `references/LABEL_TRANSLATIONS.md`.
+Subagents available → dispatch as below as your first action, and don't read the runbook yourself. This keeps the Canvas spec off the main context.
 
-Delegate if your platform has subagents, which keeps the Canvas spec off the main context. Otherwise, or if the subagent isn't available, follow the runbook directly.
+No subagents, or dispatch fails → follow `references/AUTHOR_RUNBOOK.md` end-to-end, loading `references/CANVAS_SPEC.md` + `references/EXAMPLES.md` + `references/LABEL_TRANSLATIONS.md` before authoring.
 
 ## Claude dispatch
 
