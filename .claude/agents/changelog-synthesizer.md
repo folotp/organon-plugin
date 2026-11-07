@@ -88,25 +88,24 @@ Use the `<sha>^1..<sha>` form rather than bare `git diff-tree <sha>`. Without pa
 
 Aggregate across the range. Each unique `skills/<name>/...` path → `<name>` in the "Skills affected" section. Include a one-line "what changed" derived from the bullet text of the merges that touched it.
 
-### Step 5 — Kepano / vault re-syncs
+### Step 5 — Kepano changes
 
-The ledgers don't have `section_id` / `entry_id` fields — they key on `kepano_section_path` (kepano) and `vault_path` + optional `target_section` (vault). Use those:
+The pin in `kepano-version.txt` is the only kepano ledger. Check it, then the absorbed files listed in `docs/refreshing-kepano.md`:
 
 ```bash
-git -C "$REPO_ROOT" diff "${PREV_TAG}..HEAD" -- kepano-sync.json | grep -E '^\+.*"kepano_section_path"' || true
-git -C "$REPO_ROOT" diff "${PREV_TAG}..HEAD" -- vault-sync.json  | grep -E '^\+.*"vault_path"'          || true
+git -C "$REPO_ROOT" diff "${PREV_TAG}..HEAD" -- kepano-version.txt
+grep -o '^| `skills/[^`]*' "$REPO_ROOT/docs/refreshing-kepano.md" | cut -d'`' -f2 |
+  xargs git -C "$REPO_ROOT" diff --name-only "${PREV_TAG}..HEAD" --
 ```
 
-Any added entries → list under "Kepano absorption" / "Vault absorption" by their `kepano_section_path` / `vault_path` (and `target_section` when present, for vault).
-
-Limitation: this cheap-form diff catches *added* entries but not in-place re-syncs that only refresh `body_sha256` / `synced_at_sha` / `synced_at_date` without changing the entry shape. If the maintainer says a re-sync happened in the range and this section says "none", fall back to a structural comparison (`jq` over the file at `${PREV_TAG}` vs HEAD, comparing on `target_file` for kepano and `target_file`+`target_section` for vault).
+A changed pin is a re-sync: list the new short sha under "Kepano absorption". Changed absorbed files with an unchanged pin are local adaptations, not a re-sync: list them on the local adaptations line.
 
 ## Heading synthesis
 
 If the dispatcher did not supply a one-line summary, infer one:
 
 - If a single category dominates (≥60 % of merges): `<dominant category descriptor>` (e.g., "bug fixes + tooling polish", "new diagramming skill + kepano re-sync").
-- If a kepano or vault re-sync happened: include `+ kepano re-sync` / `+ vault re-sync` in the summary.
+- If a kepano re-sync happened: include `+ kepano re-sync` in the summary.
 - Fallback: `mixed maintenance pass`.
 
 Surface the synthesised summary in the draft heading AND in a comment line so the maintainer can override:
@@ -150,12 +149,9 @@ Print exactly one Markdown block to stdout, structured per pa-toolkit's `skills/
 
 ## Kepano absorption
 
-- Re-synced sections: <comma-separated section ids, or "none">
+- Re-synced to: <new short sha, or "none">
+- Local adaptations: <changed absorbed files at an unchanged pin, or "none">
 - Divergences (intentional non-absorption): <list, or "none — none introduced in this range">
-
-## Vault absorption
-
-- Re-synced entries: <comma-separated entry ids, or "none">
 
 ## Compat
 
@@ -172,8 +168,7 @@ Print exactly one Markdown block to stdout, structured per pa-toolkit's `skills/
 ## Verification
 
 - Eval pass-rate: <leave placeholder — maintainer fills from latest eval-workspace iteration>
-- `./scripts/sync-kepano.sh` reports all in-sync.
-- `./scripts/sync-vault.sh` reports all in-sync.
+- `./scripts/kepano-check-upstream.sh`: <leave placeholder — maintainer fills from the pre-flight result>
 - `claude plugin validate` passes.
 ```
 
@@ -189,7 +184,6 @@ changelog-synthesizer:
   categories: feat=<N>, fix=<N>, perf=<N>, chore=<N>, docs=<N>, other=<N>
   skills touched: <list>
   kepano re-syncs: <yes/no>
-  vault re-syncs: <yes/no>
   heading: <synthesised or supplied>
 ```
 

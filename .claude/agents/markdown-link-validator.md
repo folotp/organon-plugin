@@ -55,7 +55,7 @@ The repo's docs frequently mention files inline by path, without Markdown link s
 
 ```text
 "see scripts/hooks/block-absorbed-edits.sh"
-"the kepano-sync.json ledger"
+"the .claude-plugin/plugin.json manifest"
 "`docs/syncing-vault.md` step-by-step"
 ```
 
@@ -63,16 +63,16 @@ Heuristic: a token matching `^[a-z0-9._-]+/[A-Za-z0-9._/-]+\.(md|sh|py|json|toml
 
 #### Repo-root file allowlist
 
-The path heuristic above requires at least one `/` before the extension, so root-level files mentioned by name in prose (e.g. `kepano-sync.json` in `CLAUDE.md:30`) are not extracted by it. To close that coverage gap without inviting unbounded false positives, also extract any token matching one of these exact root-level filenames:
+The path heuristic above requires at least one `/` before the extension, so root-level files mentioned by name in prose (e.g. `README.md`) are not extracted by it. To close that coverage gap without inviting unbounded false positives, also extract any token matching one of these exact root-level filenames:
 
 ```text
-kepano-sync.json
-vault-sync.json
 plugin.json
 README.md
 ```
 
 Bare `CLAUDE.md` is not extracted: it can mean any project's file, and this repo's lives at `.claude/CLAUDE.md`.
+
+Retired at v1.0.0: `kepano-sync.json`, `vault-sync.json`. They're no longer root files, but still extract them, so a live mention that the skip rules don't exclude is reported as `BARE-PATH-DRIFT`.
 
 Resolve each as `<REPO_ROOT>/<filename>` and apply the same multi-base resolution rules below. Add a new entry to this allowlist only when a new root-level file actually starts being mentioned by name in prose — the list is small on purpose, since the false-positive risk grows with breadth.
 
