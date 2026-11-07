@@ -131,7 +131,7 @@ execute_template({
 })
 ```
 
-Templater writes Linter-ordered frontmatter, `creator: Claude` + `source/ia` (dual-mode via `tp.mcpTools`), `modified:`, and the full body skeleton. Do not `create_vault_file` ad-hoc from a hand-built skeleton — bypassing the template re-implements upstream work and risks subtle divergence.
+Templater writes Linter-ordered frontmatter, `creator:` + `source/ia` (dual-mode via `tp.mcpTools`), `modified:`, and the full body skeleton. The prelude literal is `Claude`, so other agents, in either routing class, render without `createFile`, correct `creator:` per `organon-frontmatter`, then `create_vault_file` the result. Do not `create_vault_file` ad-hoc from a hand-built skeleton — bypassing the template re-implements upstream work and risks subtle divergence.
 
 ### Supersession — dedicated (`Supersede-ADR-template.md`)
 
@@ -161,7 +161,7 @@ Path: `99 - Méta/Templates/Supersede-ADR-template.md`. Three-call MCP sequence 
 
 1. **Every fenced JS block must close correctly, with `-%>` (not `%>`).** Mismatched `<% … %>` brackets corrupt render and can leave file unsaved.
 2. **`tp.user.*` helpers live in `99 - Méta/Templates/scripts/`.** Confirm helper exists before referencing.
-3. **MCP-mode detection via `tp.mcpTools`.** Use dual-mode prelude (`if (tp.mcpTools) { creator = "Claude"; tags.push("source/ia") } else { creator = "Pierre-André Folot" }`).
+3. **MCP-mode detection via `tp.mcpTools`.** Use dual-mode prelude (current literal, Claude-only: `if (tp.mcpTools) { creator = "Claude"; tags.push("source/ia") } else { creator = "Pierre-André Folot" }`).
 4. **Sequential IDs via `tp.user.next_id(<prefix>, <folder>)`.** Never invent IDs client-side for active-Templater shapes.
 5. **No EJS literals inside JS comments inside a Templater block.** EJS parser interprets `<%`, `%>`, `-%>`, `<%*` **even inside `//` or `/* */` comments**. Commented-out example tag still terminates surrounding block. Break across two strings (`"<" + "%"`) or move example outside the Templater block.
 6. **Title via arg, not `tp.file.title`.**
