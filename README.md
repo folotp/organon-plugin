@@ -48,6 +48,17 @@ Net effect: when `organon-frontmatter` triggers (drafting an ADR / VLT-BUG / FIN
 
 Historical record: each entry cites paths and components as they were at that release, and many have since been retired.
 
+### v1.5.0 (Agent Skills conformance, agents/ packaging fix, cross-agent creator)
+
+- **Agent Skills**: all 8 skills conform to the Agent Skills spec (#75).
+- **Manifest**: root `plugin.json` is now the version source and follows Agent Plugins 1.0.0; `.claude-plugin/plugin.json` is a symlink to it.
+- **Subagents**: moved to `agents/`, which fixes them not loading from the installed plugin.
+- **`organon-memory-audit`**: now a Claude-only command.
+- **Creator**: `creator` accepts ChatGPT and Gemini, so non-Claude agents no longer write `creator: Claude`.
+- **Triggers**: skills now trigger when creating or drafting a note.
+- **Link-target check**: new check that link targets resolve.
+- **Bases**: sort documented in `organon-bases`.
+
 ### v1.4.0 (memory-audit instruction-quality checks, connector corrections)
 
 - **`organon-memory-audit`** (#73): new `--checks=drift|quality|all` flag and Bucket 5 for instruction quality, covering orientation files, `organon-*` skills and rule classification. Default stays `drift`. Catalogue in `references/QUALITY_CHECKS.md`.
