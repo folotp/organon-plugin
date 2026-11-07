@@ -37,7 +37,7 @@ compatibility: Requires the Organon MCP connector.
 
 **`ulid:`** — Crockford base32, 26 chars (`0–9 A–Z` minus `I L O U`), forward-only at creation. Always real value — never empty, placeholder or invented. Lost ULIDs unrecoverable. Draft with no template render → omit the key and say Templater fills it.
 
-**`creator:` dual-mode** — UI → `Pierre-André Folot`, no `source/ia` tag. MCP → the product you are: Gemini writes `Gemini`, ChatGPT writes `ChatGPT`, Claude writes `Claude`; add `source/ia`. `Claude` in a template, prelude or older note is not a default for other agents: correct it before persisting.
+**`creator:` dual-mode** — UI → `Pierre-André Folot`, no `source/ia` tag. New note via MCP → the product you are: Gemini writes `Gemini`, ChatGPT writes `ChatGPT`, Claude writes `Claude`; add `source/ia`. `Claude` from a template, prelude or copied skeleton is not a default for other agents: correct it before persisting. Editing an existing note → keep its `creator:`.
 
 **`creator` vs `author`** — `creator` = Organon note author. `author` = external work's author (`type: book` only).
 
