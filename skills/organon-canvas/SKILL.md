@@ -7,7 +7,7 @@ allowed-tools:
 
 # organon-canvas
 
-This skill is a routing shim: its only action is to dispatch the `canvas-author` sub-agent rather than run the `.canvas` authoring runbook inline. Purpose-discriminator logic, file-node path conventions, language-by-folder enforcement, ID generation, and MCP write safety all live in `.claude/agents/canvas-author.md`, loaded on sonnet — this keeps that kepano-absorbed spec off the main opus context.
+This skill is a routing shim: its only action is to dispatch the `canvas-author` subagent rather than run the `.canvas` authoring runbook inline. Purpose-discriminator logic, file-node path conventions, language-by-folder enforcement, ID generation, and MCP write safety all live in `.claude/agents/canvas-author.md`, loaded on sonnet — this keeps that kepano-absorbed spec off the main opus context.
 
 ## How to dispatch
 
@@ -19,7 +19,7 @@ Agent({
 })
 ```
 
-Forward user constraints verbatim (node notes, edge semantics, embed plans). Sub-agent owns the full runbook and lazy-loads `references/CANVAS_SPEC.md` + `references/EXAMPLES.md` + `references/LABEL_TRANSLATIONS.md` — sonnet keeps kepano-absorbed spec off main opus context.
+Forward user constraints verbatim (node notes, edge semantics, embed plans). Subagent owns the full runbook and lazy-loads `references/CANVAS_SPEC.md` + `references/EXAMPLES.md` + `references/LABEL_TRANSLATIONS.md`.
 
 ## Runbook location
 

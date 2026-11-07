@@ -4,6 +4,11 @@ Render inline in conversation. Write to file only if PA explicitly asks — conv
 
 `Stable run hash`: sha256 of `(plugin.json content + kepano-version.txt content + canonical vault note body + companion matrix body)`. Same hash on two consecutive runs = pole 1 + pole 2 unchanged.
 
+## Contents
+
+- Report skeleton: Run, Sources of truth, Findings, Out of scope, Recommended next step
+- Empty-report short form
+
 ````markdown
 # Organon memory & instructions audit — <YYYY-MM-DD HH:MM>
 

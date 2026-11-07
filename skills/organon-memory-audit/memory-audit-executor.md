@@ -11,9 +11,25 @@ End-to-end runbook for auditing Organon-related drift across three poles:
 
 1. **Plugin / skill / tool capabilities** — runtime ground truth (`.claude-plugin/plugin.json`, `kepano-version.txt`, every `skills/*/SKILL.md` description, `commands/*.md`, MCP server floor).
 2. **Canonical-snippets vault note** — the unified source PA copy-pastes from: `99 - Méta/AI/Claude/Canonical snippets — per-canal Claude instructions.md`, with companion matrix `99 - Méta/AI/Claude/Claude surfaces and instruction inheritance.md`.
-3. **Per-surface implementations** — what is currently active in each store: `~/.claude/CLAUDE.md` (Code's global), Settings → General → Instructions for Claude (chat surfaces' global), Cowork → Global instructions (Cowork's global), Cowork folder/project instructions, claude.ai project instructions, plus memory — split by the 2026-08-25 shared-memory change: **Chat + Cowork share one cloud memory store** (`Settings → Memory` → Topics, https://claude.ai/settings/memory — same backing store regardless of which of the two surfaces reads/writes it), while **Code keeps its own independent filesystem memory** (`~/.claude/projects/<slug>/memory/`), unaffected by and unrelated to the shared system.
+3. **Per-surface implementations** — what is currently active in each store: `~/.claude/CLAUDE.md` (Code's global), Settings → General → Instructions for Claude (chat surfaces' global), Cowork → Global instructions (Cowork's global), Cowork folder/project instructions, claude.ai project instructions, plus memory — split by the shared-memory change: **Chat + Cowork share one cloud memory store** (`Settings → Memory` → Topics, https://claude.ai/settings/memory — same backing store regardless of which of the two surfaces reads/writes it), while **Code keeps its own independent filesystem memory** (`~/.claude/projects/<slug>/memory/`), unaffected by and unrelated to the shared system.
 
 The audit reads pole 1 + pole 2, walks every pole-3 target reachable from the current surface, and emits a bucketed triage report. Run `kepano-check-upstream.sh` as the first integrity gate; upstream advancement is informational (not blocking) since the absorbed bytes remain valid at the pin.
+
+## Contents
+
+- Flags
+- Surface detection
+- Pole 1 — plugin / skill / tool reality
+- Pole 2 — canonical-snippets vault note
+- Pole 3 — per-surface implementations
+- Filtering
+- Triage — buckets
+- Output — report format
+- Triage-resume from a previous report
+- Scheduling
+- Anti-patterns
+- Hard rules
+- Files
 
 ## Flags
 
@@ -28,7 +44,7 @@ Parse from the dispatching turn's prompt (the slash-command wrapper forwards the
 - `--checks=quality` — Bucket 5 only. Reads plugin and vault; skips integrity gate, pole 1 ↔ pole 2 alignment, pole 3.
 - `--checks=all` — both.
 - `--surface=code|cowork|chat` (override) — skip surface detection, force a specific branch. For testing only.
-- **Shared Chat/Cowork memory note**: `Settings → Memory` → Topics is one store since 2026-08-25. Reading it once under `--scope=global` on either surface covers both — never read it twice or attribute the same fact to "Chat memory" and "Cowork memory" as if they drifted independently. Project-scoped memory (a claude.ai Project's own memory space) stays separate from this global Topics store even after the merge.
+- **Shared Chat/Cowork memory note**: `Settings → Memory` → Topics is one store. Reading it once under `--scope=global` on either surface covers both — never read it twice or attribute the same fact to "Chat memory" and "Cowork memory" as if they drifted independently. Project-scoped memory (a claude.ai Project's own memory space) stays separate from this global Topics store.
 
 ## Surface detection (first action on every run)
 
@@ -120,7 +136,7 @@ Slug resolution for `--scope=project` (no explicit slug): convert current CWD to
 
 Read every memory file listed in `MEMORY.md` plus any `*.md` in the memory dir not yet linked from the index (those are findings on their own — orphan memories — flagged as a structural issue in the report header).
 
-`~/.claude/projects/<slug>/memory/` predates and is unrelated to Anthropic's cloud Topics feature (2026-08-25) — do not conflate the two "memory" concepts when writing findings.
+`~/.claude/projects/<slug>/memory/` predates and is unrelated to Anthropic's cloud Topics feature — do not conflate the two "memory" concepts when writing findings.
 
 ### Cowork
 
@@ -204,7 +220,7 @@ On-demand tool inactive → `activate_tools` first, without `persist`.
 - Memory and instruction store agree but contradict plugin → both stale; one finding per location.
 - Memory and instruction store disagree but neither contradicts plugin → flag as "internal inconsistency"; default-classify as Bucket 1 (memory edit), but mention both for PA to choose.
 - Memory older than 90 days referencing a version no longer in the changelog → "staleness suspected; verify"; do not auto-classify.
-- Same fact drifted in "Chat memory" and "Cowork memory" → these are the same underlying store since 2026-08-25 (`Settings → Memory` → Topics); emit **one** Bucket 1 finding labeled `Chat+Cowork (shared)`, not two.
+- Same fact drifted in "Chat memory" and "Cowork memory" → these are the same underlying store (`Settings → Memory` → Topics); emit **one** Bucket 1 finding labeled `Chat+Cowork (shared)`, not two.
 - Pole 1 ↔ pole 2 mismatch with no pole-3 read on this surface → Bucket 4 only, even if PA might also need to update Settings → General manually later (the audit's job is to point at the canonical doc; correcting Settings → General is a separate run on a chat surface).
 
 ## Output — report format
@@ -266,7 +282,7 @@ Recommended cadence: weekly + ad-hoc after every `/pa-toolkit:plugin-release`.
 - **Auto-classifying memory older than 90 days** — versions cycle out of the changelog quickly; treat as "verify, not auto-fix".
 - **Bundling Bucket 3 (plugin-update candidates) with Bucket 1 (memory edits) in the same triage walk and applying them together** — Bucket 3 is recommendation only, never executed by this agent.
 - **Running `--mode=interactive` from a scheduled context** — there's no PA in the loop; the prompts will hang or apply default-skip silently. Scheduled = report-only, always.
-- **Double-reading Chat/Cowork global memory** — `Settings → Memory` → Topics is one shared store since 2026-08-25; reading it once per surface and emitting two findings double-counts a single drift.
+- **Double-reading Chat/Cowork global memory** — `Settings → Memory` → Topics is one shared store; reading it once per surface and emitting two findings double-counts a single drift.
 
 ## Hard rules
 

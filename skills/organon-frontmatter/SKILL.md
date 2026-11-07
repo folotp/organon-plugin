@@ -5,7 +5,7 @@ description: Use when composing or editing frontmatter on an Organon vault note 
 
 # organon-frontmatter
 
-**Canonical source:** `references/REGISTRE_KEYS.md` (Organon-owned since v1.0.0 — `[[Registre des clés de frontmatter]]` is PA's reading copy, not authoritative).
+**Canonical source:** `references/REGISTRE_KEYS.md` (Organon-owned — `[[Registre des clés de frontmatter]]` is PA's reading copy, not authoritative).
 
 **Language coherence** — governed by `organon-markdown-style` §Langue par dossier. Not duplicated here.
 

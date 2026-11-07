@@ -5,6 +5,8 @@ description: Use before any MCP write against the Organon vault (path contains `
 
 # organon-vault-write
 
+Tool names are bare: all are Organon connector tools (full name `mcp__claude_ai_organon__<tool>`).
+
 Edge cases → `get_vault_file('99 - Méta/AI/Vault Conventions.md')`. Read-side → `organon-vault-read`.
 
 ## MCP write-tool surface (mcp-tools-istefox ≥ 2.1.0)
@@ -20,8 +22,8 @@ Edge cases → `get_vault_file('99 - Méta/AI/Vault Conventions.md')`. Read-side
 | `rename_heading` | Rename heading + update all vault refs | Link-safe. Replaces patch + manual sweep. |
 | `rename_vault_file` | Rename file + preserve all incoming links | Link-safe. Replaces filesystem rename + sweep. |
 | `execute_template` | Render Templater template | `createFile:false` → returns rendered string; `createFile:true` → creates file at `targetPath`. `arguments` is `{string:string}`. |
-| `get_or_create_daily_note` / `get_or_create_periodic_note` | Ensure + return periodic note | Idempotent. `unavailable` on connector (`tool_catalog`, 2026-11-06). |
-| `append_to_periodic_note` | Append to periodic note (today or specified) | `unavailable` on connector (`tool_catalog`, 2026-11-06). |
+| `get_or_create_daily_note` / `get_or_create_periodic_note` | Ensure + return periodic note | Idempotent. `unavailable` on connector; confirm via `tool_catalog`. |
+| `append_to_periodic_note` | Append to periodic note (today or specified) | `unavailable` on connector; confirm via `tool_catalog`. |
 | `create_vault_directory` / `delete_vault_directory` / `delete_vault_file` | Filesystem ops | `delete_vault_file` requires explicit filename — never `delete_active_file`. |
 
 ## On-demand tools — activate before first use
