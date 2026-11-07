@@ -131,7 +131,7 @@ execute_template({
 })
 ```
 
-Templater writes Linter-ordered frontmatter, `creator:` + `source/ia` (dual-mode via `tp.mcpTools`; not Claude → correct `creator:` per `organon-frontmatter` before persisting), `modified:`, and the full body skeleton. Do not `create_vault_file` ad-hoc from a hand-built skeleton — bypassing the template re-implements upstream work and risks subtle divergence.
+Templater writes Linter-ordered frontmatter, `creator:` + `source/ia` (dual-mode via `tp.mcpTools`), `modified:`, and the full body skeleton. The prelude literal is `Claude`, so other agents, in either routing class, render without `createFile`, correct `creator:` per `organon-frontmatter`, then `create_vault_file` the result. Do not `create_vault_file` ad-hoc from a hand-built skeleton — bypassing the template re-implements upstream work and risks subtle divergence.
 
 ### Supersession — dedicated (`Supersede-ADR-template.md`)
 
