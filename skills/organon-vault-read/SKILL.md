@@ -1,11 +1,13 @@
 ---
 name: organon-vault-read
 description: "Use before any MCP read against the Organon vault (path contains `Organon`) when the target path is not already hardcoded by another skill or given verbatim by PA. Routes the read to the cheapest tool that returns enough information — atomic frontmatter (`get_note_property`), partial reads (`get_vault_file_partial` modes: frontmatter / heading / block / document-map), graph nav (`get_backlinks`, `get_outgoing_links`), tag and property indexes (`list_tags`, `get_files_by_tag`, `list_property_values`), search (`search_vault_smart` → `search_vault_simple` fallback, `search_vault` DQL/JsonLogic, `execute_dataview_query` in-process), or `get_recent_files`. Reserves full `get_vault_file` for cases where the entire body is genuinely required."
+license: MIT
+compatibility: Requires the Organon MCP connector.
 ---
 
 # organon-vault-read
 
-Tool names are bare: all are Organon connector tools (full name `mcp__claude_ai_organon__<tool>`).
+Tool names are bare. Match them to the Organon connector's tools in your tool list, whatever prefix your platform adds.
 
 Token-minimisation for vault reads. Mirror of `organon-vault-write`. Assume cheaper read exists; reach for full `get_vault_file` only after decision tree rules out every partial path.
 
@@ -44,7 +46,7 @@ Inactive by default, not in persisted set (`docs/mcp-tool-loading.md`): `get_fil
 `activate_tools{ names: [...above] }`, `persist:false` (default).
 
 In-memory, connector-process-scoped — lost on restart/reload, no session carryover. Idempotent, always
-call. Pattern: `canvas-author.md` step 0.
+call.
 
 ## Integrity / graph-health scans
 

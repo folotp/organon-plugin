@@ -9,7 +9,7 @@ model: opus
 
 End-to-end runbook for auditing Organon-related drift across three poles:
 
-1. **Plugin / skill / tool capabilities** — runtime ground truth (`.claude-plugin/plugin.json`, `kepano-version.txt`, every `skills/*/SKILL.md` description, `commands/*.md`, MCP server floor).
+1. **Plugin / skill / tool capabilities** — runtime ground truth (`plugin.json`, `kepano-version.txt`, every `skills/*/SKILL.md` description, `commands/*.md`, MCP server floor).
 2. **Canonical-snippets vault note** — the unified source PA copy-pastes from: `99 - Méta/AI/Claude/Canonical snippets — per-canal Claude instructions.md`, with companion matrix `99 - Méta/AI/Claude/Claude surfaces and instruction inheritance.md`.
 3. **Per-surface implementations** — what is currently active in each store: `~/.claude/CLAUDE.md` (Code's global), Settings → General → Instructions for Claude (chat surfaces' global), Cowork → Global instructions (Cowork's global), Cowork folder/project instructions, claude.ai project instructions, plus memory — split by the shared-memory change: **Chat + Cowork share one cloud memory store** (`Settings → Memory` → Topics, https://claude.ai/settings/memory — same backing store regardless of which of the two surfaces reads/writes it), while **Code keeps its own independent filesystem memory** (`~/.claude/projects/<slug>/memory/`), unaffected by and unrelated to the shared system.
 
@@ -116,7 +116,7 @@ If MCP is unavailable (web/mobile chat without a connector): degrade to paste-dr
 
 For each per-surface bloc inside the canonical doc, check it against pole 1:
 
-- Skill list claimed in the bloc matches `.claude-plugin/plugin.json` + `skills/*/SKILL.md` frontmatter names.
+- Skill list claimed in the bloc matches `plugin.json` + `skills/*/SKILL.md` frontmatter names.
 - MCP server floor matches the requirement that the plugin actually depends on (read it from a representative SKILL.md or the README).
 - `description:` strings claimed in the bloc match the actual frontmatter descriptions of the listed skills.
 
@@ -162,7 +162,7 @@ For paste-based reads: emit a `<details><summary>Paste request</summary>...</det
 
 ## Filtering
 
-A memory or instruction line is "in scope" if it hits any keyword from `references/AUDIT_KEYWORDS.md` (read from the plugin repo at `${PLUGIN_ROOT}/skills/organon-memory-audit/references/AUDIT_KEYWORDS.md`). Non-organon entries are explicitly skipped — list them once at the end of the report under "Out of scope (not audited)" for transparency. Always read the canonical doc and plugin manifests in full — filtering applies only to memory/instruction *entries*, not to sources of truth.
+A memory or instruction line is "in scope" if it hits any keyword from `docs/memory-audit/references/AUDIT_KEYWORDS.md` (read from the plugin repo at `${PLUGIN_ROOT}/docs/memory-audit/references/AUDIT_KEYWORDS.md`). Non-organon entries are explicitly skipped — list them once at the end of the report under "Out of scope (not audited)" for transparency. Always read the canonical doc and plugin manifests in full — filtering applies only to memory/instruction *entries*, not to sources of truth.
 
 ## Triage — buckets
 
@@ -176,7 +176,7 @@ For each in-scope finding, classify into exactly one bucket:
 
 Memory asserts a fact (skill name, version, file path, behavioral rule, vocabulary value) that contradicts current plugin state or the canonical vault note. Examples:
 
-- Memory says `mcp-tools-istefox 0.3.12+` but `.claude-plugin/plugin.json`'s effective floor is `0.4.5+`.
+- Memory says `mcp-tools-istefox 0.3.12+` but `plugin.json`'s effective floor is `0.4.5+`.
 - Memory references `organon-vault-write` heading-patch guidance using a wording that contradicts the current SKILL.md.
 - Memory names a file path that no longer exists or has been renamed.
 
@@ -206,7 +206,7 @@ Output: vault path, section, current text, proposed text, `Why:`. `apply` patche
 
 ### Bucket 5 — Instruction quality
 
-Only with `--checks=quality|all`. Follow `references/QUALITY_CHECKS.md` end-to-end: target resolution, language lists, families 1–3, reasoning-quality gate. Agentic: a trigger only yields candidates; each finding needs a case-specific `reasoning` and concrete `action`.
+Only with `--checks=quality|all`. Follow `docs/memory-audit/references/QUALITY_CHECKS.md` end-to-end: target resolution, language lists, families 1–3, reasoning-quality gate. Agentic: a trigger only yields candidates; each finding needs a case-specific `reasoning` and concrete `action`.
 
 Output: `check`, `path`, `line`, `severity`, `excerpt`, `reasoning`, `action`, `language`, plus per-file bucket summary and three-column review for family 3. Pinned files: `action: upstream-pinned`, no fix.
 
@@ -225,7 +225,7 @@ On-demand tool inactive → `activate_tools` first, without `persist`.
 
 ## Output — report format
 
-Render inline in the conversation (the full skeleton is in `skills/organon-memory-audit/references/REPORT_TEMPLATE.md`). Section structure:
+Render inline in the conversation (the full skeleton is in `docs/memory-audit/references/REPORT_TEMPLATE.md`). Section structure:
 
 ```
 # Organon memory & instructions audit — <YYYY-MM-DD HH:MM>
@@ -291,9 +291,9 @@ Recommended cadence: weekly + ad-hoc after every `/pa-toolkit:plugin-release`.
 
 ## Files
 
-- `skills/organon-memory-audit/references/AUDIT_KEYWORDS.md` — the keyword set used to filter in-scope memory/instruction lines.
-- `skills/organon-memory-audit/references/REPORT_TEMPLATE.md` — the full report skeleton.
-- `skills/organon-memory-audit/references/QUALITY_CHECKS.md` — Bucket 5 catalogue: check families, language lists, reasoning-quality gate.
+- `docs/memory-audit/references/AUDIT_KEYWORDS.md` — the keyword set used to filter in-scope memory/instruction lines.
+- `docs/memory-audit/references/REPORT_TEMPLATE.md` — the full report skeleton.
+- `docs/memory-audit/references/QUALITY_CHECKS.md` — Bucket 5 catalogue: check families, language lists, reasoning-quality gate.
 - `kepano-version.txt` (repo root) — pinned upstream sha; run `kepano-check-upstream.sh` as the integrity gate.
 - `99 - Méta/AI/Claude/Canonical snippets — per-canal Claude instructions.md` (vault) — pole 2 source of truth.
 - `99 - Méta/AI/Claude/Claude surfaces and instruction inheritance.md` (vault) — companion matrix.

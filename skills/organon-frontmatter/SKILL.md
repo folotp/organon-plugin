@@ -1,6 +1,8 @@
 ---
 name: organon-frontmatter
 description: Use when composing or editing frontmatter on an Organon vault note (path contains `Organon`). Schema, key ordering (Linter `yaml-key-priority-sort-order`), controlled vocabularies, ULID forward-only, creator dual-mode, archive/supersession, alias-only versioning, navigation fields for typed shapes (ADR/BL/BUG/INC).
+license: MIT
+compatibility: Requires the Organon MCP connector.
 ---
 
 # organon-frontmatter
@@ -35,7 +37,7 @@ description: Use when composing or editing frontmatter on an Organon vault note 
 
 **`ulid:`** — Crockford base32, 26 chars (`0–9 A–Z` minus `I L O U`), forward-only at creation. Always real value — never empty or placeholder. Lost ULIDs unrecoverable.
 
-**`creator:` dual-mode** — UI → `Pierre-André Folot`, no `source/ia` tag. MCP → `Claude`, add `source/ia`. Detection via `tp.mcpTools` in template prelude.
+**`creator:` dual-mode** — UI → `Pierre-André Folot`, no `source/ia` tag. MCP → your own product name (`Claude`, `ChatGPT`, `Gemini`), add `source/ia`. Detection via `tp.mcpTools` in template prelude.
 
 **`creator` vs `author`** — `creator` = Organon note author. `author` = external work's author (`type: book` only).
 

@@ -1,11 +1,4 @@
----
-name: bases-author
-description: Dispatched by the organon-bases skill to author or edit a .base Obsidian Bases view in the Organon vault. Owns tool-choice policy, Excluded-files diagnostic, Organon-vocabulary filters, file placement.
-tools: Read, Write, Edit, Bash, Glob, Grep
-model: sonnet
----
-
-# bases-author
+# bases authoring runbook
 
 Runbook for authoring or editing a `.base` (Obsidian Bases) view inside the Organon vault. Dispatched from `organon-bases`.
 
@@ -19,11 +12,11 @@ Bases is the canonical query layer for Organon. Resist directive Dataview prompt
 
 > **Bad** (capitulate to directive):
 > User: "Drafte-moi le bloc Dataview qui somme `impact-eur` par sous-domaine."
-> Claude: ` ```dataview\nTABLE sum(impact-eur)...``` `
+> Agent: ` ```dataview\nTABLE sum(impact-eur)...``` `
 >
 > **Good** (push back, propose Bases):
 > User: "Drafte-moi le bloc Dataview qui somme `impact-eur` par sous-domaine."
-> Claude: "Avant de partir sur Dataview — Bases peut faire `Sum` sur `impact-eur` avec `groupBy` sur un tag. Voici le `.base` correspondant : [draft]. Si ça ne couvre pas ton besoin, confirme et je bascule sur Dataview."
+> Agent: "Avant de partir sur Dataview — Bases peut faire `Sum` sur `impact-eur` avec `groupBy` sur un tag. Voici le `.base` correspondant : [draft]. Si ça ne couvre pas ton besoin, confirme et je bascule sur Dataview."
 
 ## Excluded-files trap
 

@@ -1,1 +1,0 @@
-../../skills/organon-memory-audit/memory-audit-executor.md

@@ -6,7 +6,7 @@ A repeatedly-asked question: which hooks fire when, and is anything imposed on c
 
 ```bash
 # 1. Plugin manifest declares zero hooks.
-jq '.hooks // "none"' .claude-plugin/plugin.json
+jq '.hooks // "none"' plugin.json
 # expected: "none"
 
 # 2. Project-level hooks are scoped to .claude/settings.json (in-repo).
@@ -28,7 +28,7 @@ jq '.. | objects | select(.command) | .command' .claude/settings.json | grep -v 
 | `userprompt-branch-check.sh` (UserPromptSubmit) | same | no |
 | `stop-shellcheck.sh` (Stop) | same | no |
 
-The distributed `.plugin` archive contains `.claude-plugin/plugin.json` (no hook key), `skills/`, `scripts/`, `docs/`, `README.md`, and `kepano-version.txt` — never `.claude/settings.json` and never `.mcp.json` (removed 43a9042; the plugin relies on the claude.ai-hosted Organon connector, not a bundled server config). Consumer Code or Cowork sessions install the plugin's skills and commands; they do not inherit any hook from this repo.
+The distributed `.plugin` archive contains `plugin.json` (no hook key), `.claude-plugin/plugin.json` (symlink to it), `agents/`, `assets/`, `skills/`, `scripts/`, `docs/`, `README.md`, and `kepano-version.txt` — never `.claude/settings.json` and never `.mcp.json` (removed 43a9042; the plugin relies on the claude.ai-hosted Organon connector, not a bundled server config). Consumer Code or Cowork sessions install the plugin's skills and commands; they do not inherit any hook from this repo.
 
 ## v1.0.0 history
 

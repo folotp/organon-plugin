@@ -11,6 +11,8 @@ irrelevant to headless MCP clients; not "Core set" — the connector's actual ba
 `get_vault_file`/`patch_vault_file`/`set_note_property`, so every write/read would need an activation
 round-trip first).
 
+Scope: this doc covers Claude's token. Each agent has its own host and token (`organon-claude`, `organon-chatgpt`, `organon-gemini`), each with its own tool set. ChatGPT and Gemini are read-only for now.
+
 ## Verification recipe
 
 ```
@@ -48,7 +50,7 @@ mechanism).
 |---|---|---|
 | `get_files_by_tag`, `list_property_values`, `get_backlinks`, `get_outgoing_links`, `find_broken_links`, `find_orphaned_notes`, `execute_dataview_query`, `get_recent_files`, `get_vault_files` | organon-vault-read | `SKILL.md` §On-demand tools |
 | `rename_heading`, `create_vault_directory`, `delete_vault_directory`, `delete_vault_file` | organon-vault-write | `SKILL.md` §On-demand tools |
-| `get_canvas`, `add_canvas_node`, `connect_canvas_nodes` | organon-canvas | `canvas-author.md` step 0 (PR #55) |
+| `get_canvas`, `add_canvas_node`, `connect_canvas_nodes` | organon-canvas | `references/AUTHOR_RUNBOOK.md` (PR #55) |
 
 All 18: no promotion evidence yet (0 calls). Deliberately not persisted — let real demand (auto-promote at
 3 calls, or a future explicit `persist:true`) earn it, rather than assuming need up front. First-time

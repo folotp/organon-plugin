@@ -1,6 +1,8 @@
 ---
 name: organon-markdown-style
 description: "Use when writing prose body for an Organon vault note (path contains `Organon`). Body conventions: no H1 (title = frontmatter `title:`), language-by-folder (`99 - Méta/AI/` EN, other folders FR), typographic apostrophes, no trailing whitespace, no systematic anchors, table+block-ref pitfall. Generic Obsidian markdown in `references/MARKDOWN_SYNTAX.md`."
+license: MIT
+compatibility: Requires the Organon MCP connector.
 ---
 
 # organon-markdown-style

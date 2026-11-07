@@ -1,10 +1,10 @@
 # organon
 
-Organon vault conventions for Claude — packaged as a Cowork/Claude Code plugin.
+Organon vault conventions for AI agents — packaged as a portable plugin of [Agent Skills](https://agentskills.io/specification) for Claude, ChatGPT and Gemini.
 
 ## What this plugin provides
 
-Nine skills total: eight description-triggered (load automatically when working with the Organon Obsidian vault at `~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Organon`) plus one user-only skill invoked via slash command. Uses the claude.ai-hosted Organon connector (`mcp-tools-istefox` ≥ 2.1.0) at `https://organon-claude.folot.net/mcp` for the remote Obsidian MCP server — no bundled `.mcp.json`; Cloudflare Access OAuth runs in the browser on first connect.
+Eight description-triggered skills (load automatically when working with the Organon Obsidian vault at `~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Organon`) plus one Claude-only slash command. Each agent uses its own Organon connector (`mcp-tools-istefox` ≥ 2.1.0) for the remote Obsidian MCP server; Claude\'s is the claude.ai-hosted connector at `https://organon-claude.folot.net/mcp` — no bundled `.mcp.json`; Cloudflare Access OAuth runs in the browser on first connect.
 
 ### Core (5 skills)
 
@@ -20,7 +20,7 @@ Nine skills total: eight description-triggered (load automatically when working 
 - **organon-canvas** — Purpose discriminator (cartography of existing notes vs. freeform sketches), placement beside the domain, file-node filename-only paths for vault-move robustness, language by folder for labels, ID convention (kepano 16-char hex).
 - **organon-diagramming** — Tool-selection decision tree (Mermaid for code-expressible flows, Canvas for note-cartography, Excalidraw via connector+bridge for freeform, SVG for throwaways), Excalidraw bridge skeleton, plugin compression-OFF invariant, preview-before-persist pattern.
 
-### User-only (1 skill, invoked via slash command — `disable-model-invocation: true`)
+### Claude-only command (`disable-model-invocation: true`)
 
 Releases moved out of this plugin: they are cut with `/pa-toolkit:plugin-release` from [`folotp/pa-toolkit`](https://github.com/folotp/pa-toolkit), the single generalized release runbook for all of PA's plugins (it was `/plugin-release` here from v0.4.1).
 
@@ -211,7 +211,7 @@ Claude Code:
 /plugin install organon --marketplace folotp/claude-marketplace
 ```
 
-Cowork: click "Install plugin" when this `.plugin` file appears in chat. The 8 description-triggered skills load automatically when working with the Organon vault; the user-only skill `/organon-memory-audit` is invoked explicitly via slash command.
+Cowork: click "Install plugin" when this `.plugin` file appears in chat. The 8 description-triggered skills load automatically when working with the Organon vault; the Claude-only command `/organon-memory-audit` is invoked explicitly via slash command.
 
 ## Author
 

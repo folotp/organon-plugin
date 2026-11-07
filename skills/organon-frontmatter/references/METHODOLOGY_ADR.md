@@ -62,7 +62,7 @@ ulid: <generated>
 date-decided: YYYY-MM-DD
 references:
   - "[[Note référencée]]"
-creator: <Pierre-André Folot | Claude>
+creator: <Pierre-André Folot | Claude | ChatGPT | Gemini>
 created: YYYY-MM-DD HH:mm
 modified: YYYY-MM-DD HH:mm
 status: proposed | accepted | rejected | superseded | deprecated

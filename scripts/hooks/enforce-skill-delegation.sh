@@ -9,7 +9,7 @@
 # runbook instead of delegating.
 #
 # Covered skills (blocking mandate):
-#   organon-memory-audit → memory-audit-executor
+#   organon-memory-audit (command) → organon:memory-audit-executor
 #
 # plugin-release moved to folotp/pa-toolkit (/pa-toolkit:plugin-release),
 # whose shim dispatches pa-toolkit:plugin-release-executor itself.
@@ -35,8 +35,8 @@ skill_name="$(printf '%s' "$input" | jq -r '(.tool_input.skill // .tool_input.sk
 [[ -n "$skill_name" ]] || exit 0
 
 case "$skill_name" in
-    organon-memory-audit)
-        executor="memory-audit-executor"
+    organon-memory-audit | organon:organon-memory-audit)
+        executor="organon:memory-audit-executor"
         ;;
     *)
         # Non-mandated skill (including organon-diagramming) — no-op.
@@ -49,7 +49,7 @@ cat <<EOF
 [skill-routing] Delegation-mandatory skill \`${skill_name}\` invoked.
 Your next tool call MUST be Agent(subagent_type="${executor}", ...).
 The main session is not authorised to execute this runbook inline.
-Runbook: .claude/agents/${executor}.md
+Runbook: agents/memory-audit-executor.md
 EOF
 
 # Stderr: audit trail mirroring block-absorbed-edits.sh convention.

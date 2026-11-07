@@ -159,7 +159,7 @@ If `DRIFT-FOUND`, append a per-drift list under headings:
 ## Dead explicit links
 
 - skills/organon-frontmatter/SKILL.md:L42 → references/SCHEMA.md (not found; closest: REGISTRE_KEYS.md)
-- commands/organon-memory-audit.md:L5 → ../skills/organon-memory-audit/SKILL.md  → resolves: ✓
+- commands/organon-memory-audit.md:L5 → ../agents/memory-audit-executor.md  → resolves: ✓
   (only listed because the dispatcher asked for verbose mode)
 
 ## Dead bare-path mentions (lower severity)
