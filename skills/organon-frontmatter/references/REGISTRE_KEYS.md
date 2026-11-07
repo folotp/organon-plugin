@@ -38,7 +38,7 @@ Canonical registry of all frontmatter keys in Organon. Per key: description, sco
 | `type` | Note type; determines filing and structural contract. | yes | enum | see **Vocabulary: type** below | Organon |
 | `content-model` | Structural contract orthogonal to type (renamed from `shape`, 2026-04-25). | no | enum | see **Vocabulary: content-model** below | Organon |
 | `lang` | Primary language. | no | string | BCP 47 | BCP 47 |
-| `creator` | Author of Organon note (not described content). | no | string | free | DCMI |
+| `creator` | Author of Organon note (not described content): `Pierre-André Folot`, `Claude`, `ChatGPT` or `Gemini`. | no | string | closed | DCMI |
 | `created` | Creation timestamp. | yes | datetime | `YYYY-MM-DD HH:mm` | DCMI, ISO 8601 |
 | `modified` | Last modification timestamp. | yes | datetime | `YYYY-MM-DD HH:mm` | DCMI, ISO 8601 |
 | `ulid` | Unique stable identifier (ULID, 26 char Crockford base32). Forward-only; notes before 2026-04-23 may lack it. | no | string | ULID (26 chars) | Organon |

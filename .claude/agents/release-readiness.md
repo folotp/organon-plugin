@@ -14,14 +14,14 @@ Pre-flight gates for `folotp/organon-plugin` releases. Single-shot, read-only au
 The dispatching turn must hand you, in the prompt:
 
 - The repo root path (absolute) — typically `~/Developer/organon-plugin`.
-- Optional: the version being cut (e.g. `0.6.1`). If omitted, the current `.claude-plugin/plugin.json` version is treated as the candidate.
+- Optional: the version being cut (e.g. `0.6.1`). If omitted, the current `plugin.json` version is treated as the candidate.
 
 If the repo root is missing, stop and ask. Do not guess.
 
 ## Out of scope (escalate, don't auto-fix)
 
 - **Drift resolution.** If `kepano-check-upstream.sh` exits 1, route to `docs/refreshing-kepano.md`. This agent reports the drift, does not resolve it.
-- **Plugin manifest fixes.** If `claude plugin validate` fails, surface the issue. Don't edit `.claude-plugin/plugin.json`.
+- **Plugin manifest fixes.** If `claude plugin validate` fails, surface the issue. Don't edit `plugin.json`.
 - **Version bumping.** That's `/pa-toolkit:plugin-release`'s job.
 - **Committing or tagging.** Read-only. Never.
 
@@ -80,7 +80,7 @@ PKG="$(ls -t ~/.claude/plugins/cache/*/pa-toolkit/*/skills/plugin-release/script
 bash "$PKG" "$REPO_ROOT" --dry
 ```
 
-PASS: dry run completes, the listed contents include `.claude-plugin/plugin.json`, `skills/**`, `scripts/**`, `docs/**`, `README.md`, `kepano-version.txt`, `.claude/agents/**`, AND exclude `.git/`, `eval-workspace*/`, `evals/iteration-*/`, `__pycache__/`, `.DS_Store`, `.claude/settings.json`, `skills/.claude/`, prior `*.plugin` archives.
+PASS: dry run completes, the listed contents include `plugin.json`, `.claude-plugin/plugin.json` (symlink), `agents/**`, `assets/**`, `skills/**`, `scripts/**`, `docs/**`, `README.md`, `kepano-version.txt`, `.claude/agents/**`, AND exclude `.git/`, `eval-workspace*/`, `evals/iteration-*/`, `__pycache__/`, `.DS_Store`, `.claude/settings.json`, `skills/.claude/`, prior `*.plugin` archives.
 FAIL: missing required content OR includes excluded content.
 
 ### Gate 6 — Markdown link integrity
@@ -94,6 +94,15 @@ Use the Agent tool with subagent_type="markdown-link-validator", prompt="Validat
 PASS: validator reports `CONSISTENT`.
 FAIL: validator reports `DRIFT-FOUND` with one or more dead explicit links (highest severity).
 DEGRADED: validator reports drift confined to `BARE-PATH-DRIFT` lines only (lower-severity heuristic mentions). Surface the count, defer the call to PA.
+
+### Gate 7 — Spec conformance
+
+```bash
+"$REPO_ROOT/scripts/validate-specs.sh"
+```
+
+PASS: every skill passes the Agent Skills validator, and `plugin.json` passes the Agent Plugins 1.0.0 schema.
+FAIL: any finding. A client must skip a non-conforming skill, so it wouldn't load on that surface.
 
 ## Report format
 

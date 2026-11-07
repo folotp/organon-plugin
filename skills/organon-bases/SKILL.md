@@ -1,26 +1,25 @@
 ---
 name: organon-bases
 description: Use when creating or editing a `.base` (Obsidian Bases) view filtering or summarising Organon vault notes (path contains `Organon`). Bases is the default; Dataview only with explicit user authorization. Covers the Excluded-files trap and canonical filters on Organon vocabularies (`type:`, `status:`, `tags`, folder roots). Full grammar in `references/BASES_SYNTAX.md`.
-allowed-tools:
-  - Agent
+license: MIT
+compatibility: Requires the Organon MCP connector.
+allowed-tools: Agent
 ---
 
 # organon-bases
 
-This skill is a routing shim: its only action is to dispatch the `bases-author` subagent rather than run the `.base` authoring runbook inline. Tool-choice policy, the Excluded-files diagnostic, vocabulary filters, file placement, and embedding rules all live in `.claude/agents/bases-author.md`, loaded on sonnet — this keeps that kepano-absorbed grammar off the main opus context.
+Follow `references/AUTHOR_RUNBOOK.md` end-to-end. It lazy-loads `references/BASES_SYNTAX.md` + `references/FUNCTIONS_REFERENCE.md`.
 
-## How to dispatch
+Delegate if your platform has subagents, which keeps the Bases grammar off the main context. Otherwise, or if the subagent isn't available, follow the runbook directly.
+
+## Claude dispatch
 
 ```js
 Agent({
   description: "Author or edit a .base view",
-  subagent_type: "bases-author",
-  prompt: "<task: what to build/change>, vault context: <relevant folders or note types>, output path: <absolute path or domain folder>"
+  subagent_type: "organon:bases-author",
+  prompt: "Runbook: <this skill's directory>/references/AUTHOR_RUNBOOK.md. <task: what to build/change>, vault context: <relevant folders or note types>, output path: <absolute path or domain folder>"
 })
 ```
 
-Forward user constraints verbatim (folder, filter shape, summary type). Subagent owns the full runbook and lazy-loads `references/BASES_SYNTAX.md` + `references/FUNCTIONS_REFERENCE.md`.
-
-## Runbook location
-
-`.claude/agents/bases-author.md` (co-located at `skills/organon-bases/bases-author.md`).
+Forward user constraints verbatim.

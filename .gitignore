@@ -27,3 +27,4 @@ snippets/
 # batch. The pre-commit hook refuses to commit while it exists.
 .organon-resync-token
 .venv/
+dist/

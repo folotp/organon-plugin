@@ -1,6 +1,8 @@
 ---
 name: organon-diagramming
 description: "Use when producing a Mermaid, Excalidraw, JSON Canvas, or SVG diagram for an Organon vault note (path contains `Organon`). Tool-selection decision tree (Mermaid for code-expressible flows, Canvas for cartography, Excalidraw via connector+bridge for freeform, SVG for throwaways). Excalidraw is chat-render-only; the bridge persists to the vault. Plugin invariant: compression OFF."
+license: MIT
+compatibility: Requires the Organon MCP connector.
 ---
 
 # organon-diagramming

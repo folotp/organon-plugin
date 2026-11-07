@@ -1,11 +1,15 @@
 ---
 name: organon-vault-write
 description: Use before any MCP write against the Organon vault (path contains `Organon`) — `set_note_property` / `delete_note_property` for atomic frontmatter, `patch_vault_file` / `create_vault_file` / `append_to_vault_file` for body, `rename_heading` / `rename_vault_file` for link-safe rename, `execute_template` for structured shapes. Mandates atomic-always frontmatter writes, canonical template paths (BL/BUG/INC/ADR + Note/Concept/Person/Book/Quote/Index/Organization), heading-patch safety incl. fenced-code H2 trap, EJS-literal Templater invariants, NFC normalisation.
+license: MIT
+compatibility: Requires the Organon MCP connector.
 ---
 
 # organon-vault-write
 
-Tool names are bare: all are Organon connector tools (full name `mcp__claude_ai_organon__<tool>`).
+Tool names are bare. Match them to the Organon connector's tools in your tool list, whatever prefix your platform adds.
+
+Write tools missing → draft the content, say writes aren't available, never try another route.
 
 Edge cases → `get_vault_file('99 - Méta/AI/Vault Conventions.md')`. Read-side → `organon-vault-read`.
 
@@ -34,7 +38,7 @@ Inactive by default, not in persisted set (`docs/mcp-tool-loading.md`): `rename_
 
 `activate_tools{ names: [...above] }`, `persist:false` (default).
 
-In-memory, connector-process-scoped, idempotent. Pattern: `canvas-author.md` step 0.
+In-memory, connector-process-scoped, idempotent.
 
 ## Atomic-always for frontmatter (canonical)
 
@@ -210,7 +214,7 @@ Do not rename via `create_vault_file` + `delete_vault_file` — breaks all incom
 - Do not pre-create parent dirs; `create_vault_file`, `append_to_vault_file`, `execute_template` auto-mkdirp since 0.4.5.
 - No "verify MCP is alive" ping before writes. Let real call surface failures; retry only on abnormal signals.
 - `patch_vault_file` `operation` is **required, no default** — omit it and the call is rejected (*"operation must be 'append','prepend' or 'replace' (was missing)"*). Always pass `replace`/`append`/`prepend`.
-- **mcp-tools-istefox has NO bash tool.** `mcp__claude_ai_organon__bash` → *"No such tool available"*. Run shell via Code `Bash` or Cowork `mcp__workspace__bash`.
+- **mcp-tools-istefox has NO bash tool.** Run shell through your platform's own shell tool, if it has one.
 - `get_vault_file` timeout / *"server unavailable"* is an **abnormal signal** → retry once before escalating to PA.
 - On-demand tools (§On-demand tools above) fail loud if called without activation first — activate, don't guess.
 

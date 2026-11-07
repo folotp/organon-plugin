@@ -161,8 +161,8 @@ Print exactly one Markdown block to stdout, structured per pa-toolkit's `skills/
 ## Install / update
 
 ```
-/plugin marketplace update folotp-marketplace
-/plugin install organon@folotp-marketplace
+/plugin marketplace update pa-marketplace
+/plugin install organon@pa-marketplace
 ```
 
 ## Verification
