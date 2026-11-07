@@ -48,6 +48,10 @@ Net effect: when `organon-frontmatter` triggers (drafting an ADR / VLT-BUG / FIN
 
 Historical record: each entry cites paths and components as they were at that release, and many have since been retired.
 
+### v1.5.1 (Bases and canvas dispatch)
+
+- **Dispatch**: the `organon-bases` and `organon-canvas` skills now dispatch their subagent first and fall back to the runbook when no subagent is available. Before this, Claude could read the runbook in the main session and never delegate. Tested with the Bases prompt in headless Claude Code on the branch; canvas dispatch and installed builds not yet tested.
+
 ### v1.5.0 (Agent Skills conformance, agents/ packaging fix, cross-agent creator)
 
 - **Agent Skills**: all 8 skills conform to the Agent Skills spec (#75).
