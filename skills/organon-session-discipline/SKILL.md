@@ -1,6 +1,6 @@
 ---
 name: organon-session-discipline
-description: Use at the start of any Claude session operating on the Organon vault (path contains `Organon`), or before any multi-step Organon task (drafting/updating an ADR, BL, BUG, INC, sweep, refactor wave, or any "check if an Organon note needs updating" prompt). 9 behavioral rules: arbitrate over over-clarify, read bootstrap, no in-fiche redundancy, confirm inferred mappings, propose generalizations, check meta-skills, language coherence by folder, semantic pre-filter before exploratory reads, test temp dirs outside vault mount.
+description: "Use at the start of any Claude session operating on the Organon vault (path contains `Organon`), or before any multi-step Organon task (drafting/updating an ADR, BL, BUG, INC, sweep, refactor wave, or any \"check if an Organon note needs updating\" prompt). 9 behavioral rules: arbitrate over over-clarify, read bootstrap, no in-fiche redundancy, confirm inferred mappings, propose generalizations, check meta-skills, language coherence by folder, semantic pre-filter before exploratory reads, test temp dirs outside vault mount."
 ---
 
 # organon-session-discipline

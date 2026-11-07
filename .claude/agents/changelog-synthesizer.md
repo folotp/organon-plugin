@@ -1,6 +1,6 @@
 ---
 name: changelog-synthesizer
-description: Dispatched during `/pa-toolkit:plugin-release` to draft a release-notes body from merge commits since the last tag. Reads `git log --merges <last-tag>..HEAD`, categorises by branch prefix (`feat/`, `fix/`, `chore/`, `perf/`, `docs/`), renders against pa-toolkit's `skills/plugin-release/references/release-notes-template.md`. Output: Markdown on stdout.
+description: "Dispatched during `/pa-toolkit:plugin-release` to draft a release-notes body from merge commits since the last tag. Reads `git log --merges <last-tag>..HEAD`, categorises by branch prefix (`feat/`, `fix/`, `chore/`, `perf/`, `docs/`), renders against pa-toolkit's `skills/plugin-release/references/release-notes-template.md`. Output: Markdown on stdout."
 tools: Bash, Read, Glob, Grep
 model: haiku
 ---
@@ -174,7 +174,7 @@ Print exactly one Markdown block to stdout, structured per pa-toolkit's `skills/
 - Eval pass-rate: <leave placeholder — maintainer fills from latest eval-workspace iteration>
 - `./scripts/sync-kepano.sh` reports all in-sync.
 - `./scripts/sync-vault.sh` reports all in-sync.
-- `plugin-dev:plugin-validator` passes.
+- `claude plugin validate` passes.
 ```
 
 Drop empty sections silently (e.g., if there were no `perf/` merges, omit the "Performance" subheading entirely — but keep the section heading "What changed" even if only one subheading lives under it).

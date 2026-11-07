@@ -4,7 +4,7 @@ Render inline in conversation. Write to file only if PA explicitly asks — conv
 
 `Stable run hash`: sha256 of `(plugin.json content + kepano-version.txt content + canonical vault note body + companion matrix body)`. Same hash on two consecutive runs = pole 1 + pole 2 unchanged.
 
-```markdown
+````markdown
 # Organon memory & instructions audit — <YYYY-MM-DD HH:MM>
 
 ## Run
@@ -154,6 +154,7 @@ Defects no check id covers, or KEEP lines factually wrong. Same fields, `Check: 
 - Bucket 4: patch the canonical vault note via mcp__claude_ai_organon__patch_vault_file (consult organon-vault-write for wire-format invariants).
 - Bucket 3: open a tracking issue at folotp/organon-plugin for any candidate you want to act on.
 - Bucket 5: walk per-finding `apply-now / edit-first / decline`. Never bulk-applied.
+````
 
 ## Empty-report short form
 
@@ -164,5 +165,4 @@ All buckets 0:
 - Surface / scope / mode: <…>
 - All buckets run were empty. Stable run hash: <sha>.
 - Pole 1 ↔ pole 2 ↔ pole 3 aligned. Next scheduled run: <if known>.
-```
 ```

@@ -1,6 +1,6 @@
 ---
 name: release-readiness
-description: Use before `/pa-toolkit:plugin-release` to run all pre-flight gates as a read-only sweep. Runs `git status`, the kepano upstream check, `python3 scripts/token-harness.py --no-write`, and dispatches `plugin-dev:plugin-validator` + `markdown-link-validator`. Reports one go/no-go verdict per gate. Read-only.
+description: Use before `/pa-toolkit:plugin-release` to run all pre-flight gates as a read-only sweep. Runs `git status`, the kepano upstream check, `python3 scripts/token-harness.py --no-write`, `claude plugin validate`, and dispatches `markdown-link-validator`. Reports one go/no-go verdict per gate. Read-only.
 tools: Bash, Read, Grep, Glob, Agent
 model: sonnet
 ---
@@ -21,13 +21,13 @@ If the repo root is missing, stop and ask. Do not guess.
 ## Out of scope (escalate, don't auto-fix)
 
 - **Drift resolution.** If `kepano-check-upstream.sh` exits 1, route to `docs/refreshing-kepano.md`. This agent reports the drift, does not resolve it.
-- **Plugin manifest fixes.** If `plugin-dev:plugin-validator` fails, surface the issue. Don't edit `plugin.json`.
+- **Plugin manifest fixes.** If `claude plugin validate` fails, surface the issue. Don't edit `plugin.json`.
 - **Version bumping.** That's `/pa-toolkit:plugin-release`'s job.
 - **Committing or tagging.** Read-only. Never.
 
 ## Gates to run
 
-Run all six in parallel where possible (the bash invocations are independent). Use `Bash` with `run_in_background` for the slow ones (token harness, plugin-validator + markdown-link-validator agent dispatches).
+Run all six in parallel where possible (the bash invocations are independent). Use `Bash` with `run_in_background` for the slow ones (token harness, markdown-link-validator agent dispatch).
 
 ### Gate 1 — Working tree clean on `main`
 
@@ -53,14 +53,12 @@ FAIL: non-empty `--porcelain` (uncommitted changes pollute the build) OR wrong b
 
 ### Gate 3 — Plugin validator
 
-Dispatch the `plugin-dev:plugin-validator` agent against the repo. Capture its PASS/FAIL summary.
-
-```text
-Use the Agent tool with subagent_type="plugin-dev:plugin-validator", prompt="Validate <REPO_ROOT> against Claude Code plugin conventions. We're cutting v<VERSION>. Report blockers and warnings under 250 words."
+```bash
+claude plugin validate "$REPO_ROOT"
 ```
 
-PASS: validator reports no blockers.
-FAIL: any blocker. Warnings (e.g. stale `.plugin` artifacts, `.DS_Store`) are surfaced but do not fail the gate.
+PASS: exit 0.
+FAIL: exit 1 (any error). Warnings (e.g. stale `.plugin` artifacts, `.DS_Store`) are surfaced but do not fail the gate.
 
 ### Gate 4 — Token harness regression check
 
@@ -82,7 +80,7 @@ PKG="$(ls -t ~/.claude/plugins/cache/*/pa-toolkit/*/skills/plugin-release/script
 bash "$PKG" "$REPO_ROOT" --dry
 ```
 
-PASS: dry run completes, the listed contents include `.claude-plugin/plugin.json`, `skills/**`, `scripts/**`, `docs/**`, `README.md`, `kepano-version.txt`, `.claude/agents/**`, AND exclude `.git/`, `eval-workspace*/`, `evals/iteration-*/`, `__pycache__/`, `.DS_Store`, `.claude/settings.json`, prior `*.plugin` archives.
+PASS: dry run completes, the listed contents include `.claude-plugin/plugin.json`, `skills/**`, `scripts/**`, `docs/**`, `README.md`, `kepano-version.txt`, `.claude/agents/**`, AND exclude `.git/`, `eval-workspace*/`, `evals/iteration-*/`, `__pycache__/`, `.DS_Store`, `.claude/settings.json`, `skills/.claude/`, prior `*.plugin` archives.
 FAIL: missing required content OR includes excluded content.
 
 ### Gate 6 — Markdown link integrity
