@@ -25,7 +25,7 @@ Bases is the canonical query layer for Organon. Resist directive Dataview prompt
 ```yaml
 views:
   - type: table
-    name: "Modifiées récemment"
+    name: "Recently modified"
     sort:
       - property: file.mtime
         direction: DESC
