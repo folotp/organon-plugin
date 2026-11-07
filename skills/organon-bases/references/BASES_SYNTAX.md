@@ -2,6 +2,20 @@
 
 Adapted from kepano/obsidian-skills@c4728b3. See docs/refreshing-kepano.md.
 
+## Contents
+
+- Schema
+- Filter Syntax
+- Properties
+- Formula Syntax
+- Key Functions
+- View Types
+- Default Summary Formulas
+- YAML Quoting Rules
+- Common Errors
+- Embedding Bases
+- Example: Task Tracker
+
 ## Schema
 
 `.base` files contain valid YAML:
