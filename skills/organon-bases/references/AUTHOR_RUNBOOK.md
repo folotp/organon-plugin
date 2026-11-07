@@ -39,7 +39,7 @@ Tell: Dataview returns the notes but Bases returns nothing → Excluded-files is
 
 ## Dataview dv-light optimised config
 
-If PA authorizes Dataview, the vault runs `dv-light` tuned per [[VLT-BL-0037]] (×5–11 latency penalty avoided). Settings live in `.obsidian/plugins/dataview/data.json`. Do not enable Dataview features that bypass this config; if MCP latency degrades, that file is the first diagnostic.
+If PA authorizes Dataview, the vault runs `dv-light` tuned per [[Pièges connus — Claude × Organon]] (×5–11 latency penalty avoided). Settings live in `.obsidian/plugins/dataview/data.json`. Do not enable Dataview features that bypass this config; if MCP latency degrades, that file is the first diagnostic.
 
 ## Filters keyed on Organon vocabularies
 

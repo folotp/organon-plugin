@@ -31,8 +31,8 @@ table.
 
 The original P6.2/P7.1 measurements (1.38× and 1.55× respectively) were
 run inside chat sessions whose detailed methodology was not preserved
-in any vault note or repo artifact ([[VLT-BL-0063]] explicitly flags
-this: « détail non préservé dans l'archive »). Reconstructing them
+in any vault note or repo artifact (the kepano-absorption backlog item
+flagged this at closure: « détail non préservé dans l'archive »). Reconstructing them
 exactly is infeasible. Rather than fabricate a ratio with false
 precision, this harness redefines the measurement protocol cleanly so
 future iterations are reproducible.
@@ -193,9 +193,9 @@ freezes a new iteration in `eval-workspace/iteration-N/`.
 ## Provenance
 
 - Author: Claude (this session, 2026-05-06).
-- Commissioned by: PA, follow-up to VLT-BL-0063 closure (the formal
+- Commissioned by: PA, follow-up to the kepano-absorption backlog item's closure (the formal
   P6.2 harness measurement bullet was deferred at closure).
 - Replaces: the original P6.2/P7.1 chat-archived methodology that was
   not preserved.
 - Referenced by: [[VLT-ADR-013]] (target ≥ 3-5× session, ≥ 2.15×
-  B4-complet), [[VLT-BL-0063]] (formal harness measurement deferred).
+  B4-complet).
