@@ -66,7 +66,7 @@ PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$HOME/Developer/organon-plugin}"
 
 Read:
 
-- `${PLUGIN_ROOT}/.claude-plugin/plugin.json` → version, name, description.
+- `${PLUGIN_ROOT}/plugin.json` → version, name, description.
 - `${PLUGIN_ROOT}/kepano-version.txt` → pinned upstream sha for absorbed kepano content.
 - `${PLUGIN_ROOT}/skills/*/SKILL.md` frontmatter blocks → canonical skill names + descriptions + `disable-model-invocation` flag.
 - `${PLUGIN_ROOT}/commands/*.md` → published slash commands.

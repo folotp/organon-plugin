@@ -34,7 +34,7 @@ Source roots, in this order:
 2. `skills/*/SKILL.md` and everything under `skills/*/references/`
 3. `commands/*.md`
 4. `docs/*.md`
-5. `.claude/agents/*.md` (includes symlinks to skill-exclusive agents in `skills/<name>/`)
+5. `agents/*.md` and `.claude/agents/*.md`
 6. `.claude/CLAUDE.md` (and any nested `*/CLAUDE.md`)
 
 For each `.md` file, extract:
@@ -107,8 +107,7 @@ Replace with a **whitelist-driven** check:
 # Build the authoritative list of real skills + commands + agents.
 SKILLS="$(ls -d "$REPO_ROOT"/skills/*/ 2>/dev/null | xargs -n1 basename)"
 COMMANDS="$(ls "$REPO_ROOT"/commands/*.md 2>/dev/null | xargs -n1 basename | sed 's/\.md$//')"
-AGENTS="$(ls "$REPO_ROOT"/.claude/agents/*.md 2>/dev/null | xargs -n1 basename | sed 's/\.md$//')"
-# Note: ls follows symlinks, so skill-exclusive agents in skills/<name>/ are included via their symlinks.
+AGENTS="$(ls "$REPO_ROOT"/agents/*.md "$REPO_ROOT"/.claude/agents/*.md 2>/dev/null | xargs -n1 basename | sed 's/\.md$//')"
 ```
 
 A prose token is a component-name claim only if it appears in one of these forms:
@@ -146,7 +145,7 @@ Files scanned: <N>   Links extracted: <M>   Bare paths: <K>
 | 2. skills/ (SKILL.md + refs)    | MATCH / DRIFT | <one-line> |
 | 3. commands/                    | MATCH / DRIFT | <one-line> |
 | 4. docs/                        | MATCH / DRIFT | <one-line> |
-| 5. .claude/agents/ (+ skills/*/ agents) | MATCH / DRIFT | <one-line> |
+| 5. agents/ + .claude/agents/ | MATCH / DRIFT | <one-line> |
 | 6. .claude/CLAUDE.md (+ nested) | MATCH / DRIFT | <one-line> |
 | 7. Cross-skill name references  | MATCH / DRIFT | <one-line; cite missing skill/command names> |
 

@@ -2,7 +2,7 @@
 
 Render inline in conversation. Write to file only if PA explicitly asks — conversation is the persistence.
 
-`Stable run hash`: sha256 of `(.claude-plugin/plugin.json content + kepano-version.txt content + canonical vault note body + companion matrix body)`. Same hash on two consecutive runs = pole 1 + pole 2 unchanged.
+`Stable run hash`: sha256 of `(plugin.json content + kepano-version.txt content + canonical vault note body + companion matrix body)`. Same hash on two consecutive runs = pole 1 + pole 2 unchanged.
 
 ## Contents
 
