@@ -92,7 +92,7 @@ This pattern still produces false positives — a path inside a code block refer
 
 ### Pattern C — cross-skill references
 
-Skills reference siblings by name in prose: `the kepano-resync skill`, `organon-frontmatter`, `organon-vault-write`. These map 1:1 to `skills/<name>/SKILL.md`. If the prose mentions a skill name with a leading `/` (`/kepano-resync`) it's also a slash-command claim, mapping to `commands/<name>.md`.
+Skills reference siblings by name in prose: `the organon-vault-read skill`, `organon-frontmatter`, `organon-vault-write`. These map 1:1 to `skills/<name>/SKILL.md`. If the prose mentions a skill name with a leading `/` (`/organon-memory-audit`) it's also a slash-command claim, mapping to `commands/<name>.md`.
 
 #### Whitelist resolution (calibrated 2026-05)
 
@@ -110,15 +110,15 @@ AGENTS="$(ls "$REPO_ROOT"/.claude/agents/*.md 2>/dev/null | xargs -n1 basename |
 
 A prose token is a component-name claim only if it appears in one of these forms:
 
-- Backtick-wrapped: `` `organon-frontmatter` ``, `` `kepano-resync` ``, `` `kepano-drift-resolver` ``.
-- Slash-prefixed: `/kepano-resync`, `/organon-memory-audit` (slash-command form).
-- Quoted with the literal word "skill", "subagent", or "agent" in the same sentence: `"the kepano-resync skill"`, `"the markdown-link-validator subagent"`, `"the release-readiness agent"`.
+- Backtick-wrapped: `` `organon-frontmatter` ``, `` `organon-vault-read` ``, `` `release-readiness` ``.
+- Slash-prefixed: `/organon-memory-audit` (slash-command form).
+- Quoted with the literal word "skill", "subagent", or "agent" in the same sentence: `"the organon-vault-read skill"`, `"the markdown-link-validator subagent"`, `"the release-readiness agent"`.
 
 Match the captured token against the union of `$SKILLS`, `$COMMANDS`, and `$AGENTS`. The slash-prefixed form matches `$COMMANDS` only (slash commands map to `commands/*.md`); the other two forms can match any of the three sets. Compound nouns (`vault-side`, `plugin-dev`, `kepano-absorbed`) miss all three forms and are not considered claims.
 
 DRIFT: a token in one of the three forms doesn't appear in any whitelist. Could be a typo or a removed component still referenced in prose.
 
-Why include `$AGENTS`: the spec's own example uses `"the markdown-link-validator subagent"`, and `CLAUDE.md` / `README.md` mention `kepano-drift-resolver` in backticks. Without the agent whitelist, every agent name in prose is reported as drift on a clean tree.
+Why include `$AGENTS`: the spec's own example uses `"the markdown-link-validator subagent"`, and `README.md` mentions agents such as `release-readiness` in backticks. Without the agent whitelist, every agent name in prose is reported as drift on a clean tree.
 
 ## Resolution rules
 

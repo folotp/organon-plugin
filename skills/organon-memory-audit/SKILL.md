@@ -1,6 +1,6 @@
 ---
 name: organon-memory-audit
-description: Three-pole drift audit and instruction-quality checks over Organon-related memory and instruction stores. User-only (`/organon-memory-audit`). Surface-aware (Code/Cowork/Chat). Flags: `--scope=global|project|all`, `--mode=interactive|report-only`, `--checks=drift|quality|all`. Edits never auto-applied — findings raised for per-item human triage.
+description: "Three-pole drift audit and instruction-quality checks over Organon-related memory and instruction stores. User-only (`/organon-memory-audit`). Surface-aware (Code/Cowork/Chat). Flags: `--scope=global|project|all`, `--mode=interactive|report-only`, `--checks=drift|quality|all`. Edits never auto-applied — findings raised for per-item human triage."
 disable-model-invocation: true
 allowed-tools:
   - Agent

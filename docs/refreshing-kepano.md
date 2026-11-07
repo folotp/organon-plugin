@@ -22,11 +22,17 @@ The plugin pins one upstream sha for `kepano/obsidian-skills` in `kepano-version
 | `skills/organon-bases/references/FUNCTIONS_REFERENCE.md` | `skills/obsidian-bases/references/FUNCTIONS_REFERENCE.md` |
 | `skills/organon-canvas/references/CANVAS_SPEC.md` | `skills/json-canvas/SKILL.md` |
 | `skills/organon-canvas/references/EXAMPLES.md` | `skills/json-canvas/references/EXAMPLES.md` |
-| `skills/organon-diagramming/references/MERMAID_SYNTAX.md` | `skills/mermaid/SKILL.md` |
-| `skills/organon-frontmatter/references/PROPERTIES.md` | `skills/obsidian-frontmatter/references/PROPERTIES.md` |
+| `skills/organon-diagramming/references/MERMAID_SYNTAX.md` | none (upstream has no mermaid skill) |
+| `skills/organon-frontmatter/references/PROPERTIES.md` | `skills/obsidian-markdown/references/PROPERTIES.md` |
 | `skills/organon-markdown-style/references/CALLOUTS.md` | `skills/obsidian-markdown/references/CALLOUTS.md` |
 | `skills/organon-markdown-style/references/EMBEDS.md` | `skills/obsidian-markdown/references/EMBEDS.md` |
 | `skills/organon-markdown-style/references/MARKDOWN_SYNTAX.md` | `skills/obsidian-markdown/SKILL.md` |
+
+## Local adaptations to preserve
+
+Upstream links are relative to the upstream layout. Keep these rewrites when adopting new content, and check links with the `markdown-link-validator` agent after a refresh:
+
+- `skills/organon-markdown-style/references/MARKDOWN_SYNTAX.md`: `references/EMBEDS.md` → `EMBEDS.md`, `references/CALLOUTS.md` → `CALLOUTS.md`, `references/PROPERTIES.md` → `../../organon-frontmatter/references/PROPERTIES.md`.
 
 ## Markers
 

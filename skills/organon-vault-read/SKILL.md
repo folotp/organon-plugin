@@ -1,6 +1,6 @@
 ---
 name: organon-vault-read
-description: Use before any MCP read against the Organon vault (path contains `Organon`) when the target path is not already hardcoded by another skill or given verbatim by PA. Routes the read to the cheapest tool that returns enough information — atomic frontmatter (`get_note_property`), partial reads (`get_vault_file_partial` modes: frontmatter / heading / block / document-map), graph nav (`get_backlinks`, `get_outgoing_links`), tag and property indexes (`list_tags`, `get_files_by_tag`, `list_property_values`), search (`search_vault_smart` → `search_vault_simple` fallback, `search_vault` DQL/JsonLogic, `execute_dataview_query` in-process), or `get_recent_files`. Reserves full `get_vault_file` for cases where the entire body is genuinely required.
+description: "Use before any MCP read against the Organon vault (path contains `Organon`) when the target path is not already hardcoded by another skill or given verbatim by PA. Routes the read to the cheapest tool that returns enough information — atomic frontmatter (`get_note_property`), partial reads (`get_vault_file_partial` modes: frontmatter / heading / block / document-map), graph nav (`get_backlinks`, `get_outgoing_links`), tag and property indexes (`list_tags`, `get_files_by_tag`, `list_property_values`), search (`search_vault_smart` → `search_vault_simple` fallback, `search_vault` DQL/JsonLogic, `execute_dataview_query` in-process), or `get_recent_files`. Reserves full `get_vault_file` for cases where the entire body is genuinely required."
 ---
 
 # organon-vault-read

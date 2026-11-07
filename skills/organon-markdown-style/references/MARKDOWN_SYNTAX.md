@@ -26,7 +26,7 @@ Adapted from kepano/obsidian-skills@fa1e131. See docs/refreshing-kepano.md.
 | `![[image.png\|300]]` | Embed with width |
 | `![[document.pdf#page=3]]` | Embed PDF page |
 
-See [EMBEDS.md](references/EMBEDS.md) for audio, video, search embeds.
+See [EMBEDS.md](EMBEDS.md) for audio, video, search embeds.
 
 ## Callouts
 
@@ -41,7 +41,7 @@ See [EMBEDS.md](references/EMBEDS.md) for audio, video, search embeds.
 > Foldable (- collapsed, + expanded).
 ```
 
-Common types: `note`, `tip`, `warning`, `info`, `example`, `quote`, `bug`, `danger`, `success`, `failure`, `question`, `abstract`, `todo`. See [CALLOUTS.md](references/CALLOUTS.md) for full list.
+Common types: `note`, `tip`, `warning`, `info`, `example`, `quote`, `bug`, `danger`, `success`, `failure`, `question`, `abstract`, `todo`. See [CALLOUTS.md](CALLOUTS.md) for full list.
 
 ## Properties (Frontmatter)
 
@@ -57,7 +57,7 @@ cssclasses:
   - custom-class
 ```
 
-See [PROPERTIES.md](references/PROPERTIES.md) for all types. Tags searchable; aliases improve link suggestions.
+See [PROPERTIES.md](../../organon-frontmatter/references/PROPERTIES.md) for all types. Tags searchable; aliases improve link suggestions.
 
 ## Inline Tags
 

@@ -122,7 +122,7 @@ re-runs the measurement.
 S11-S13 added in v1.1.0 to measure the post-refactor leverage of atomic
 frontmatter tools, partial reads, and the Rule 8 semantic pre-filter.
 These shapes were not measurable before the connector exposed the new
-tools and the vault-read skill was authored.
+tools and the organon-vault-read skill was authored.
 
 Sessions S01, S03, S04, S08, S09 are the « lean » shapes where the
 absorption savings are largest (eager cascade load avoided entirely).
