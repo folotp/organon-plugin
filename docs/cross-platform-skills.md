@@ -23,7 +23,11 @@ One set of Organon rules for every AI agent. `skills/` is the single source; eac
 
 ## Manifest
 
-Root `plugin.json` is the version source. `.claude-plugin/plugin.json` is a symlink to it, because Claude Code documents that path and not the root one.
+Root `plugin.json` is the version source. `.claude-plugin/plugin.json` is a symlink to it, because Claude Code reads that path and not the root one.
+
+Keep the symlink. Without it, Claude Code still loads the plugin but reports no version (tested 2026-11-07). A separate Claude manifest would need its own version number, and the release bumps only one file.
+
+Claude Desktop warns that `$schema` is an unrecognized key and strips it. That warning is expected and harmless: Agent Plugins requires the key in the root file, and Claude ignores it.
 
 Claude Code only loads subagents from `agents/`, and doesn't follow a symlink there. It doesn't load a plugin's `.claude/agents/`.
 
