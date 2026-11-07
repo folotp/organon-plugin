@@ -89,6 +89,8 @@ This pattern still produces false positives — a path inside a code block refer
 - Only flag paths that look like real on-disk shapes (extensions in the allowlist above).
 - Skip lines inside fenced code blocks (` ``` … ``` `) when the language is `text`, `console`, `bash`, `sh`, or unspecified — those are example outputs, not claims.
 - Skip lines inside fenced code blocks tagged `diff` or `patch` — those cite removed paths.
+- Skip the `## Changes since v0.1.0` section of `README.md` — the changelog records paths as they were at each release.
+- Skip mentions labelled as retired in the same sentence ("no longer exists", "before v1.0.0", "pre-v1.0.0") — those describe past design, not current files.
 
 ### Pattern C — cross-skill references
 

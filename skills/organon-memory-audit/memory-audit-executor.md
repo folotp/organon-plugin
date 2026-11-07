@@ -116,7 +116,7 @@ If MCP is unavailable (web/mobile chat without a connector): degrade to paste-dr
 
 For each per-surface bloc inside the canonical doc, check it against pole 1:
 
-- Skill list claimed in the bloc matches `plugin.json` + `skills/*/SKILL.md` frontmatter names.
+- Skill list claimed in the bloc matches `.claude-plugin/plugin.json` + `skills/*/SKILL.md` frontmatter names.
 - MCP server floor matches the requirement that the plugin actually depends on (read it from a representative SKILL.md or the README).
 - `description:` strings claimed in the bloc match the actual frontmatter descriptions of the listed skills.
 
@@ -176,7 +176,7 @@ For each in-scope finding, classify into exactly one bucket:
 
 Memory asserts a fact (skill name, version, file path, behavioral rule, vocabulary value) that contradicts current plugin state or the canonical vault note. Examples:
 
-- Memory says `mcp-tools-istefox 0.3.12+` but `plugin.json`'s effective floor is `0.4.5+`.
+- Memory says `mcp-tools-istefox 0.3.12+` but `.claude-plugin/plugin.json`'s effective floor is `0.4.5+`.
 - Memory references `organon-vault-write` heading-patch guidance using a wording that contradicts the current SKILL.md.
 - Memory names a file path that no longer exists or has been renamed.
 

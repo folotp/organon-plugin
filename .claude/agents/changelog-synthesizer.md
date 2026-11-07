@@ -22,7 +22,7 @@ If the repo root or new version is missing, stop and ask. Do not guess the versi
 
 ## Out of scope (escalate, don't auto-fix)
 
-- **Editing `plugin.json`, tags, or any source file.** Read-only. Never.
+- **Editing `.claude-plugin/plugin.json`, tags, or any source file.** Read-only. Never.
 - **Calling `gh release create` or `git push`.** Never. The dispatcher decides if/when to publish.
 - **Writing to a file.** Print to stdout only — keeps the agent purely transformational. The dispatcher captures stdout and routes it.
 - **Inferring the version bump category** (patch/minor/major). The maintainer has already bumped before this agent runs; the agent reflects, doesn't decide.
