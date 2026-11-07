@@ -36,7 +36,7 @@ The audit reads pole 1 + pole 2, walks every pole-3 target reachable from the cu
 Parse from the dispatching turn's prompt (the slash-command wrapper forwards them verbatim). Defaults if absent: `--scope=global --mode=interactive --checks=drift`.
 
 - `--scope=global` (default) — current surface's global store + canonical doc + plugin reality.
-- `--scope=project[=<slug>]` — project-specific stores. On Code: `<repo>/CLAUDE.md`, `<repo>/CLAUDE.local.md`, `~/.claude/projects/<slug>/memory/`. If `<slug>` omitted, current CWD project. On Cowork: current project's folder + project instructions + memory.
+- `--scope=project[=<slug>]` — project-specific stores. On Code: `<repo>/CLAUDE.md` or `<repo>/.claude/CLAUDE.md`, `<repo>/CLAUDE.local.md`, `~/.claude/projects/<slug>/memory/`. If `<slug>` omitted, current CWD project. On Cowork: current project's folder + project instructions + memory.
 - `--scope=all` — global + every reachable project on the current surface. Code only (Cowork/Chat have no cross-project reach; treat as `--scope=global` plus current project).
 - `--mode=interactive` (default) — emit report, then return findings to the caller, which walks them per finding (`SKILL.md`). This agent has no prompt or write tool.
 - `--mode=report-only` — emit report and exit. Required for scheduled runs (no PA in the loop). PA can later resume triage interactively by pasting the report back.
@@ -129,7 +129,7 @@ Any mismatch → Bucket 4 (canonical-snippets edit), even if pole 3 is not yet r
 | Scope mode | Targets read |
 |---|---|
 | `--scope=global` (default) | `~/.claude/CLAUDE.md` |
-| `--scope=project[=<slug>]` | `<repo>/CLAUDE.md`, `<repo>/CLAUDE.local.md`, `~/.claude/projects/<slug>/memory/MEMORY.md` + every entry it points to |
+| `--scope=project[=<slug>]` | `<repo>/CLAUDE.md` or `<repo>/.claude/CLAUDE.md`, `<repo>/CLAUDE.local.md`, `~/.claude/projects/<slug>/memory/MEMORY.md` + every entry it points to |
 | `--scope=all` | union of the above for every project under `~/.claude/projects/*/` |
 
 Slug resolution for `--scope=project` (no explicit slug): convert current CWD to the slug form `~/.claude/projects/` uses (e.g. `/Users/pierreandre/Developer/organon-plugin` → `-Users-pierreandre-Developer-organon-plugin`).

@@ -35,7 +35,7 @@ Source roots, in this order:
 3. `commands/*.md`
 4. `docs/*.md`
 5. `.claude/agents/*.md` (includes symlinks to skill-exclusive agents in `skills/<name>/`)
-6. `CLAUDE.md` (repo root and any nested `*/CLAUDE.md`)
+6. `.claude/CLAUDE.md` (and any nested `*/CLAUDE.md`)
 
 For each `.md` file, extract:
 
@@ -70,8 +70,9 @@ kepano-sync.json
 vault-sync.json
 plugin.json
 README.md
-CLAUDE.md
 ```
+
+Bare `CLAUDE.md` is not extracted: it can mean any project's file, and this repo's lives at `.claude/CLAUDE.md`.
 
 Resolve each as `<REPO_ROOT>/<filename>` and apply the same multi-base resolution rules below. Add a new entry to this allowlist only when a new root-level file actually starts being mentioned by name in prose — the list is small on purpose, since the false-positive risk grows with breadth.
 
@@ -146,7 +147,7 @@ Files scanned: <N>   Links extracted: <M>   Bare paths: <K>
 | 3. commands/                    | MATCH / DRIFT | <one-line> |
 | 4. docs/                        | MATCH / DRIFT | <one-line> |
 | 5. .claude/agents/ (+ skills/*/ agents) | MATCH / DRIFT | <one-line> |
-| 6. CLAUDE.md (root + nested)    | MATCH / DRIFT | <one-line> |
+| 6. .claude/CLAUDE.md (+ nested) | MATCH / DRIFT | <one-line> |
 | 7. Cross-skill name references  | MATCH / DRIFT | <one-line; cite missing skill/command names> |
 
 Verdict: CONSISTENT | DRIFT-FOUND

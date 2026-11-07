@@ -216,3 +216,7 @@ Cowork: click "Install plugin" when this `.plugin` file appears in chat. The 8 d
 ## Author
 
 Pierre-André Folot · 2026-04-29 · Phase 5 wave 1 chat 1.B of the Claude × Organon refactor.
+
+## License
+
+MIT. See [`LICENSE`](LICENSE), which also carries the notice for the kepano-absorbed references.

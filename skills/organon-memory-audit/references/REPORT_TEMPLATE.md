@@ -64,7 +64,7 @@ For each finding:
 
 For each finding:
 
-- **Store**: <~/.claude/CLAUDE.md | <repo>/CLAUDE.md | Settings → General | Cowork → Global | Cowork folder | Cowork project | claude.ai project>
+- **Store**: <~/.claude/CLAUDE.md | <repo>/CLAUDE.md or <repo>/.claude/CLAUDE.md | Settings → General | Cowork → Global | Cowork folder | Cowork project | claude.ai project>
 - **Location**: <path | "paste-only — skill cannot write">
 - **Current**:
   ```
