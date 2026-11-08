@@ -39,6 +39,10 @@ compatibility: Requires the Organon MCP connector.
 
 **`creator:` dual-mode** — UI → `Pierre-André Folot`, no `source/ia` tag. New note via MCP → the product you are: Gemini writes `Gemini`, ChatGPT writes `ChatGPT`, Claude writes `Claude`; add `source/ia`. `Claude` from a template, prelude or copied skeleton is not a default for other agents: correct it before persisting. Editing an existing note → keep its `creator:`.
 
+**Drafts = full note.** New note, written or only drafted (writes unavailable or refused) → show the complete frontmatter block, not body alone. Same keys, order and rules as a written note.
+
+**`up:` on new notes** — always include, even in a draft: parent Index (e.g. `[[Index — Concepts]]` for `type: concept`), placed before `tags:`. No existing parent found → say so instead of dropping the key silently.
+
 **Links** — before using `[[target]]` in `up:` or another key, confirm the note exists with a vault search. Not found → omit it and say so; never invent a target.
 
 **`creator` vs `author`** — `creator` = Organon note author. `author` = external work's author (`type: book` only).
