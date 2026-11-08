@@ -58,11 +58,12 @@ This convention applies when hand-authoring the full JSON (the `create_vault_fil
 
 `.canvas` is JSON, not markdown — `patch_vault_file targetType: heading|block|frontmatter` does not apply. Two paths, pick by scope of the edit:
 
-- **Incremental edit (add/connect a handful of nodes, or start a new canvas)** — use the structured canvas tools, not raw JSON:
-  0. **First use in a session**: call `activate_tools{ names: ["get_canvas", "add_canvas_node", "connect_canvas_nodes"] }`. The connector's adaptive tool-loading marks these inactive until promoted, and that promotion is in-memory on the connector process — it doesn't survive an Obsidian restart or plugin reload, and nothing here can rely on some earlier session having activated them. The call is idempotent (a no-op if already active), so always make it rather than assuming.
+- **Incremental edit (add, connect, change or remove a handful of nodes, or start a new canvas)** — use the structured canvas tools, not raw JSON:
+  0. **First use in a session**: call `activate_tools{ names: ["get_canvas", "add_canvas_node", "connect_canvas_nodes", "update_canvas_node", "delete_canvas_node"] }`. The connector's adaptive tool-loading marks these inactive until promoted, and that promotion is in-memory on the connector process — it doesn't survive an Obsidian restart or plugin reload, and nothing here can rely on some earlier session having activated them. The call is idempotent (a no-op if already active), so always make it rather than assuming.
   1. `get_canvas` to read the current nodes/edges (skip if the canvas doesn't exist yet — `add_canvas_node` creates it).
   2. `add_canvas_node` per new node (`type: file|link|text`, plus `file`/`url`/`text` and position/size). Capture the id it returns.
   3. `connect_canvas_nodes` per new edge, referencing node ids from step 1 (existing nodes) or step 2 (new nodes).
+  4. `update_canvas_node` to change an existing node in place (content, `color`, position, size) — keeps its id and edges. `delete_canvas_node` removes a node and every edge attached to it (no dangling edges).
   This avoids hand-rolling JSON and the ID-collision/malformed-JSON risk that comes with it.
 - **Wholesale rewrite (restructuring most of the canvas, or a layout too large/fiddly to build node-by-node)** — fall back to `create_vault_file` (full replace) with hand-authored JSON per `references/CANVAS_SPEC.md`. NFC normalization on the path still applies (cf. `organon-vault-write`). Validate JSON parses before writing.
 

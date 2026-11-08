@@ -1,6 +1,6 @@
 ---
 name: organon-vault-write
-description: Use before any MCP write against the Organon vault (path contains `Organon`) — `set_note_property` / `delete_note_property` for atomic frontmatter, `patch_vault_file` / `create_vault_file` / `append_to_vault_file` for body, `rename_heading` / `rename_vault_file` for link-safe rename, `execute_template` for structured shapes. Mandates atomic-always frontmatter writes, canonical template paths (BL/BUG/INC/ADR + Note/Concept/Person/Book/Quote/Index/Organization), heading-patch safety incl. fenced-code H2 trap, EJS-literal Templater invariants, NFC normalisation.
+description: Use before any MCP write against the Organon vault (path contains `Organon`) — `set_note_property` / `delete_note_property` / `update_note_properties` for atomic frontmatter, `patch_vault_file` / `create_vault_file` / `append_to_vault_file` for body, `rename_heading` / `rename_vault_file` for link-safe rename, `execute_template` for structured shapes. Mandates atomic-always frontmatter writes, canonical template paths (BL/BUG/INC/ADR + Note/Concept/Person/Book/Quote/Index/Organization), heading-patch safety incl. fenced-code H2 trap, EJS-literal Templater invariants, NFC normalisation.
 license: MIT
 compatibility: Requires the Organon MCP connector.
 ---
@@ -13,18 +13,22 @@ Write tools missing → say writes aren't available, then show the full draft in
 
 Edge cases → `get_vault_file('99 - Méta/AI/Vault Conventions.md')`. Read-side → `organon-vault-read`.
 
-## MCP write-tool surface (mcp-tools-istefox ≥ 2.1.0)
+## MCP write-tool surface (connector ≥ 3.3.0)
 
 | Tool | Use for | Notes |
 |---|---|---|
 | `set_note_property` | Add/update single frontmatter key | Atomic. Bypasses full-frontmatter revalidation. Preferred over `patch_vault_file targetType:frontmatter`. |
 | `delete_note_property` | Remove single frontmatter key | Atomic. |
+| `update_note_properties` | Set and/or remove several keys on one note | One atomic write, one file version, one undo step. Preferred over looping `set_note_property` for 2+ keys on the same note. |
 | `patch_vault_file` | Heading / block / multi-key frontmatter rewrite | `targetType`: `heading` \| `block` \| `frontmatter`. `operation` REQUIRED, **no default** — `replace`/`append`/`prepend`. Prefer atomic tools for frontmatter. Heading/block patches and `replace` have edge cases — `references/EDGE_CASES.md`. |
 | `search_and_replace` | Regex find/replace, vault-wide or scoped | `dry_run:true` is the **default** safety gate — pass `false` to apply. `g` flag always injected. ReDoS-guarded. Scope via `scope`. |
 | `create_vault_file` | Create note with full content | Auto-creates missing parent dirs (≥ 0.4.5). |
 | `append_to_vault_file` | Append raw content to existing note | Caller responsible for idempotency. |
 | `rename_heading` | Rename heading + update all vault refs | Link-safe. Replaces patch + manual sweep. |
 | `rename_vault_file` | Rename file + preserve all incoming links | Link-safe. Replaces filesystem rename + sweep. |
+| `rename_tag` | Rename a tag vault-wide | Inline `#tag` + `tags:` frontmatter, nested tags follow. Skips code blocks/URLs. Vault-wide blast radius → confirm with PA first. |
+| `ensure_block_id` | Get or create a `^block-id` | Returns existing id if present. Only for a link PA asked for — no systematic anchors (`organon-markdown-style`). |
+| `set_task_status` | Tick/untick one task | Only the `[ ]` status char changes. Replaces patch on task lines. |
 | `execute_template` | Render Templater template | `createFile:false` → returns rendered string; `createFile:true` → creates file at `targetPath`. `arguments` is `{string:string}`. |
 | `get_or_create_daily_note` / `get_or_create_periodic_note` | Ensure + return periodic note | Idempotent. `unavailable` on connector; confirm via `tool_catalog`. |
 | `append_to_periodic_note` | Append to periodic note (today or specified) | `unavailable` on connector; confirm via `tool_catalog`. |
@@ -32,22 +36,24 @@ Edge cases → `get_vault_file('99 - Méta/AI/Vault Conventions.md')`. Read-side
 
 ## On-demand tools — activate before first use
 
-Inactive by default, not in persisted set (`docs/mcp-tool-loading.md`): `rename_heading`,
-`create_vault_directory`,
-`delete_vault_directory`, `delete_vault_file`. First use per session:
+Inactive by default (`docs/mcp-tool-loading.md` Tier B): `update_note_properties`, `rename_tag`,
+`ensure_block_id`, `set_task_status`, `create_vault_directory`, `delete_vault_directory`,
+`delete_vault_file`. First use per session:
 
-`activate_tools{ names: [...above] }`, `persist:false` (default).
+`activate_tools{ names: [...needed] }`, `persist:false` (default).
 
-In-memory, connector-process-scoped, idempotent.
+In-memory, connector-process-scoped, idempotent. Promotion state drifts: a write tool from this skill
+missing from your tool list → `activate_tools` it before concluding it's unavailable. Doesn't apply to a
+read-only token: there the write tools aren't exposed at all (see top).
 
 ## Atomic-always for frontmatter (canonical)
 
-Use atomic tools (`set_note_property`, `delete_note_property`) over `patch_vault_file targetType:frontmatter`. Two reasons:
+Use atomic tools (`set_note_property`, `delete_note_property`, `update_note_properties`) over `patch_vault_file targetType:frontmatter`. Two reasons:
 
-1. **Safer.** Single-key in-place update; malformed scalar elsewhere doesn't block the edit.
-2. **Cheaper.** Wire payload `{ path, key, value }` vs JSON-encoded full-frontmatter rewrite.
+1. **Safer.** Keys updated in place via `processFrontMatter`; malformed scalar elsewhere doesn't block the edit.
+2. **Cheaper.** Payload carries only the changed keys vs JSON-encoded full-frontmatter rewrite.
 
-Multi-key edits: loop the atomic call. Safety and token-economy over speed.
+Multi-key edits on one note: `update_note_properties` (one write, one undo step) — check its schema for the set/remove params. Tool unavailable → loop `set_note_property` / `delete_note_property`.
 
 `patch_vault_file targetType:frontmatter` retained for: (a) bulk rewrite reshaping an entire key set, (b) legacy toolchains pinned below 0.6.0.
 
@@ -153,9 +159,9 @@ Path: `99 - Méta/Templates/Supersede-ADR-template.md`. Three-call MCP sequence 
 | BUG (VLT-BUG) | `titre` | `severity` (default `minor`), `component`, `first_incident`, `last_occurrence` |
 | INC (VLT-INC) | `titre`, `surface`, `layer`, `tool`, `operation` | — |
 
-**INC `surface` is controlled-vocab** — allowed: `claude-ai-web`, `claude-ai-mobile`, `cowork`, `desktop-chat`, `dispatch`, `claude-code`. Any other value fails-loud server-side (*"value '…' is not in the controlled vocabulary"*). Map the session's surface; don't pass freeform.
+**INC `surface` is controlled-vocab** — allowed: `claude-ai-web`, `claude-ai-mobile`, `cowork`, `desktop-chat`, `dispatch`, `claude-code`, `chatgpt`, `codex`, `gemini` (full list: `organon-frontmatter` `references/VOCABULARIES.md`). Any other value fails-loud server-side (*"value '…' is not in the controlled vocabulary"*). Map the session's surface; don't pass freeform.
 
-**BUG post-create side-effect (manual).** Templater can't mutate sibling notes. After creating a BUG, each linked incident still needs `bug:` set + `status: assigned` applied afterward (loop `set_note_property` per incident note).
+**BUG post-create side-effect (manual).** Templater can't mutate sibling notes. After creating a BUG, each linked incident still needs `bug:` set + `status: assigned` applied afterward (one `update_note_properties` per incident note).
 
 ## Templater invariants (when authoring or debugging a template)
 
@@ -198,6 +204,7 @@ Doing a heading/block patch or a `replace` operation → `references/EDGE_CASES.
 | Rename heading + update all `[[Note#Heading]]` refs | `rename_heading` | Vault-wide sweep by connector. Replaces patch + manual `[[…#…]]` grep. |
 | Rename file + preserve all `[[Name]]` | `rename_vault_file` | Incoming links rewritten. Replaces filesystem rename + sweep. |
 | Move file across folders | `rename_vault_file` with new path | Same link preservation. |
+| Rename tag everywhere | `rename_tag` | Replaces `search_and_replace` on `#tag` + per-note `tags:` edits. |
 
 Do not rename via `create_vault_file` + `delete_vault_file` — breaks all incoming `[[…]]`.
 

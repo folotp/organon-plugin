@@ -43,7 +43,7 @@ Before calling `get_vault_file` on unknown path (not hardcoded in skill or given
 
 **When to use:** Finding relevant notes, checking prior art, identifying context before multi-step task. Exempt: skill-hardcoded paths (`AI Bootstrap`, `Vault Conventions.md`, `references/*`), paths given explicitly by PA.
 
-**Result interpretation:** Results are similarity-ranked. Read in rank order, only when path (folder + title) plausibly matches query — `search_vault_smart` returns paths and scores, no body excerpts. Off-topic result (wrong domain folder, unrelated title) = skip.
+**Result interpretation:** Results are similarity-ranked. Read in rank order, only when path (folder + title) or excerpt plausibly matches query. Pass `compact:true` (path + score only) or a short `excerptLength`, and `groupByFile:true` so `limit` counts notes. Off-topic result (wrong domain folder, unrelated title) = skip.
 
 **Reading:** Prefer `get_vault_file_partial` (frontmatter / heading / document-map) over full `get_vault_file` — see `organon-vault-read` for decision tree. Stop when the question is answered. No plausible candidate → report to PA.
 

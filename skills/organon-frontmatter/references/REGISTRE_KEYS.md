@@ -152,7 +152,7 @@ Subdomains use global frontmatter + `id:` field: `FIN-HYP-*` (hypothesis), `FIN-
 | `id` | Stable identifier. | yes | string | `VLT-INC-NNNN` | Organon |
 | `type` | Record type. | yes | enum | `incident` | Organon |
 | `date` | Incident date. | yes | date | `YYYY-MM-DD` | Organon, ISO 8601 |
-| `surface` | Claude surface where incident occurred. | yes | enum | `claude-ai-web` \| `claude-ai-mobile` \| `cowork` \| `desktop-chat` \| `dispatch` \| `claude-code` | Organon |
+| `surface` | Agent surface where incident occurred. | yes | enum | `claude-ai-web` \| `claude-ai-mobile` \| `cowork` \| `desktop-chat` \| `dispatch` \| `claude-code` \| `chatgpt` \| `codex` \| `gemini` | Organon |
 | `layer` | Technical layer. | yes | enum | `mcp` \| `cli` \| `skill` \| `filesystem` \| `uri` \| `github` \| `framework` | Organon |
 | `tool` | Exact tool or command name. | yes | string | free | Organon |
 | `operation` | Operation type. | yes | enum | `read` \| `write` \| `patch` \| `delete` \| `search` \| `list` \| `rename` \| `config` \| `tool-discovery` | Organon |

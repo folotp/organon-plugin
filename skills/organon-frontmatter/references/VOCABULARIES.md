@@ -14,7 +14,7 @@ Lazy-loaded offline snapshot of closed vocabularies, kept deliberately for token
 - `vlt-bug-status`
 - `vlt-bug-severity`
 - `vlt-inc-status`
-- `vlt-inc-surface` (Claude interface)
+- `vlt-inc-surface` (agent interface)
 - `vlt-inc-layer` (technical layer)
 - `vlt-inc-operation` (operation type)
 - `domain` (functional domain)
@@ -167,9 +167,9 @@ Special case: not consumed by INC template (hardcodes `status: recorded` at crea
 | `assigned` | Promoted to bug (VLT-BUG opened, INC readonly) |
 | `superseded` | Reformulated; `superseded-by:` filled |
 
-## `vlt-inc-surface` (Claude interface)
+## `vlt-inc-surface` (agent interface)
 
-User interaction point at incident time.
+User interaction point at incident time. Claude surfaces are split per interface; other agents get one value per product.
 
 | Value | Meaning |
 |---|---|
@@ -179,6 +179,9 @@ User interaction point at incident time.
 | `desktop-chat` | Claude Desktop non-Cowork |
 | `dispatch` | Claude Dispatch |
 | `claude-code` | Claude Code CLI |
+| `chatgpt` | ChatGPT (web, Desktop, mobile) |
+| `codex` | OpenAI Codex (CLI, Desktop, cloud) |
+| `gemini` | Gemini (web, mobile, CLI) |
 
 ## `vlt-inc-layer` (technical layer)
 
