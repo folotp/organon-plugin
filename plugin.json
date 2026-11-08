@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "organon",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "Organon vault conventions for AI agents — 8 Agent Skills covering MCP read and write discipline (atomic frontmatter, partial reads, link-safe renames, in-process Dataview), frontmatter schema, body markdown style, session-discipline behavioral rules, Bases views, JSON Canvas cartography, and Mermaid/Excalidraw diagramming. Carries 9 kepano-adapted references pinned to one upstream sha (kepano-version.txt). Requires the Organon MCP connector; no bundled mcp.json. Claude surfaces also get subagents and the /organon-memory-audit command.",
   "author": {
     "name": "Pierre-André Folot"

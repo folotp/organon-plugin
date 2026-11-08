@@ -48,6 +48,12 @@ Net effect: when `organon-frontmatter` triggers (drafting an ADR / VLT-BUG / FIN
 
 Historical record: each entry cites paths and components as they were at that release, and many have since been retired.
 
+### v1.5.3 (Draft frontmatter and write refusal)
+
+- Drafts now require `up:` and the full frontmatter (#111, refs #75).
+- The write-refusal wording is tighter (#111).
+- Docs: retired VLT references now point at Pièges connus or an ADR (#110).
+
 ### v1.5.2 (Author subagent fixes)
 
 - `organon:canvas-author` can now read vault notes.
