@@ -65,6 +65,8 @@ Filename in French (em-dash for series, hyphen for codes). Exception: `99 - Mét
 
 `.base` is YAML. If a filter value contains `:`, apply scalar quoting rules per `organon-vault-write` to avoid YAML parse errors.
 
+Persist via `create_vault_file` (full replace; `.base` has no heading/block targets). Vault not on the local filesystem (cloud, Cowork) → MCP is the only write path; don't fall back to `Write`.
+
 ## References
 
 Load before authoring:

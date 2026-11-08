@@ -18,6 +18,7 @@ Agent({
 
 ## Args to forward
 
+- **Organon tool prefix** — the prefix the main session sees (`mcp__claude_ai_organon__` or `mcp__organon__`), or `none`. Executor fails loud if it sees none.
 - **Repo root absolute path** — absolute path to organon-plugin repo (e.g. `/Users/pierreandre/Developer/organon-plugin`). Required for pole 1 reads, integrity gate script.
 - **Per-pole scope flag** — forward `--scope=global`, `--scope=project[=<slug>]`, or `--scope=all` verbatim. Default: `--scope=global`.
 - **Interaction mode flag** — forward `--mode=interactive` or `--mode=report-only` verbatim. Default: `--mode=interactive`.
@@ -46,7 +47,7 @@ Before apply: re-read target, confirm current text still present. Moved → repo
 
 | Target | Write path |
 |---|---|
-| Vault note | Load `organon-vault-write` first; `mcp__claude_ai_organon__*` only, never raw file ops — keeps atomic frontmatter, link-safe patch and rename |
+| Vault note | Load `organon-vault-write` first; Organon MCP tools only (`mcp__claude_ai_organon__*` on Code/Desktop, `mcp__organon__*` in claude.ai cloud), never raw file ops — keeps atomic frontmatter, link-safe patch and rename |
 | `organon-*` skill | `Edit` in repo, on feature branch; on `main` → refuse, offer branch. Never commit from walk — change ships through normal PR flow |
 | No filesystem (Cowork/Chat), skill target | Recommendation only |
 | `~/.claude/CLAUDE.md`, project `CLAUDE.md`, memory files | `Edit` |

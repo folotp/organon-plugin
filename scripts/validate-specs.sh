@@ -3,6 +3,7 @@
 #
 # Agent Skills: every skills/*/ through the reference validator (skills-ref).
 # Agent Plugins 1.0.0: plugin.json against the published schema.
+# Agent tools: both Organon MCP prefixes listed (scripts/check-agent-tools.sh).
 # Dev-only dependency: uv. skills-ref is demonstration-grade upstream, so it's
 # a check here and never shipped.
 #
@@ -19,6 +20,7 @@ command -v uvx >/dev/null 2>&1 || {
 }
 
 status=0
+"$root/scripts/check-agent-tools.sh" || status=1
 for skill in "$root"/skills/*/; do
     uvx -q --from "$skills_ref" skills-ref validate "$skill" || status=1
 done

@@ -18,6 +18,7 @@ In-scope filter. Substring match, case-insensitive, unless marked exact-token.
 organon
 organon-plugin
 organon-vault-write
+organon-vault-read
 organon-frontmatter
 organon-markdown-style
 organon-session-discipline
@@ -49,12 +50,16 @@ frontmatter
 ```
 mcp-tools-istefox
 obsidian-mcp-tools
+organon-claude.folot.net
+mcp__claude_ai_organon__
+mcp__organon__
 MCP
 patch_vault_file
 create_vault_file
 append_to_vault_file
 execute_template
 get_vault_file
+get_vault_file_partial
 search_vault
 ```
 
