@@ -24,11 +24,13 @@ for agent in "$root"/agents/*.md; do
         while IFS= read -r tool; do
             [ -n "$tool" ] || continue
             name="${tool#"$prefix"}"
-            if ! printf '%s\n' "$tools" | grep -qx "${twin}${name}"; then
+            # Here-string, not a pipe: grep -q exits on first match, and under
+            # pipefail the producer's SIGPIPE (141) would fail the test.
+            if ! grep -qx "${twin}${name}" <<<"$tools"; then
                 echo "${agent#"$root"/}: ${tool} has no ${twin}${name} twin" >&2
                 status=1
             fi
-        done < <(printf '%s\n' "$tools" | grep "^${prefix}" || true)
+        done < <(grep "^${prefix}" <<<"$tools" || true)
     done
 done
 
