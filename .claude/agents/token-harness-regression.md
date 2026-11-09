@@ -30,11 +30,11 @@ If repo root is missing, stop and ask. Do not guess.
 ### 1. Verify dependencies
 
 ```bash
-command -v python3 >/dev/null && python3 -c "import tiktoken" 2>/dev/null
+command -v uv >/dev/null
 ```
 
-If `tiktoken` is missing, report DEGRADED with the install hint
-(`pip install --user tiktoken`) and stop. Do not attempt to install.
+If `uv` is missing, report DEGRADED with the hint "install uv (https://docs.astral.sh/uv/)" and stop.
+`tiktoken` needs no check: the script declares it inline (PEP 723) and `uv run` provides it. Never install with pip.
 
 ### 2. Discover the baseline
 
@@ -52,7 +52,7 @@ no iteration exists, report DEGRADED — there's nothing to compare against
 ### 3. Run the harness in dry-run mode
 
 ```bash
-cd "$REPO_ROOT" && python3 scripts/token-harness.py --no-write
+cd "$REPO_ROOT" && uv run scripts/token-harness.py --no-write
 ```
 
 Capture stdout. The harness prints per-session rows plus a summary block
