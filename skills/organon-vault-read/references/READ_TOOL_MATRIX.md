@@ -23,7 +23,7 @@ Cost classes: **S** = single field/scalar (cheapest). **M** = single section/hea
 | Recently edited notes | `get_recent_files` | S | Heuristic, not semantic. |
 | Size / dates / link counts | `get_file_info` (inactive) | S | No body. Size probe before full vs chunked read. |
 | Tasks across vault | `list_tasks` (inactive) | S–M | Metadata cache. |
-| Folder tree / attachments | `get_vault_tree`, `list_vault_folders`, `list_attachments` (inactive) | S | Empty folders included. |
+| Folder tree / attachments | `list_vault_folders`; `get_vault_tree`, `list_attachments` (inactive) | S | Empty folders included. |
 | Full body | `get_vault_file` | L | Last resort. |
 | Full body of 2+ known paths | `get_vault_files` | L (batched) | ≤ 20 paths/call, one round-trip. Per-path errors don't fail the batch. |
 | Full body + every linked note | `get_vault_file` (loop) | XL | Almost always wrong — re-rank first. |

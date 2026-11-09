@@ -28,33 +28,43 @@ mechanism).
 
 ## Tier A — loaded (`promoted` or baseline `active`)
 
-Snapshot: connector v3.3.0, `tool_catalog` 2026-11-08. `promoted` covers both deliberate `persist:true`
+Snapshot: connector v3.3.0, `tool_catalog` 2026-11-09. `promoted` covers both deliberate `persist:true`
 (#53) and auto-promotion at 3 calls; the catalog doesn't distinguish them.
 
 | Tool | Status | Owning skill |
 |---|---|---|
-| `get_vault_file_partial`, `get_vault_file`, `get_vault_files`, `get_note_property` | promoted | organon-vault-read |
+| `get_vault_file_partial`, `get_vault_file`, `get_vault_files`, `get_note_property`, `get_note_properties` | promoted | organon-vault-read |
+| `list_vault_folders` | promoted (auto, #121 probe 2026-11-09) | organon-vault-read |
 | `search_vault_simple`, `search_vault_smart`, `search_files_by_name`, `list_vault_files` | promoted | organon-vault-read, session-discipline Rule 8 |
 | `get_outgoing_links`, `get_backlinks`, `find_broken_links`, `get_files_by_tag`, `list_property_values`, `get_recent_files`, `execute_dataview_query` | promoted (auto) | organon-vault-read |
 | `patch_vault_file`, `search_and_replace`, `set_note_property`, `delete_note_property`, `append_to_vault_file`, `create_vault_file`, `execute_template`, `rename_vault_file`, `rename_heading` | promoted | organon-vault-write |
 | `get_server_info` | promoted | health check, memory-audit probe |
 | `get_canvas`, `add_canvas_node`, `connect_canvas_nodes`, `update_canvas_node`, `delete_canvas_node` | promoted (`persist:true`, 2026-11-08) | organon-canvas via `canvas-author` |
+| `delete_vault_file`, `delete_vault_directory` | promoted (`persist:true`, 2026-11-09, #121) | organon-vault-write; PA confirms every delete (session-discipline Rule 1) |
 | `list_tags`, `search_vault`, `tool_catalog`, `activate_tool`, `activate_tools` | active (baseline) | — |
 
 ## Tier B — on-demand (`inactive`, real skill dependency, `activate_tools(persist:false)` guard)
 
 | Tool | Owning skill | Guard location |
 |---|---|---|
-| `get_note_properties`, `find_orphaned_notes`, `get_file_info`, `list_tasks`, `list_attachments`, `list_vault_folders`, `get_vault_tree` | organon-vault-read | `SKILL.md` §Adaptive tool loading |
-| `update_note_properties`, `rename_tag`, `ensure_block_id`, `set_task_status`, `create_vault_directory`, `delete_vault_directory`, `delete_vault_file` | organon-vault-write | `SKILL.md` §On-demand tools |
+| `find_orphaned_notes`, `get_file_info`, `list_tasks`, `list_attachments`, `get_vault_tree` | organon-vault-read | `SKILL.md` §Adaptive tool loading |
+| `update_note_properties`, `rename_tag`, `ensure_block_id`, `set_task_status`, `create_vault_directory` | organon-vault-write | `SKILL.md` §On-demand tools |
 
-**Claude Code caveat (observed 2026-11-08, #115 test):** Claude Code fixes its tool list at session (and
-subagent) start. `activate_tools` succeeds connector-side but the new tool never appears — the call then
-fails with `No such tool available`. On-demand activation therefore only works on clients that refresh on
-`tools/list_changed`. Unverified which layer drops the refresh — Claude Code, or the claude.ai proxy in
-front of the hosted connector. Skill procedure + per-tool fallbacks: `organon-vault-read` §Adaptive tool
-loading. Tools a subagent needs must be persisted (done for the 5 canvas tools); for the main
-session, a tool activated mid-session is usable from the next session on.
+**Hosted-client caveat (diagnosed 2026-11-09, #121):** hosted clients fix their tool list at session (and
+subagent) start. `activate_tools` succeeds connector-side, the tool never appears (`No such tool
+available`); usable from the next session on. Two independent causes:
+
+| Layer | Defect | Upstream |
+|---|---|---|
+| claude.ai-hosted connector path (Claude Code local + cloud) | Ignores `tools/list_changed` on both delivery paths — activation POST stream and `subscriptions/listen`. Even a correctly delivered listen-stream notice (auto-promotion fan-out, verified on the wire) doesn't refresh the session. | anthropics/claude-code#108596 |
+| Connector 3.3.0 | Explicit `activate_tool`/`activate_tools` notify only on the caller's POST stream, never via `subscriptions/listen` fan-out. Modern-era (`2026-07-28`) clients get nothing. Auto-promotion does fan out. | istefox/obsidian-mcp-connector#669 |
+
+Cleared: Cloudflare Access/Worker/tunnel (passes the notice intact). Claude Code direct to the local
+transport (`claude mcp add --transport http`, 127.0.0.1) refreshes in ~2 s — Mac-only, not a general fix.
+ChatGPT/Codex apps: same symptom (run E); listen-stream behaviour untested.
+
+Workaround: `persist:true` for any tool a session or subagent needs dependably (done: 5 canvas tools, 2
+delete tools). Skill procedure + per-tool fallbacks: `organon-vault-read` §Adaptive tool loading.
 
 Otherwise deliberately not persisted — let real demand earn promotion. Skills also carry a drift rule: a tool missing
 from the client's list → `activate_tools` before concluding it's unavailable, so a stale tier here costs one
@@ -65,7 +75,7 @@ idempotent call, not a failure.
 `show_file_in_obsidian` — UI, irrelevant to headless clients. `create_vault_binary_file`,
 `get_vault_overview`, `list_bookmarks` — out of scope, `docs/plans/2026-05-31-issues-44-43-telemetry.md`.
 `get_note_outline` — `get_vault_file_partial mode=document-map` covers it (adds block ids + frontmatter
-keys). `list_obsidian_commands`, `execute_obsidian_command` — not authorized, `organon-frontmatter/SKILL.md`
+keys); `promoted` since the #121 probe (2026-11-09, test calls), still no skill dependency. `list_obsidian_commands`, `execute_obsidian_command` — not authorized, `organon-frontmatter/SKILL.md`
 § Linter delegation.
 
 `unavailable` on this token (no skill may route to them): `get_active_file`, `update_active_file`,
