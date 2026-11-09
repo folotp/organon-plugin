@@ -1,6 +1,6 @@
 ## Context
 - Repo: folotp/organon-plugin. Distributed via GitHub Release .plugin asset; consumed by folotp/pa-marketplace.
-- Uses the claude.ai-hosted Organon connector (→ organon-claude.folot.net, HTTP) for the remote Obsidian MCP server — no bundled .mcp.json (removed 43a9042; was shadowing the connector). Tool prefix mcp__claude_ai_organon__*.
+- Uses the claude.ai-hosted Organon connector (→ organon-claude.folot.net, HTTP) for the remote Obsidian MCP server — no bundled .mcp.json (removed 43a9042; was shadowing the connector). Tool prefix mcp__claude_ai_organon__* (local Code/Desktop) or mcp__organon__* (claude.ai cloud sessions).
 
 ## Workflow
 - Release: /pa-toolkit:plugin-release (folotp/pa-toolkit, single source of the release runbook for all PA plugins). Repo pre-flight for it: .claude/agents/release-readiness.md gates, incl. ./scripts/kepano-check-upstream.sh and ./scripts/validate-specs.sh. Version SOT: root plugin.json (semver; Agent Plugins 1.0.0). .claude-plugin/plugin.json = symlink to it. .plugin = gitignored, Release asset only.
