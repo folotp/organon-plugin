@@ -47,4 +47,4 @@ Cost classes: **S** = single field/scalar (cheapest). **M** = single section/hea
 - **Search before reading.** `search_vault_smart compact:true` returns paths only; 3 partial reads cost less than 1 full body of wrong note.
 - **Backlinks aren't bodies.** `get_backlinks` = path list = graph query, not content fetch.
 - **Outline first on big notes.** `mode=document-map` (S) reveals right `mode=heading target=…` to call next.
-- **Rows marked inactive need `activate_tools` first** — see `SKILL.md` §On-demand tools.
+- **Rows marked inactive need `activate_tools` first** — see `SKILL.md` §Adaptive tool loading (incl. fallbacks when activation doesn't reach the session).

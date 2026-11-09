@@ -45,13 +45,15 @@ Snapshot: connector v3.3.0, `tool_catalog` 2026-11-08. `promoted` covers both de
 
 | Tool | Owning skill | Guard location |
 |---|---|---|
-| `get_note_properties`, `find_orphaned_notes`, `get_file_info`, `list_tasks`, `list_attachments`, `list_vault_folders`, `get_vault_tree` | organon-vault-read | `SKILL.md` §On-demand tools |
+| `get_note_properties`, `find_orphaned_notes`, `get_file_info`, `list_tasks`, `list_attachments`, `list_vault_folders`, `get_vault_tree` | organon-vault-read | `SKILL.md` §Adaptive tool loading |
 | `update_note_properties`, `rename_tag`, `ensure_block_id`, `set_task_status`, `create_vault_directory`, `delete_vault_directory`, `delete_vault_file` | organon-vault-write | `SKILL.md` §On-demand tools |
 
 **Claude Code caveat (observed 2026-11-08, #115 test):** Claude Code fixes its tool list at session (and
 subagent) start. `activate_tools` succeeds connector-side but the new tool never appears — the call then
 fails with `No such tool available`. On-demand activation therefore only works on clients that refresh on
-`tools/list_changed`. Tools a subagent needs must be persisted (done for the 5 canvas tools); for the main
+`tools/list_changed`. Unverified which layer drops the refresh — Claude Code, or the claude.ai proxy in
+front of the hosted connector. Skill procedure + per-tool fallbacks: `organon-vault-read` §Adaptive tool
+loading. Tools a subagent needs must be persisted (done for the 5 canvas tools); for the main
 session, a tool activated mid-session is usable from the next session on.
 
 Otherwise deliberately not persisted — let real demand earn promotion. Skills also carry a drift rule: a tool missing

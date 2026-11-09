@@ -34,17 +34,23 @@ Edge cases → `get_vault_file('99 - Méta/AI/Vault Conventions.md')`. Read-side
 | `append_to_periodic_note` | Append to periodic note (today or specified) | `unavailable` on connector; confirm via `tool_catalog`. |
 | `create_vault_directory` / `delete_vault_directory` / `delete_vault_file` | Filesystem ops | `delete_vault_file` requires explicit filename — never `delete_active_file`. |
 
-## On-demand tools — activate before first use
+## On-demand tools
 
-Inactive by default (`docs/mcp-tool-loading.md` Tier B): `update_note_properties`, `rename_tag`,
-`ensure_block_id`, `set_task_status`, `create_vault_directory`, `delete_vault_directory`,
-`delete_vault_file`. First use per session:
+Mechanism + 4-step procedure: `organon-vault-read` §Adaptive tool loading. Applies only to the tools below —
+core write tools (`set_note_property`, `patch_vault_file`, `create_vault_file`, …) missing = read-only token,
+see top; don't activate.
 
-`activate_tools{ names: [...needed] }`, `persist:false` (default).
+Inactive by default (Tier B): `update_note_properties`, `rename_tag`, `ensure_block_id`, `set_task_status`,
+`create_vault_directory`, `delete_vault_directory`, `delete_vault_file`.
 
-In-memory, connector-process-scoped, idempotent. Promotion state drifts: a write tool from this skill
-missing from your tool list → `activate_tools` it before concluding it's unavailable. Doesn't apply to a
-read-only token: there the write tools aren't exposed at all (see top).
+| Missing after activation | Fallback |
+|---|---|
+| `update_note_properties` | loop `set_note_property` / `delete_note_property` |
+| `rename_tag` | `search_and_replace` on `#tag` (dry run first) + `tags:` per note; confirm scope with PA |
+| `set_task_status` | `search_and_replace` scoped to the note, pattern anchored on the task text |
+| `ensure_block_id` | `patch_vault_file targetType:block` only if PA asked for the anchor; else skip |
+| `create_vault_directory` | none needed — `create_vault_file` creates parents |
+| `delete_vault_file` / `delete_vault_directory` | none — ask PA to delete in Obsidian |
 
 ## Atomic-always for frontmatter (canonical)
 
@@ -223,6 +229,6 @@ Do not rename via `create_vault_file` + `delete_vault_file` — breaks all incom
 - `patch_vault_file` `operation` is **required, no default** — omit it and the call is rejected (*"operation must be 'append','prepend' or 'replace' (was missing)"*). Always pass `replace`/`append`/`prepend`.
 - **mcp-tools-istefox has NO bash tool.** Run shell through your platform's own shell tool, if it has one.
 - `get_vault_file` timeout / *"server unavailable"* is an **abnormal signal** → retry once before escalating to PA.
-- On-demand tools (§On-demand tools above) fail loud if called without activation first — activate, don't guess.
+- Inactive tools aren't in your list at all — follow §On-demand tools, don't guess names.
 
 Frontmatter schema → `organon-frontmatter`. Body prose → `organon-markdown-style`. Read-side → `organon-vault-read`.
