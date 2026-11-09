@@ -48,7 +48,7 @@ Inactive by default (Tier B): `update_note_properties`, `rename_tag`, `ensure_bl
 | `update_note_properties` | loop `set_note_property` / `delete_note_property` |
 | `rename_tag` | `search_and_replace` on `#tag` (dry run first) + `tags:` per note; confirm scope with PA |
 | `set_task_status` | `search_and_replace` scoped to the note, pattern anchored on the task text |
-| `ensure_block_id` | `patch_vault_file targetType:block` only if PA asked for the anchor; else skip |
+| `ensure_block_id` | Only if PA asked for the anchor: scoped `search_and_replace`, pattern = the paragraph's unique last line (`$`-anchored, `m` flag), replacement appends ` ^<id>`; dry run must show exactly 1 match. Not unique → report anchor creation unavailable. Block patches can't help: they need an existing `^id` |
 | `create_vault_directory` | none needed — `create_vault_file` creates parents |
 | `delete_vault_file` / `delete_vault_directory` | none — ask PA to delete in Obsidian |
 
