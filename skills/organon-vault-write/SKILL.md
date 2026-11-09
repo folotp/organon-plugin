@@ -46,7 +46,7 @@ Inactive by default (Tier B): `update_note_properties`, `rename_tag`, `ensure_bl
 | Missing after activation | Fallback |
 |---|---|
 | `update_note_properties` | loop `set_note_property` / `delete_note_property` |
-| `rename_tag` | `search_and_replace` on `#tag` (dry run first) + `tags:` per note; confirm scope with PA |
+| `rename_tag` | Vault-wide → report unavailable: a regex can't skip code blocks and URLs the way the native tool does. Few notes, list confirmed by PA: scope = `get_files_by_tag{ tag }`; pattern `(^|[\s(])#old(?=[/\s.,;:!?)\]]|$)` (`m` flag; boundary rejects `#oldfoo` and `/#old` URL fragments, `/` keeps nested tags following), replacement `$1#new`. Dry run per note; check every match is a real tag (previews cap at 5/file, read the rest chunked). Any match in code or a URL → stop, report. `tags:` via `set_note_property` |
 | `set_task_status` | `search_and_replace` scoped to the note, pattern anchored on the task text |
 | `ensure_block_id` | Only if PA asked for the anchor: scoped `search_and_replace`, pattern = the paragraph's unique last line (`$`-anchored, `m` flag), replacement appends ` ^<id>`; dry run must show exactly 1 match. Not unique → report anchor creation unavailable. Block patches can't help: they need an existing `^id` |
 | `create_vault_directory` | none needed — `create_vault_file` creates parents |
