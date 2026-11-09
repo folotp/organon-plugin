@@ -114,7 +114,7 @@ The script `git ls-remote`s upstream by default — pay that fetch cost on caden
 - If `KEPANO_DRIFT` is set, emit a Bucket-0 finding ("kepano pin behind upstream") and recommend following `docs/refreshing-kepano.md` *before* continuing alignment work — though this is informational, not blocking, since the absorbed bytes remain valid at the pin.
 - If `KEPANO_GATE_FAILED` is set, emit a **separate** report-header note ("integrity gate unavailable: kepano rc=N") with a one-line diagnostic. This is **not** a drift finding; do not recommend refresh. Pole-3 reads still proceed if the user accepts the degraded confidence.
 
-On App, or a cloud thread whose checkout isn't organon-plugin: infer pole 1 from the harness's published skill list and the canonical vault note's "Plugin name canonicalisation" section. The integrity gate is unavailable on those surfaces — note that limitation in the report header.
+Plugin sources unreadable — `${PLUGIN_ROOT}/plugin.json` absent, typically on App (resolve `PLUGIN_ROOT` first; an installed plugin under `CLAUDE_PLUGIN_ROOT` counts as readable, whatever repo the session works on): infer pole 1 from the harness's published skill list and the canonical vault note's "Plugin name canonicalisation" section. The integrity gate is unavailable on those surfaces — note that limitation in the report header.
 
 ## Pole 2 — read canonical-snippets vault notes
 

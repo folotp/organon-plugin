@@ -49,7 +49,7 @@ Before apply: re-read target, confirm current text still present. Moved → repo
 |---|---|
 | Vault note | Load `organon-vault-write` first; Organon MCP tools only (`mcp__claude_ai_organon__*` on Code/Desktop, `mcp__organon__*` in claude.ai cloud), never raw file ops — keeps atomic frontmatter, link-safe patch and rename |
 | `organon-*` skill | `Edit` in repo, on feature branch; on `main` → refuse, offer branch. Never commit from walk — change ships through normal PR flow |
-| No plugin checkout (App, or a thread on another repo), skill target | Recommendation only |
+| No organon-plugin git checkout, skill target | Recommendation only — fixes ship via the repo; never edit the installed plugin copy. Findings still come from the installed plugin root |
 | `~/.claude/CLAUDE.md`, project `CLAUDE.md`, memory files | `Edit` |
 | Settings → General, project instructions, M365 per-app | Corrected text in code block for PA to paste; never claim written |
 | kepano-pinned file (`upstream-pinned`) | Not offered; route to `docs/refreshing-kepano.md` |
