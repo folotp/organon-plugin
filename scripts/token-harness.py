@@ -1,4 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.9"
+# dependencies = ["tiktoken"]
+# ///
 """Token harness — formal P6.2 successor.
 
 Measures the runtime token cost of the organon plugin across 13
@@ -8,13 +12,14 @@ between the cascade-eager era and the v0.4.0 lazy-load era.
 See docs/token-harness-methodology.md for the design and methodology.
 
 Usage:
-    python3 scripts/token-harness.py [--iteration N]
+    uv run scripts/token-harness.py [--iteration N]
 
 Default iteration N is auto-discovered from eval-workspace/ (next
 unused integer). Output:
     eval-workspace/iteration-N/harness-output.json   (machine-readable)
 
-Requires: tiktoken (pip install --user tiktoken)
+Requires: uv. tiktoken is declared inline (PEP 723); uv installs it in a
+cached, isolated environment on first run.
 """
 
 from __future__ import annotations
@@ -31,7 +36,7 @@ try:
     import tiktoken
 except ImportError:
     sys.stderr.write(
-        "tiktoken not installed. Run: pip install --user tiktoken\n"
+        "tiktoken not installed. Run via uv: uv run scripts/token-harness.py\n"
     )
     sys.exit(2)
 
