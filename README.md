@@ -48,6 +48,20 @@ Net effect: when `organon-frontmatter` triggers (drafting an ADR / VLT-BUG / FIN
 
 Historical record: each entry cites paths and components as they were at that release, and many have since been retired.
 
+### v1.5.5 (Subagent fixes and memory-audit cleanup)
+
+- The memory audit drops the retired Cowork store and the Chat/Cowork split (#124).
+- Plugin-source availability is based on the resolved plugin root (#124).
+- Release subagents: stale facts and word caps fixed (#127).
+- Docs: the project CLAUDE.md names the cloud tool prefix (#125).
+
+### v1.5.4 (Adaptive tool loading)
+
+- Adaptive tool loading procedure with per-tool fallbacks (#120).
+- `rename_tag` fallback is boundary-safe (#122).
+- The token harness runs via uv; pip is dropped (#118).
+- Docs: the project CLAUDE.md uses Markdown headings (#114).
+
 ### v1.5.3 (Draft frontmatter and write refusal)
 
 - Drafts now require `up:` and the full frontmatter (#111, refs #75).
