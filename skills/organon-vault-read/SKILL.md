@@ -40,22 +40,40 @@ Apply in order; first match wins.
 
 See `references/READ_TOOL_MATRIX.md` for cost-class table.
 
-## On-demand tools — activate before first use
+## Adaptive tool loading — canonical (read + write)
 
-Inactive by default (`docs/mcp-tool-loading.md` Tier B): `get_note_properties`, `find_orphaned_notes`,
-`get_file_info`, `list_tasks`, `list_attachments`, `list_vault_folders`, `get_vault_tree`. First use per session:
+Connector exposes only `active`/`promoted` tools. Inactive → absent from your tool list, not broken.
+`activate_tools{ names }` promotes connector-side: `persist:false` (default) until Obsidian reloads,
+`persist:true` permanent. Auto-promotes at 3 calls. Idempotent.
 
-`activate_tools{ names: [...needed] }`, `persist:false` (default).
+Client sees the change only if it re-fetches the tool list (`tools/list_changed`). Some don't mid-session:
+activation succeeds, tool stays missing. It appears from the next session on. Claude branch: observed in
+Claude Code with the claude.ai-hosted connector, subagents included (`No such tool available`).
 
-Promotion state is connector-side and drifts. Any read tool from this skill missing from your tool list →
-`activate_tools` it before concluding it's unavailable.
+Inactive by default (Tier B, `docs/mcp-tool-loading.md`): `get_note_properties`, `find_orphaned_notes`,
+`get_file_info`, `list_tasks`, `list_attachments`, `list_vault_folders`, `get_vault_tree`.
 
-In-memory, connector-process-scoped — lost on restart/reload, no session carryover. Idempotent, always
-call.
+Tool needed, not in your list:
+
+1. `activate_tools{ names: [...needed] }` once, `persist:false`. Never `persist:true` unasked — PA decides.
+2. Appears → use it.
+3. Still missing → don't retry, don't probe `tool_catalog`. Use the fallback below, tell PA in one line
+   that the tool is active from the next session.
+4. `activate_tools` itself absent → read-only or restricted token; fallback only.
+
+| Missing | Fallback |
+|---|---|
+| `get_note_properties` | `document-map` (keys) → `get_note_property` per key |
+| `get_file_info` | `document-map`; size unknown → chunked `mode=lines` reads |
+| `list_tasks` | `search_vault_simple{ query: "- [ ]" }` scoped to folder |
+| `list_vault_folders` / `get_vault_tree` / `list_attachments` | `list_vault_files{ directory }` per level |
+| `find_orphaned_notes` | `get_backlinks` on candidates; vault-wide → report unavailable |
+
+Write-side fallbacks: `organon-vault-write` §On-demand tools.
 
 ## Integrity / graph-health scans
 
-Two vault-wide scan tools — not per-target reads. Inactive by default, see §On-demand tools above. Use
+Two vault-wide scan tools — not per-target reads. `find_orphaned_notes` inactive by default, see §Adaptive tool loading above. Use
 these instead of looping `get_outgoing_links` over every note when checking whole-vault health.
 
 - **`find_broken_links`** — scans the full vault for unresolvable links (wiki / embed / frontmatter). Per broken link: source path, 1-based line number, link type, and raw syntax. No arguments required; returns immediately.
@@ -84,7 +102,7 @@ Same as `organon-vault-write`: apply NFC to every path/title with accented chara
 - `get_vault_file_partial mode=heading` is heading-text-sensitive. Pass exactly as it appears in body (em-dashes, accents included). On miss, fall back to `get_vault_file_partial mode=document-map` to discover actual text.
 - `execute_dataview_query` requires Dataview plugin in Obsidian. On "Dataview not available" error, route to `search_vault` (JsonLogic).
 - `get_outgoing_links` includes embeds by default (`embed: true` per entry); `includeEmbeds:false` → regular links only. Also returns frontmatter links (`layer`).
-- On-demand tools (§On-demand tools above) fail loud if called without activation first — activate, don't guess.
+- Inactive tools aren't in your list at all — follow §Adaptive tool loading, don't guess names.
 - `list_tags` includes legacy `notetype/*`, `statut/*`, `source/*`, `domain/*`, `topic/*` namespaces — filter caller-side per `organon-frontmatter` § Legacy namespaces.
 - **Recurring param-name mistake**: `path` (not `filename`/`filepath`) on single-file tools, except `get_vault_file_partial` → `filename`; `directory` (not `folder`) on `list_vault_files`. Guessing the wrong key fails loud (*"Key '…' does not exist on schema"*) — check the tool's actual schema rather than pattern-matching from a different tool.
 
