@@ -11,7 +11,7 @@ End-to-end runbook for auditing Organon-related drift across three poles:
 
 1. **Plugin / skill / tool capabilities** — runtime ground truth (`plugin.json`, `kepano-version.txt`, every `skills/*/SKILL.md` description, `commands/*.md`, MCP server floor).
 2. **Canonical-snippets vault notes** — the unified source PA copy-pastes from: `99 - Méta/AI/Claude/Canonical snippets — Claude.md` (Claude per-store blocs), built from `99 - Méta/AI/Canonical snippets — shared core.md` (vendor-neutral core blocs), with companion matrix `99 - Méta/AI/Claude/Claude surfaces and instruction inheritance.md`. Per-vendor siblings (`Gemini/`, `ChatGPT/` — ChatGPT and Codex) are out of scope: this audit covers Claude stores only.
-3. **Per-surface implementations** — what is currently active in each store: `~/.claude/CLAUDE.md` (Code's global), Settings → General → Instructions for Claude (chat surfaces' global), Cowork → Global instructions (Cowork's global), Cowork folder/project instructions, claude.ai project instructions, plus memory — split by the shared-memory change: **Chat + Cowork share one cloud memory store** (`Settings → Memory` → Topics, https://claude.ai/settings/memory — same backing store regardless of which of the two surfaces reads/writes it), while **Code keeps its own independent filesystem memory** (`~/.claude/projects/<slug>/memory/`), unaffected by and unrelated to the shared system.
+3. **Per-store implementations** — what is currently active in each store, per `Claude surfaces and instruction inheritance` §Distribution policy: Settings → General → Instructions for Claude (every Claude app conversation, project chats and threads included), project instructions (one bloc per project), `~/.claude/CLAUDE.md` (Claude Code local only), repo `CLAUDE.md`, and the M365 per-app Instructions field. Plus memory — three separate spaces (same note §Memory): **account memory** (`Settings → Memory`, https://claude.ai/settings/memory — one store for every app conversation), **project memory** (per project, shared by its chat and threads), **Claude Code local memory** (`~/.claude/projects/<slug>/memory/`). Cowork → Global instructions is retired (2026-06-07) and Chat/Cowork are one Claude app since 2026-09-16 — never audit them as separate surfaces or stores.
 
 The audit reads pole 1 + pole 2, walks every pole-3 target reachable from the current surface, and emits a bucketed triage report. Run `kepano-check-upstream.sh` as the first integrity gate; upstream advancement is informational (not blocking) since the absorbed bytes remain valid at the pin.
 
@@ -51,23 +51,25 @@ Results past a size limit come back cut: the connector truncates and points to `
 Parse from the dispatching turn's prompt (the slash-command wrapper forwards them verbatim). Defaults if absent: `--scope=global --mode=interactive --checks=drift`.
 
 - `--scope=global` (default) — current surface's global store + canonical doc + plugin reality.
-- `--scope=project[=<slug>]` — project-specific stores. On Code: `<repo>/CLAUDE.md` or `<repo>/.claude/CLAUDE.md`, `<repo>/CLAUDE.local.md`, `~/.claude/projects/<slug>/memory/`. If `<slug>` omitted, current CWD project. On Cowork: current project's folder + project instructions + memory.
-- `--scope=all` — global + every reachable project on the current surface. Code only (Cowork/Chat have no cross-project reach; treat as `--scope=global` plus current project).
+- `--scope=project[=<slug>]` — project-specific stores. On Code: `<repo>/CLAUDE.md` or `<repo>/.claude/CLAUDE.md`, `<repo>/CLAUDE.local.md`, `~/.claude/projects/<slug>/memory/`. If `<slug>` omitted, current CWD project. On App or a cloud thread: current project's instructions + project memory.
+- `--scope=all` — global + every reachable project on the current surface. Code (local) only (App and cloud threads have no cross-project reach; treat as `--scope=global` plus current project).
 - `--mode=interactive` (default) — emit report, then return findings to the caller, which walks them per finding (`SKILL.md`). This agent has no prompt or write tool.
 - `--mode=report-only` — emit report and exit. Required for scheduled runs (no PA in the loop). PA can later resume triage interactively by pasting the report back.
 - `--checks=drift` (default) — poles 1–3, Buckets 0–4. Unchanged cost and output for scheduled runs.
 - `--checks=quality` — Bucket 5 only. Reads plugin and vault; skips integrity gate, pole 1 ↔ pole 2 alignment, pole 3.
 - `--checks=all` — both.
-- `--surface=code|cowork|chat` (override) — skip surface detection, force a specific branch. For testing only.
-- **Shared Chat/Cowork memory note**: `Settings → Memory` → Topics is one store. Reading it once under `--scope=global` on either surface covers both — never read it twice or attribute the same fact to "Chat memory" and "Cowork memory" as if they drifted independently. Project-scoped memory (a claude.ai Project's own memory space) stays separate from this global Topics store.
+- `--surface=code|thread|app` (override) — skip surface detection, force a specific branch. For testing only. Legacy `cowork` / `chat` → `app`.
+- **Account memory note**: `Settings → Memory` → Topics is one store for every Claude app conversation. Read it once under `--scope=global`; never attribute the same fact to "Chat memory" and "Cowork memory" as if they drifted independently. Project memory (per project) and Claude Code local memory are separate stores.
 
 ## Surface detection (first action on every run)
 
 Probe in order, log each result in the report header:
 
-1. `$CLAUDE_CODE_REMOTE` set (claude.ai cloud Code session), or `~/.claude/projects/` exists and lists project dirs → surface = **Code**. (Use `~` / `$HOME` so the probe works on remote Code agents and other macOS users, not just PA's local account.) Run this before probe 2: cloud Code sandboxes also show `/mnt/` mounts.
-2. Else, attempt to read `/` via the Read tool — if a Cowork-style mount is visible (typically `/mnt/...` or `/workspace/...`), surface = **Cowork**.
-3. Else, surface = **Chat**. Probe MCP availability via `get_server_info` under either prefix (§Organon tools). If absent → web/mobile (paste-only mode); if present → Desktop Chat.
+1. `~/.claude/projects/` exists and lists project dirs, `$CLAUDE_CODE_REMOTE` unset → surface = **Code (local)**. (Use `~` / `$HOME`, not PA's literal path.)
+2. Else `$CLAUDE_CODE_REMOTE` set → surface = **Code (cloud thread)**: a project thread or claude.ai/code session in a cloud container. Repo checkout readable; no `~/.claude/CLAUDE.md` of PA's.
+3. Else → surface = **App** (web, Desktop, mobile — one surface). Probe MCP via `get_server_info` under either prefix (§Organon tools). Absent → paste-only mode.
+
+`/mnt/` or `/workspace/` mounts are not a surface signal: cloud threads and agentic app work both have them.
 
 If `--surface=` is passed, skip probes.
 
@@ -112,11 +114,11 @@ The script `git ls-remote`s upstream by default — pay that fetch cost on caden
 - If `KEPANO_DRIFT` is set, emit a Bucket-0 finding ("kepano pin behind upstream") and recommend following `docs/refreshing-kepano.md` *before* continuing alignment work — though this is informational, not blocking, since the absorbed bytes remain valid at the pin.
 - If `KEPANO_GATE_FAILED` is set, emit a **separate** report-header note ("integrity gate unavailable: kepano rc=N") with a one-line diagnostic. This is **not** a drift finding; do not recommend refresh. Pole-3 reads still proceed if the user accepts the degraded confidence.
 
-On Cowork / Chat (filesystem not available the same way): infer pole 1 from the harness's published skill list and the canonical vault note's "Plugin name canonicalisation" section. The integrity gate is unavailable on those surfaces — note that limitation in the report header.
+On App, or a cloud thread whose checkout isn't organon-plugin: infer pole 1 from the harness's published skill list and the canonical vault note's "Plugin name canonicalisation" section. The integrity gate is unavailable on those surfaces — note that limitation in the report header.
 
 ## Pole 2 — read canonical-snippets vault notes
 
-Via MCP (works on Code, Cowork, Desktop Chat), chunked per §Large reads — `document-map` first, then `lines` windows:
+Via MCP (any surface with the connector), chunked per §Large reads — `document-map` first, then `lines` windows:
 
 ```
 get_vault_file_partial "99 - Méta/AI/Claude/Canonical snippets — Claude.md"
@@ -144,7 +146,7 @@ Any mismatch → Bucket 4 (canonical-snippets edit), even if pole 3 is not yet r
 
 ## Pole 3 — read per-surface implementations (depends on surface × scope)
 
-### Code
+### Code (local)
 
 | Scope mode | Targets read |
 |---|---|
@@ -158,25 +160,25 @@ Read every memory file listed in `MEMORY.md` plus any `*.md` in the memory dir n
 
 `~/.claude/projects/<slug>/memory/` predates and is unrelated to Anthropic's cloud Topics feature — do not conflate the two "memory" concepts when writing findings.
 
-### Cowork
+### Code (cloud thread)
 
 | Scope mode | Targets read |
 |---|---|
-| `--scope=global` (default) | Cowork → Global instructions — prompt PA to paste, or read directly if a programmatic accessor exists + `Settings → Memory` → Topics (shared global store — same one Chat reads; see shared-memory note above) |
-| `--scope=project` | current Cowork project: folder instructions + project instructions + project memory (via in-conversation memory tools) |
+| `--scope=global` (default) | Settings → General — paste-based (the thread receives it, but the executor can't read it) + account memory, once |
+| `--scope=project` | repo `CLAUDE.md` / `.claude/CLAUDE.md` in the checkout + project instructions (paste-based) + project memory |
 | `--scope=all` | global + current project |
 
-Cowork has no cross-project reach. `--scope=all` and `--scope=project` only differ from `--scope=global` by adding the current project, never sibling projects. Project memory here is per-project and distinct from the shared global Topics store already covered at `--scope=global`.
+Threads don't read `~/.claude/CLAUDE.md` — never report it missing or stale from here.
 
-### Chat (Desktop Chat with MCP, claude.ai web/mobile, claude.ai project)
+### App (web, Desktop, mobile)
 
 | Scope mode | Targets read |
 |---|---|
-| `--scope=global` (default) | Settings → General → Instructions for Claude — paste-based + `Settings → Memory` → Topics (shared global store — same one Cowork reads) |
-| `--scope=project` | current claude.ai project's project instructions (paste-based) + current conversation memory |
+| `--scope=global` (default) | Settings → General → Instructions for Claude — paste-based + account memory (`Settings → Memory` → Topics) |
+| `--scope=project` | current project's instructions (paste-based) + project memory |
 | `--scope=all` | global + current project |
 
-Project memory here is per-project (a claude.ai Project's own memory space) and distinct from the shared global Topics store already covered at `--scope=global`.
+No cross-project reach. M365 per-app fields are never readable from here — check them only via pole 1 ↔ pole 2 alignment, flag stale `Last synced` rows.
 
 For paste-based reads: emit a `<details><summary>Paste request</summary>...</details>` block telling PA exactly what to paste, then continue once they reply.
 
@@ -204,13 +206,13 @@ Output: file path, line range, current text, proposed text, `Why:` (citing the a
 
 ### Bucket 2 — Instructions edit (per-surface store)
 
-A per-surface store (`~/.claude/CLAUDE.md`, Cowork → Global, Settings → General, project `CLAUDE.md`, claude.ai project instructions) contradicts (a) plugin truth or (b) the canonical vault note. Examples:
+A store (`~/.claude/CLAUDE.md`, Settings → General, repo `CLAUDE.md`, project instructions, M365 per-app field) contradicts (a) plugin truth or (b) the canonical vault note. Examples:
 
 - `~/.claude/CLAUDE.md` lists 7 write-discipline skills but plugin now ships N.
-- Cowork → Global references an old MCP server name.
+- A project instructions bloc references an old MCP server name.
 - The Organon block in `~/.claude/CLAUDE.md` has drifted from the canonical bloc.
 
-Output: store name, location (path or "paste-only"), current text, proposed text, `Why:`. For `~/.claude/CLAUDE.md` and project `CLAUDE.md` files, `apply` writes directly. For Settings → General and Cowork stores, `apply` emits the corrected text in a fenced code block for PA to paste — this agent cannot write those stores.
+Output: store name, location (path or "paste-only"), current text, proposed text, `Why:`. For `~/.claude/CLAUDE.md` and project `CLAUDE.md` files, `apply` writes directly. For Settings → General, project instructions and M365, `apply` emits the corrected text in a fenced code block for PA to paste — this agent cannot write those stores.
 
 ### Bucket 3 — Plugin-update candidate
 
@@ -240,8 +242,8 @@ On-demand tool inactive → `activate_tools` first, without `persist`.
 - Memory and instruction store agree but contradict plugin → both stale; one finding per location.
 - Memory and instruction store disagree but neither contradicts plugin → flag as "internal inconsistency"; default-classify as Bucket 1 (memory edit), but mention both for PA to choose.
 - Memory older than 90 days referencing a version no longer in the changelog → "staleness suspected; verify"; do not auto-classify.
-- Same fact drifted in "Chat memory" and "Cowork memory" → these are the same underlying store (`Settings → Memory` → Topics); emit **one** Bucket 1 finding labeled `Chat+Cowork (shared)`, not two.
-- Pole 1 ↔ pole 2 mismatch with no pole-3 read on this surface → Bucket 4 only, even if PA might also need to update Settings → General manually later (the audit's job is to point at the canonical doc; correcting Settings → General is a separate run on a chat surface).
+- Same fact reported as drifted in "Chat memory" and "Cowork memory" → one store (account memory); emit **one** Bucket 1 finding labeled `Account memory`.
+- Pole 1 ↔ pole 2 mismatch with no pole-3 read on this surface → Bucket 4 only, even if PA might also need to update Settings → General manually later (the audit's job is to point at the canonical doc; correcting Settings → General is a separate run on the App surface).
 
 ## Output — report format
 
@@ -251,7 +253,7 @@ Render inline in the conversation (the full skeleton is in `docs/memory-audit/re
 # Organon memory & instructions audit — <YYYY-MM-DD HH:MM>
 
 ## Run
-- Surface: Code | Cowork | Chat (web/mobile/Desktop)
+- Surface: Code (local) | Code (cloud thread) | App
 - Scope: global | project=<slug> | all
 - Mode: interactive | report-only
 - Plugin source: readable at <path> | inferred from harness
@@ -288,7 +290,7 @@ If PA pastes a report from a prior `--mode=report-only` run and asks to walk fin
 
 ## Scheduling
 
-- **Cowork routines**: configure something like `Run /organon-memory-audit --scope=all --mode=report-only every Monday 09:00`. The routine posts the report; PA opens the conversation when convenient and triages.
+- **Claude app scheduled tasks**: configure something like `Run /organon-memory-audit --scope=all --mode=report-only every Monday 09:00`. The routine posts the report; PA opens the conversation when convenient and triages.
 - **Code-side schedules**: use the `schedule` skill to fire a remote agent running `/organon-memory-audit --scope=all --mode=report-only` on cadence. Use `loop` for ad-hoc polling rather than persistent schedules.
 
 Hard rules for scheduled runs: `--mode=report-only` enforced; no edits ever; if Bucket 3 candidates surface, the report suggests opening a tracking issue in `folotp/organon-plugin` but does not create one.
@@ -297,12 +299,12 @@ Recommended cadence: weekly + ad-hoc after every `/pa-toolkit:plugin-release`.
 
 ## Anti-patterns
 
-- **Editing Settings → General or Cowork → Global directly** — those are paste-only stores. Emit corrected text in a code block, never claim it was written.
+- **Editing Settings → General, project instructions or M365 directly** — those are paste-only stores. Emit corrected text in a code block, never claim it was written.
 - **Skipping the integrity gate** (`kepano-check-upstream.sh`) — pole-1 inconsistencies cascade into false Bucket 4 findings. Always gate first on Code.
 - **Auto-classifying memory older than 90 days** — versions cycle out of the changelog quickly; treat as "verify, not auto-fix".
 - **Bundling Bucket 3 (plugin-update candidates) with Bucket 1 (memory edits) in the same triage walk and applying them together** — Bucket 3 is recommendation only, never executed by this agent.
 - **Running `--mode=interactive` from a scheduled context** — there's no PA in the loop; the prompts will hang or apply default-skip silently. Scheduled = report-only, always.
-- **Double-reading Chat/Cowork global memory** — `Settings → Memory` → Topics is one shared store; reading it once per surface and emitting two findings double-counts a single drift.
+- **Auditing retired stores** — Cowork → Global instructions (retired 2026-06-07) and separate Chat/Cowork surfaces (merged 2026-09-16). Reading account memory twice under two surface names double-counts one drift.
 
 ## Hard rules
 

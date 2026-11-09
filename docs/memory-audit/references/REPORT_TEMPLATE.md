@@ -13,7 +13,7 @@ Render inline in conversation. Write to file only if PA explicitly asks — conv
 # Organon memory & instructions audit — <YYYY-MM-DD HH:MM>
 
 ## Run
-- Surface: <Code | Cowork | Chat-Desktop | Chat-web | Chat-mobile>
+- Surface: <Code (local) | Code (cloud thread) | App>
 - Scope: <global | project=<slug> | all>
 - Mode: <interactive | report-only>
 - Plugin source: <readable at <path> | inferred from harness skill list>
@@ -64,7 +64,7 @@ For each finding:
 
 For each finding:
 
-- **Store**: <~/.claude/CLAUDE.md | <repo>/CLAUDE.md or <repo>/.claude/CLAUDE.md | Settings → General | Cowork → Global | Cowork folder | Cowork project | claude.ai project>
+- **Store**: <~/.claude/CLAUDE.md | <repo>/CLAUDE.md or <repo>/.claude/CLAUDE.md | Settings → General | project instructions (<project>) | M365 per-app (<app>)>
 - **Location**: <path | "paste-only — skill cannot write">
 - **Current**:
   ```
@@ -155,7 +155,7 @@ Defects no check id covers, or KEEP lines factually wrong. Same fields, `Check: 
 
 - Bucket 0 (if any): informational; refresh via docs/refreshing-kepano.md when convenient.
 - Bucket 1: walk per-finding `apply / skip / defer` (interactive mode) or apply manually after triage (report-only).
-- Bucket 2: edit ~/.claude/CLAUDE.md and project CLAUDE.md directly; for Settings → General and Cowork → Global, copy the proposed text and paste on the matching surface.
+- Bucket 2: edit ~/.claude/CLAUDE.md and project CLAUDE.md directly; for Settings → General, project instructions and M365, copy the proposed text and paste it into that store.
 - Bucket 4: patch the canonical vault note via patch_vault_file (mcp__claude_ai_organon__* on Code/Desktop, mcp__organon__* in claude.ai cloud) (consult organon-vault-write for wire-format invariants).
 - Bucket 3: open a tracking issue at folotp/organon-plugin for any candidate you want to act on.
 - Bucket 5: walk per-finding `apply-now / edit-first / decline`. Never bulk-applied.

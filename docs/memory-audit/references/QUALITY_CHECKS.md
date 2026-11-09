@@ -53,7 +53,7 @@ Resolve by role, so a vault reorg doesn't break the audit. Print resolved list i
 
 Seed stores are not targets — drift audit covers them.
 
-**Skills** (family 2): `${PLUGIN_ROOT}/skills/organon-*/SKILL.md` + `references/*.md`. No filesystem (Cowork/Chat) → family 2 unavailable, say so in header.
+**Skills** (family 2): `${PLUGIN_ROOT}/skills/organon-*/SKILL.md` + `references/*.md`. No plugin checkout (App, or a thread on another repo) → family 2 unavailable, say so in header.
 
 **Rule files** (family 3): orientation files that hold instructions + rules dirs + every `organon-*` SKILL.md. Skip catalogue notes (e.g. control index) and `references/`.
 

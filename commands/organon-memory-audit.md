@@ -23,7 +23,7 @@ Agent({
 - **Per-pole scope flag** — forward `--scope=global`, `--scope=project[=<slug>]`, or `--scope=all` verbatim. Default: `--scope=global`.
 - **Interaction mode flag** — forward `--mode=interactive` or `--mode=report-only` verbatim. Default: `--mode=interactive`.
 - **Checks flag** — forward `--checks=drift`, `--checks=quality`, or `--checks=all` verbatim. Default: `--checks=drift`. Catalogue: `docs/memory-audit/references/QUALITY_CHECKS.md`.
-- **Surface override** — forward `--surface=code|cowork|chat` if passed; executor skips surface-detection probes.
+- **Surface override** — forward `--surface=code|thread|app` if passed (legacy `cowork`/`chat` → `app`); executor skips surface-detection probes.
 
 ## When NOT to delegate
 
@@ -49,9 +49,9 @@ Before apply: re-read target, confirm current text still present. Moved → repo
 |---|---|
 | Vault note | Load `organon-vault-write` first; Organon MCP tools only (`mcp__claude_ai_organon__*` on Code/Desktop, `mcp__organon__*` in claude.ai cloud), never raw file ops — keeps atomic frontmatter, link-safe patch and rename |
 | `organon-*` skill | `Edit` in repo, on feature branch; on `main` → refuse, offer branch. Never commit from walk — change ships through normal PR flow |
-| No filesystem (Cowork/Chat), skill target | Recommendation only |
+| No plugin checkout (App, or a thread on another repo), skill target | Recommendation only |
 | `~/.claude/CLAUDE.md`, project `CLAUDE.md`, memory files | `Edit` |
-| Settings → General, Cowork stores | Corrected text in code block for PA to paste; never claim written |
+| Settings → General, project instructions, M365 per-app | Corrected text in code block for PA to paste; never claim written |
 | kepano-pinned file (`upstream-pinned`) | Not offered; route to `docs/refreshing-kepano.md` |
 
 `AI Bootstrap.md`, `Vault Conventions.md`, any `organon-*` SKILL.md: per-item PA confirmation always, no exceptions — these steer every session.
