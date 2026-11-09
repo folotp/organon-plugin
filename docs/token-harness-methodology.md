@@ -199,3 +199,7 @@ freezes a new iteration in `eval-workspace/iteration-N/`.
   not preserved.
 - Referenced by: [[VLT-ADR-013]] (target ≥ 3-5× session, ≥ 2.15×
   B4-complet).
+
+## Shared regression gate (model version 2)
+
+`scripts/dev tokens` compares a tracked `tests/token-baseline.json` with both inline and delegated execution profiles. It reports main-context and total modeled tokens independently. Inline execution includes author runbooks in main context. This is a static content-size estimate using pinned tiktoken 0.14.0, not a measurement of actual model billing or reasoning tokens. Improvements pass; growth above 5% in any profile/aggregate fails. Scenario or methodology changes require explicit baseline review with `scripts/dev baseline`. Ignored historical iterations remain optional historical data and are not CI inputs.

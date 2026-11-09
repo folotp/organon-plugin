@@ -1,0 +1,14 @@
+{
+  "paths": [
+    "skills/organon-bases/references/BASES_SYNTAX.md",
+    "skills/organon-bases/references/FUNCTIONS_REFERENCE.md",
+    "skills/organon-canvas/references/CANVAS_SPEC.md",
+    "skills/organon-canvas/references/EXAMPLES.md",
+    "skills/organon-diagramming/references/MERMAID_SYNTAX.md",
+    "skills/organon-frontmatter/references/PROPERTIES.md",
+    "skills/organon-markdown-style/references/CALLOUTS.md",
+    "skills/organon-markdown-style/references/EMBEDS.md",
+    "skills/organon-markdown-style/references/MARKDOWN_SYNTAX.md"
+  ],
+  "exceptions": []
+}

@@ -1,36 +1,12 @@
-# Hook scope — what fires where
+# Development hook scope
 
-A repeatedly-asked question: which hooks fire when, and is anything imposed on consumers of the plugin? Answer: **no, nothing**. All hooks live in `.claude/settings.json` of this source repo and fire only when a Code session is opened against `~/Developer/organon-plugin`.
+All hooks in this repository are development adapters; none belong in the runtime package.
 
-## Verification recipe
+- Claude bindings live in `.claude/settings.json`. The edit guard and branch reminder call shared code through `scripts/dev`; formatting/lint feedback remains advisory. The skill-delegation reminder is Claude-only.
+- Codex's `.codex/hooks.json` binds a SessionStart branch reminder on supported local clients. No assumption of command-hook support in cloud orchestration.
+- The Git pre-commit launcher calls `scripts/dev check-staged`, independent of the editing agent. It rejects commits on main/detached HEAD, active resync tokens, and failing checks of the actual index snapshot.
+- CI runs `scripts/dev check --base <base-sha>` independently of local hook installation.
 
-```bash
-# 1. Plugin manifest declares zero hooks.
-jq '.hooks // "none"' plugin.json
-# expected: "none"
+Install with `scripts/dev install-hooks`. Git resolves the shared hook location for linked worktrees; the launcher resolves the active worktree for each commit. See `docs/development.md` for setup and older-branch compatibility.
 
-# 2. Project-level hooks are scoped to .claude/settings.json (in-repo).
-jq '.hooks | keys' .claude/settings.json
-# expected: ["PostToolUse","PreToolUse","Stop","UserPromptSubmit"]
-
-# 3. No hook script is registered with a path outside ${CLAUDE_PROJECT_DIR}.
-jq '.. | objects | select(.command) | .command' .claude/settings.json | grep -v 'CLAUDE_PROJECT_DIR'
-# expected: empty
-```
-
-## What is shipped vs not
-
-| Hook | Fires when | Shipped in `.plugin` asset? |
-|---|---|---|
-| `block-absorbed-edits.sh` (PreToolUse, Edit\|Write\|MultiEdit) | session opened against this source repo | no |
-| `enforce-skill-delegation.sh` (PreToolUse, Skill) | same | no |
-| `postedit-shfmt.sh` (PostToolUse, Edit\|Write\|MultiEdit) | same | no |
-| `userprompt-branch-check.sh` (UserPromptSubmit) | same | no |
-| `stop-shellcheck.sh` (Stop) | same | no |
-
-The distributed `.plugin` archive contains `plugin.json` (no hook key), `.claude-plugin/plugin.json` (symlink to it), `agents/`, `assets/`, `skills/`, `scripts/`, `docs/`, `README.md`, and `kepano-version.txt` — never `.claude/settings.json` and never `.mcp.json` (removed 43a9042; the plugin relies on the claude.ai-hosted Organon connector, not a bundled server config). Consumer Code or Cowork sessions install the plugin's skills and commands; they do not inherit any hook from this repo.
-
-## v1.0.0 history
-
-- v0.x had a `SessionStart` hook that emitted a one-line drift summary at the top of every session opened in this repo (~32 tokens). Retired in v1.0.0 — kepano upstream checks now live in the pre-commit gate (where they're release-relevant) and in the `release-readiness` agent.
-- v0.x had a `PostToolUse` validate-sync-json hook that re-ran `sync-kepano.sh` after edits to `kepano-sync.json`. Retired in v1.0.0 — `kepano-sync.json` no longer exists; the version-pin model uses `kepano-version.txt` (a one-line file that doesn't need post-edit validation).
+Local hooks are not a security boundary and can be bypassed by Git options; required PR checks and repository rules supply the merge gate. Package selection lives in `config/package-files.json`, with archive verification in `scripts/dev package`.

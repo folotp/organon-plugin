@@ -2,8 +2,8 @@
 # kepano-check-upstream.sh — compare pinned kepano sha vs upstream HEAD.
 #
 # Replaces sync-kepano.sh (317 LoC, bidirectional body-hash compare).
-# The v1.0.0 contract is sha-pin only: we trust that the absorbed bytes
-# match upstream at the pinned sha, and flag drift when upstream advances.
+# The pin records the source revision of adapted content. This checker
+# reports upstream freshness, never local content equivalence.
 # Refresh runbook: docs/refreshing-kepano.md.
 #
 # Exit codes:
@@ -13,7 +13,7 @@
 
 set -u
 
-REPO_ROOT="${CLAUDE_PROJECT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 VERSION_FILE="${REPO_ROOT}/kepano-version.txt"
 UPSTREAM_URL="https://github.com/kepano/obsidian-skills.git"
 

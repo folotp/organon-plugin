@@ -1,0 +1,14 @@
+[
+  "plugin.json",
+  ".claude-plugin/plugin.json",
+  "skills",
+  "agents",
+  "commands",
+  "assets",
+  "README.md",
+  "LICENSE",
+  "kepano-version.txt",
+  "docs",
+  "scripts/kepano-check-upstream.sh",
+  "config/protected-references.json"
+]

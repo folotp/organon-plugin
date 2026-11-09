@@ -1,6 +1,6 @@
 # Contributor notes
 
-Operational detail moved out of `CLAUDE.md` so the always-loaded orientation stays lean. Read this when you actually need to do one of these things.
+Operational detail moved out of `AGENTS.md` so the always-loaded orientation stays lean. Read this when you actually need to do one of these things.
 
 ## Tooling floor
 
@@ -10,19 +10,9 @@ Operational detail moved out of `CLAUDE.md` so the always-loaded orientation sta
 
 ## Working with absorbed files — DO NOT bypass the hook
 
-The 9 kepano-absorbed references are:
+The protected-reference inventory is `config/protected-references.json`.
 
-- `skills/organon-bases/references/BASES_SYNTAX.md`
-- `skills/organon-bases/references/FUNCTIONS_REFERENCE.md`
-- `skills/organon-canvas/references/CANVAS_SPEC.md`
-- `skills/organon-canvas/references/EXAMPLES.md`
-- `skills/organon-diagramming/references/MERMAID_SYNTAX.md`
-- `skills/organon-frontmatter/references/PROPERTIES.md`
-- `skills/organon-markdown-style/references/CALLOUTS.md`
-- `skills/organon-markdown-style/references/EMBEDS.md`
-- `skills/organon-markdown-style/references/MARKDOWN_SYNTAX.md`
-
-Direct `Edit|Write|MultiEdit` on any of them is blocked by the PreToolUse hook. The legitimate path is a refresh: follow `docs/refreshing-kepano.md`, bump `kepano-version.txt` to a new upstream sha, rewrite the affected references in the same commit. The pre-commit gate confirms the new pin is in-sync before the commit lands.
+Direct `Edit|Write|MultiEdit` on any of them is blocked by the PreToolUse hook. The legitimate path is a refresh: follow `docs/refreshing-kepano.md`, bump `kepano-version.txt` to a new upstream sha, rewrite the affected references in the same commit. The shared check validates the refresh policy, not upstream byte equivalence.
 
 ## Resync token (`.organon-resync-token`)
 
@@ -38,4 +28,4 @@ Don't bypass `block-absorbed-edits.sh` with `--dangerously-skip-hooks`, sed/pyth
 
 ## Pre-commit hook installation
 
-Managed pre-commit gate at `.git/hooks/pre-commit`. Installed by `scripts/hooks/install-git-hooks.sh`. Re-run with `--force` after editing the embedded HOOK template; remove via `--uninstall`.
+Managed pre-commit gate at Git's resolved hooks path (shared across linked worktrees by default). Installed by `scripts/hooks/install-git-hooks.sh`. The launcher calls tracked shared code; remove via `--uninstall`. Unmanaged hooks are preserved. See `docs/development.md`.

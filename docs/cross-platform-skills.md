@@ -47,3 +47,7 @@ Claude Code only loads subagents from `agents/`, and doesn't follow a symlink th
 - Connector server instructions are hard-coded, so rules can't be delivered through MCP.
 - Gemini custom apps are documented as US-only and English-only.
 - OpenAI says plugin availability can vary by surface.
+
+## Repository development
+
+Development instructions and checks are shared through root `AGENTS.md` and `scripts/dev`; see [development workflow](development.md). The runtime `skills/` tree remains a single source. Development adapters are excluded from the package by `config/package-files.json`.
