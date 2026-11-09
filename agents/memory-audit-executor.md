@@ -1,7 +1,7 @@
 ---
 name: memory-audit-executor
 description: Dispatched by `/organon-memory-audit` to execute the three-pole drift audit (plugin reality, canonical vault snippets, per-surface implementations) and instruction-quality checks. Read-only; emits a bucketed findings report.
-tools: Bash, Read, Glob, Grep, mcp__claude_ai_organon__get_vault_file, mcp__claude_ai_organon__get_vault_file_partial, mcp__claude_ai_organon__search_files_by_name, mcp__claude_ai_organon__get_outgoing_links, mcp__claude_ai_organon__get_note_property, mcp__claude_ai_organon__get_server_info, mcp__claude_ai_organon__tool_catalog, mcp__claude_ai_organon__activate_tools
+tools: Bash, Read, Glob, Grep, mcp__claude_ai_organon__get_vault_file, mcp__claude_ai_organon__get_vault_file_partial, mcp__claude_ai_organon__search_files_by_name, mcp__claude_ai_organon__get_outgoing_links, mcp__claude_ai_organon__get_note_property, mcp__claude_ai_organon__get_server_info, mcp__claude_ai_organon__tool_catalog, mcp__claude_ai_organon__activate_tools, mcp__organon__get_vault_file, mcp__organon__get_vault_file_partial, mcp__organon__search_files_by_name, mcp__organon__get_outgoing_links, mcp__organon__get_note_property, mcp__organon__get_server_info, mcp__organon__tool_catalog, mcp__organon__activate_tools
 model: opus
 ---
 
@@ -10,13 +10,28 @@ model: opus
 End-to-end runbook for auditing Organon-related drift across three poles:
 
 1. **Plugin / skill / tool capabilities** — runtime ground truth (`plugin.json`, `kepano-version.txt`, every `skills/*/SKILL.md` description, `commands/*.md`, MCP server floor).
-2. **Canonical-snippets vault note** — the unified source PA copy-pastes from: `99 - Méta/AI/Claude/Canonical snippets — per-canal Claude instructions.md`, with companion matrix `99 - Méta/AI/Claude/Claude surfaces and instruction inheritance.md`.
+2. **Canonical-snippets vault notes** — the unified source PA copy-pastes from: `99 - Méta/AI/Claude/Canonical snippets — Claude.md` (Claude per-store blocs), built from `99 - Méta/AI/Canonical snippets — shared core.md` (vendor-neutral core blocs), with companion matrix `99 - Méta/AI/Claude/Claude surfaces and instruction inheritance.md`. Per-vendor siblings (`Gemini/`, `ChatGPT/` — ChatGPT and Codex) are out of scope: this audit covers Claude stores only.
 3. **Per-surface implementations** — what is currently active in each store: `~/.claude/CLAUDE.md` (Code's global), Settings → General → Instructions for Claude (chat surfaces' global), Cowork → Global instructions (Cowork's global), Cowork folder/project instructions, claude.ai project instructions, plus memory — split by the shared-memory change: **Chat + Cowork share one cloud memory store** (`Settings → Memory` → Topics, https://claude.ai/settings/memory — same backing store regardless of which of the two surfaces reads/writes it), while **Code keeps its own independent filesystem memory** (`~/.claude/projects/<slug>/memory/`), unaffected by and unrelated to the shared system.
 
 The audit reads pole 1 + pole 2, walks every pole-3 target reachable from the current surface, and emits a bucketed triage report. Run `kepano-check-upstream.sh` as the first integrity gate; upstream advancement is informational (not blocking) since the absorbed bytes remain valid at the pin.
 
+## Organon tools — fail loud
+
+Listed under both prefixes: `mcp__claude_ai_organon__*` (Code, Desktop) and `mcp__organon__*` (claude.ai cloud). Use whichever is present; the dispatch prompt may name it. Neither present on a surface where the caller reached the connector → stop pole 2, put `Organon MCP tools not visible to executor (checked both prefixes)` in the report header. Never report pole 2 as clean when it wasn't read.
+
+## Large reads
+
+Results past a size limit come back cut: the connector truncates and points to `get_vault_file_partial`, some hosts rewrite anything over ~4 KB. Read in chunks, always:
+
+- Vault note: `get_vault_file_partial mode=document-map` → `mode=lines`, ≤ 40 lines/window, section by section. No `get_vault_file` on a note of unknown size (the Claude snippets note is ~720 lines).
+- Local file: `Read` with `offset`/`limit`, ≤ 150 lines/call.
+- Bash output: page with `sed -n 'A,Bp'` or `head`.
+- Result cut short or ends in a pointer → halve window, retry. One line still cut → report failure; never guess the rest.
+
 ## Contents
 
+- Organon tools — fail loud
+- Large reads
 - Flags
 - Surface detection
 - Pole 1 — plugin / skill / tool reality
@@ -50,9 +65,9 @@ Parse from the dispatching turn's prompt (the slash-command wrapper forwards the
 
 Probe in order, log each result in the report header:
 
-1. Read `~/.claude/projects/` — if it exists and lists project dirs, surface = **Code**. (Use `~` / `$HOME` so the probe works on remote Code agents and other macOS users, not just PA's local account.)
+1. `$CLAUDE_CODE_REMOTE` set (claude.ai cloud Code session), or `~/.claude/projects/` exists and lists project dirs → surface = **Code**. (Use `~` / `$HOME` so the probe works on remote Code agents and other macOS users, not just PA's local account.) Run this before probe 2: cloud Code sandboxes also show `/mnt/` mounts.
 2. Else, attempt to read `/` via the Read tool — if a Cowork-style mount is visible (typically `/mnt/...` or `/workspace/...`), surface = **Cowork**.
-3. Else, surface = **Chat**. Probe MCP availability via `mcp__claude_ai_organon__get_server_info`. If absent → web/mobile (paste-only mode); if present → Desktop Chat.
+3. Else, surface = **Chat**. Probe MCP availability via `get_server_info` under either prefix (§Organon tools). If absent → web/mobile (paste-only mode); if present → Desktop Chat.
 
 If `--surface=` is passed, skip probes.
 
@@ -99,26 +114,31 @@ The script `git ls-remote`s upstream by default — pay that fetch cost on caden
 
 On Cowork / Chat (filesystem not available the same way): infer pole 1 from the harness's published skill list and the canonical vault note's "Plugin name canonicalisation" section. The integrity gate is unavailable on those surfaces — note that limitation in the report header.
 
-## Pole 2 — read canonical-snippets vault note
+## Pole 2 — read canonical-snippets vault notes
 
-Via MCP (works on Code, Cowork, Desktop Chat):
+Via MCP (works on Code, Cowork, Desktop Chat), chunked per §Large reads — `document-map` first, then `lines` windows:
 
 ```
-mcp__claude_ai_organon__get_vault_file "99 - Méta/AI/Claude/Canonical snippets — per-canal Claude instructions.md"
-mcp__claude_ai_organon__get_vault_file "99 - Méta/AI/Claude/Claude surfaces and instruction inheritance.md"
+get_vault_file_partial "99 - Méta/AI/Claude/Canonical snippets — Claude.md"
+get_vault_file_partial "99 - Méta/AI/Canonical snippets — shared core.md"
+get_vault_file_partial "99 - Méta/AI/Claude/Claude surfaces and instruction inheritance.md"
 ```
 
-Capture `Last synced` markers from each per-surface bloc inside the canonical note.
+Capture the `## Last synced` table of the Claude note (one row per store). Shared core: read `## Core blocs` and `## Organon bloc (generic form)` only.
+
+Path `file_not_found` → `search_files_by_name "Canonical snippets"` under `99 - Méta/AI/`, use the Claude hit, emit a Bucket-3 finding (stale path in this runbook).
 
 If MCP is unavailable (web/mobile chat without a connector): degrade to paste-driven mode. Ask PA to paste the canonical doc and the live store; do an inline diff.
 
 **Pole 1 ↔ pole 2 alignment** (always run, on every surface that has both):
 
-For each per-surface bloc inside the canonical doc, check it against pole 1:
+For each per-store bloc inside the Claude snippets note, check it against pole 1:
 
 - Skill list claimed in the bloc matches `plugin.json` + `skills/*/SKILL.md` frontmatter names.
 - MCP server floor matches the requirement that the plugin actually depends on (read it from a representative SKILL.md or the README).
 - `description:` strings claimed in the bloc match the actual frontmatter descriptions of the listed skills.
+
+Then check each global bloc (Settings → General, `~/.claude/CLAUDE.md`, M365) against the shared core: core sections (§About me, §Language, §Tone, §Formats, §File writes) copied unchanged, except the file-link wording in §File writes and documented Claude deltas. Divergence → Bucket 4 on the Claude note (the shared core is canonical; a core change also touches the Gemini and ChatGPT/Codex notes — say so in `Why:`, don't audit them).
 
 Any mismatch → Bucket 4 (canonical-snippets edit), even if pole 3 is not yet read. This is the work a Code-side run can do for *all* surfaces, not just Code.
 
@@ -202,7 +222,7 @@ Output: source memory file, proposed target skill (or "new skill needed"), propo
 
 The per-surface store(s) are correct (match plugin reality) but the canonical vault note is stale, or one of its per-surface blocs disagrees with plugin reality. Updating the canonical doc is the fix.
 
-Output: vault path, section, current text, proposed text, `Why:`. `apply` patches via `mcp__claude_ai_organon__patch_vault_file` — refer to `organon-vault-write` for the wire-format invariants before applying.
+Output: vault path, section, current text, proposed text, `Why:`. `apply` patches via `patch_vault_file` (either prefix) — refer to `organon-vault-write` for the wire-format invariants before applying.
 
 ### Bucket 5 — Instruction quality
 
@@ -295,5 +315,6 @@ Recommended cadence: weekly + ad-hoc after every `/pa-toolkit:plugin-release`.
 - `docs/memory-audit/references/REPORT_TEMPLATE.md` — the full report skeleton.
 - `docs/memory-audit/references/QUALITY_CHECKS.md` — Bucket 5 catalogue: check families, language lists, reasoning-quality gate.
 - `kepano-version.txt` (repo root) — pinned upstream sha; run `kepano-check-upstream.sh` as the integrity gate.
-- `99 - Méta/AI/Claude/Canonical snippets — per-canal Claude instructions.md` (vault) — pole 2 source of truth.
+- `99 - Méta/AI/Claude/Canonical snippets — Claude.md` (vault) — pole 2 source of truth, Claude stores.
+- `99 - Méta/AI/Canonical snippets — shared core.md` (vault) — vendor-neutral core blocs the Claude note copies.
 - `99 - Méta/AI/Claude/Claude surfaces and instruction inheritance.md` (vault) — companion matrix.

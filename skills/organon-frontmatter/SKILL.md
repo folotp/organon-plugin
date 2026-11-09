@@ -29,9 +29,9 @@ compatibility: Requires the Organon MCP connector.
 
 **Hand-ordering stays canonical.** Linter delegation via `execute_obsidian_command` was considered and isn't currently viable (not authorized, and the command targets Obsidian's active file, not a path) — see `references/REGISTRE_KEYS.md` § Linter delegation before reaching for it.
 
-**Write canonical** — atomic per-key via `set_note_property` / `delete_note_property` (see `organon-vault-write` § Atomic-always). `patch_vault_file targetType:frontmatter` reserved for bulk reshape.
+**Write canonical** — atomic via `set_note_property` / `delete_note_property`, or `update_note_properties` for 2+ keys on one note (see `organon-vault-write` § Atomic-always). `patch_vault_file targetType:frontmatter` reserved for bulk reshape.
 
-**Read canonical** — atomic per-key via `get_note_property`; full-frontmatter via `get_vault_file_partial mode=frontmatter` (see `organon-vault-read`).
+**Read canonical** — atomic per-key via `get_note_property`; full-frontmatter via `get_note_properties` (see `organon-vault-read` rule 3). `get_vault_file_partial mode=frontmatter` reads one field, not the block.
 
 **`title:` Option C** — descriptive, human-readable. Notes with code: `"CODE — Titre descriptif"` (quote if contains `:` or `—`). `aliases:` carries code alone. Filename stays technical. Linter `yaml-title` disabled.
 
@@ -71,7 +71,7 @@ Editing a legacy note triggers normalisation: `shape:` → `content-model:`, `no
 - Max ~3 legacy keys per edit; beyond that, flag to PA.
 - Large edit (>10 lines) or PA says "minimal edit" → skip touch-on-edit, note debt.
 - Log: `Frontmatter normalisé : <legacy-key> → <canonical-key>` (one line per key).
-- Use atomic tools: `delete_note_property{ key: <legacy> }` + `set_note_property{ key: <canonical>, value: <migrated> }`.
+- Use atomic tools: one `update_note_properties` call (remove `<legacy>`, set `<canonical>`); fallback `delete_note_property{ key: <legacy> }` + `set_note_property{ key: <canonical>, value: <migrated> }`.
 
 ## Governance
 

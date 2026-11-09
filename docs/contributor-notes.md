@@ -4,7 +4,7 @@ Operational detail moved out of `CLAUDE.md` so the always-loaded orientation sta
 
 ## Tooling floor
 
-- `mcp-tools-istefox` ≥ 2.1.0 — the server the claude.ai-hosted Organon connector talks to (no bundled `.mcp.json` in this plugin — removed 43a9042); describes the tool surface the remote endpoint must expose, not a build dep on this repo. The endpoint (`https://organon-claude.folot.net/mcp`) is PA's Obsidian instance behind a cloudflared tunnel + Cloudflare Access. Tool-loading state (persisted/on-demand/inactive) is tracked in `docs/mcp-tool-loading.md`, not here.
+- `mcp-tools-istefox` ≥ 3.3.0 — the server the claude.ai-hosted Organon connector talks to (no bundled `.mcp.json` in this plugin — removed 43a9042); describes the tool surface the remote endpoint must expose, not a build dep on this repo. The endpoint (`https://organon-claude.folot.net/mcp`) is PA's Obsidian instance behind a cloudflared tunnel + Cloudflare Access. Tool-loading state (persisted/on-demand/inactive) is tracked in `docs/mcp-tool-loading.md`, not here.
 - `uv` — runs `scripts/token-harness.py` (`uv run scripts/token-harness.py`); its `tiktoken` dependency is declared inline (PEP 723), so no separate install. Don't use pip.
 - `jq`, `gh`, `git`, `zip`, `shasum`/`sha256sum` — used by scripts and hooks.
 

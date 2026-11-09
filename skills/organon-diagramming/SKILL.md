@@ -20,7 +20,9 @@ First match wins:
 
 ## Excalidraw — connector renders in chat, bridge persists
 
-`create_view` is in-chat only; does not write `.excalidraw.md` files. Workflow: (1) `create_view` → PA validates → (2) bridge-persist after approval. Load `references/EXCALIDRAW_SKELETON.md`, wrap elements, `create_vault_file` to `99 - Méta/Media/Excalidraw/<name>.excalidraw.md`.
+`create_view` (Excalidraw connector) is in-chat only; does not write `.excalidraw.md` files. Workflow: (1) `create_view` → PA validates → (2) bridge-persist after approval. Load `references/EXCALIDRAW_SKELETON.md`, wrap elements, `create_vault_file` to `99 - Méta/Media/Excalidraw/<name>.excalidraw.md`.
+
+**`create_view` not in your tool list** (no Excalidraw integration on this platform) → no render, so PA can't validate. Say so, then offer, in order: Mermaid if the content fits rule 2; an SVG/HTML preview (rule 4) PA validates before you persist; hand-authored elements in the skeleton only if PA asks for an Excalidraw file anyway (unvalidated — say it). Never persist an unvalidated drawing silently.
 
 ## Compression OFF invariant
 

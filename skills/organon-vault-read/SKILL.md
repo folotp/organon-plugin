@@ -19,7 +19,7 @@ Apply in order; first match wins.
 
 1. **Single frontmatter key, known path?** → `get_note_property{ path, key }`.
 2. **Enumerate values of a key vault-wide?** → `list_property_values{ key }`. Distinct values + counts; no body read.
-3. **Frontmatter block only?** → `get_note_properties{ path }` (inactive — `activate_tools` first).
+3. **Frontmatter block only?** → `get_note_properties{ path }` (inactive — `activate_tools` first). One JSON object, native YAML types, from the metadata cache. The canonical whole-frontmatter read; `get_vault_file_partial mode=frontmatter` reads one field only.
 4. **Single heading section?** → `get_vault_file_partial{ filename, mode: "heading", target: "<heading text>" }`.
 5. **Single block ref (`^id`)?** → `get_vault_file_partial{ filename, mode: "block", target: "<id>" }`.
 6. **Heading outline (TOC) only?** → `get_vault_file_partial{ filename, mode: "document-map" }`. Also lists block ids, frontmatter keys.
@@ -32,18 +32,23 @@ Apply in order; first match wins.
 13. **Exploratory — don't know which note?** → `search_vault_smart{ query }`. Read plausible paths in rank order (folder + title check); follow with cheapest partial-read from rules 1-6. Fallback if provider not ready: `search_vault_simple`. See `organon-session-discipline` Rule 8.
 14. **Keyword search with context windows?** → `search_vault_simple{ query }`.
 15. **Recently edited notes?** → `get_recent_files{ limit? }`. Context heuristic only — never primary semantic filter.
-16. **Full body of 2+ known paths (sweep, refactor wave, comparison)?** → `get_vault_files{ paths }` (≤ 20 per call, text or json format). One round-trip instead of N `get_vault_file` calls; a missing/binary/folder path errors per-entry without failing the rest.
-17. **Genuinely need full body of one note?** → `get_vault_file{ path }`. Acceptable: (a) single-note refactor touching multiple sections, (b) faithful quotation, (c) note < ~80 lines where partial overhead dominates.
+16. **Size, dates or link counts, no body?** → `get_file_info{ path }`. Size check before deciding full vs chunked read.
+17. **Tasks (`- [ ]`) across vault, folder or note?** → `list_tasks`. Metadata cache; no body read.
+18. **Folder structure / attachments?** → `list_vault_folders` or `get_vault_tree` (incl. empty folders); `list_attachments` (non-note files, vault-wide, under a folder, or linked from one note).
+19. **Full body of 2+ known paths (sweep, refactor wave, comparison)?** → `get_vault_files{ paths }` (≤ 20 per call, text or json format). One round-trip instead of N `get_vault_file` calls; a missing/binary/folder path errors per-entry without failing the rest.
+20. **Genuinely need full body of one note?** → `get_vault_file{ path }`. Acceptable: (a) single-note refactor touching multiple sections, (b) faithful quotation, (c) note < ~80 lines where partial overhead dominates. Large or unknown size → `document-map`, then `mode=lines` windows: the connector truncates text past its size ceiling.
 
 See `references/READ_TOOL_MATRIX.md` for cost-class table.
 
 ## On-demand tools — activate before first use
 
-Inactive by default, not in persisted set (`docs/mcp-tool-loading.md`): `get_files_by_tag`,
-`list_property_values`, `get_backlinks`, `get_outgoing_links`, `find_broken_links`, `find_orphaned_notes`,
-`execute_dataview_query`, `get_recent_files`, `get_vault_files`. First use per session:
+Inactive by default (`docs/mcp-tool-loading.md` Tier B): `get_note_properties`, `find_orphaned_notes`,
+`get_file_info`, `list_tasks`, `list_attachments`, `list_vault_folders`, `get_vault_tree`. First use per session:
 
-`activate_tools{ names: [...above] }`, `persist:false` (default).
+`activate_tools{ names: [...needed] }`, `persist:false` (default).
+
+Promotion state is connector-side and drifts. Any read tool from this skill missing from your tool list →
+`activate_tools` it before concluding it's unavailable.
 
 In-memory, connector-process-scoped — lost on restart/reload, no session carryover. Idempotent, always
 call.
@@ -60,7 +65,7 @@ Both are cheaper than an ad-hoc `get_outgoing_links` loop and produce structured
 
 ## Output shape reminders
 
-- `search_vault_smart` returns **paths + similarity scores, no body excerpts** — use as path-filter only.
+- `search_vault_smart` returns path, score, start line and a chunk excerpt per hit. Path-filter use: `compact:true` (path + score only) or `excerptLength:<n>`; `groupByFile:true` → one hit per note, `limit` counts notes.
 - `search_vault_simple` returns paths + short context windows.
 - `get_vault_file_partial mode=frontmatter target=<key>` returns single field; `target` required. Whole block → `get_note_properties`.
 - `get_note_property` returns raw scalar/array. JSON-array fields (`tags`, `aliases`, `references`) come back as arrays.
@@ -78,7 +83,7 @@ Same as `organon-vault-write`: apply NFC to every path/title with accented chara
 - `search_vault_smart` can return `"not ready"` (Smart Connections cold) or time out (bridge hang). Always have `search_vault_simple` fallback; never make smart-search a hard prerequisite.
 - `get_vault_file_partial mode=heading` is heading-text-sensitive. Pass exactly as it appears in body (em-dashes, accents included). On miss, fall back to `get_vault_file_partial mode=document-map` to discover actual text.
 - `execute_dataview_query` requires Dataview plugin in Obsidian. On "Dataview not available" error, route to `search_vault` (JsonLogic).
-- `get_backlinks` and `get_outgoing_links` don't follow embeds (`![[…]]`). For embed graphs, read body.
+- `get_outgoing_links` includes embeds by default (`embed: true` per entry); `includeEmbeds:false` → regular links only. Also returns frontmatter links (`layer`).
 - On-demand tools (§On-demand tools above) fail loud if called without activation first — activate, don't guess.
 - `list_tags` includes legacy `notetype/*`, `statut/*`, `source/*`, `domain/*`, `topic/*` namespaces — filter caller-side per `organon-frontmatter` § Legacy namespaces.
 - **Recurring param-name mistake**: `path` (not `filename`/`filepath`) on single-file tools, except `get_vault_file_partial` → `filename`; `directory` (not `folder`) on `list_vault_files`. Guessing the wrong key fails loud (*"Key '…' does not exist on schema"*) — check the tool's actual schema rather than pattern-matching from a different tool.
