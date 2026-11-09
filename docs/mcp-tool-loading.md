@@ -73,7 +73,7 @@ New since the last pass, and what changed in the skills:
 
 | Tool / schema change | Skill change |
 |---|---|
-| `get_note_properties` (whole frontmatter, metadata cache) | Canonical whole-frontmatter read everywhere (#112). Upstream `get_note_property` description still points to `get_vault_file_partial mode=frontmatter` — stale, that mode reads one field. |
+| `get_note_properties` (whole frontmatter, metadata cache) | Canonical whole-frontmatter read everywhere (#112). Upstream `get_note_property` description still points to `get_vault_file_partial mode=frontmatter` — stale, that mode reads one field (upstream istefox/obsidian-mcp-connector#668). |
 | `update_note_properties` (multi-key atomic write) | Replaces looping `set_note_property` for 2+ keys on one note; touch-on-edit migrations, BUG→INC back-links. |
 | `rename_tag`, `ensure_block_id`, `set_task_status` | Added to organon-vault-write with guardrails (PA confirm for vault-wide rename; no systematic anchors). |
 | `get_file_info`, `list_tasks`, `list_attachments`, `list_vault_folders`, `get_vault_tree` | Added to organon-vault-read decision tree. |
