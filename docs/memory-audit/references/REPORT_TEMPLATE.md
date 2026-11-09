@@ -148,7 +148,7 @@ Defects no check id covers, or KEEP lines factually wrong. Same fields, `Check: 
 
 ## Out of scope (not audited)
 
-- <N> memory entries did not match organon keywords (see `references/AUDIT_KEYWORDS.md`):
+- <N> memory entries did not match organon keywords (see `docs/memory-audit/references/AUDIT_KEYWORDS.md`):
   - <list paths, one per line; max 20 lines, then "and <M> more">
 
 ## Recommended next step
