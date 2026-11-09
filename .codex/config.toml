@@ -1,0 +1,3 @@
+# Local Codex event adapters are optional; Git and CI enforce shared checks.
+[features]
+hooks = true

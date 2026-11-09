@@ -53,4 +53,8 @@ The markers are no longer present in the reference files and should not be re-ad
 
 ## The PreToolUse hook (`scripts/hooks/block-absorbed-edits.sh`)
 
-Still blocks direct `Edit|Write|MultiEdit` on the 9 paths above (hardcoded list) to prevent accidental drift. The legitimate refresh path is to bump `kepano-version.txt` and rewrite the file as part of the same commit — the pre-commit gate confirms `kepano-check-upstream.sh` is in-sync at the new pin before the commit lands.
+Still blocks direct `Edit|Write|MultiEdit` on the paths in `config/protected-references.json` to prevent accidental drift. The legitimate refresh path is to bump `kepano-version.txt` and rewrite the file as part of the same commit — the shared check requires a pin change alongside reference edits. It does not prove upstream content equivalence.
+
+## Adaptation-only exceptions
+
+For an explicitly maintainer-approved correction at an unchanged pin, record an entry in `config/protected-references.json` under `exceptions` with `path`, the exact resulting file `sha256`, and a nonempty `reason` citing the approval. The exception matches those bytes only. Review exceptions as policy changes; a resync token alone never authorizes a commit. The pin can remain behind upstream HEAD; freshness is advisory.

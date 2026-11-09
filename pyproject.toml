@@ -1,0 +1,13 @@
+[project]
+name = "organon-plugin-dev"
+version = "0.0.0"
+requires-python = ">=3.11"
+dependencies = [
+  "check-jsonschema==0.39.0",
+  "markdown-it-py==4.2.0",
+  "tiktoken==0.14.0",
+  "skills-ref @ git+https://github.com/agentskills/agentskills@83021e2be457a9b6679148719c1f6074f0ad975e#subdirectory=skills-ref",
+]
+
+[tool.uv]
+package = false

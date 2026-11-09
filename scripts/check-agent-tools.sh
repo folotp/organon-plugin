@@ -18,8 +18,8 @@ for agent in "$root"/agents/*.md; do
     tools="$(printf '%s\n' "${line#tools:}" | tr ',' '\n' | tr -d ' ')"
     for prefix in mcp__claude_ai_organon__ mcp__organon__; do
         case "$prefix" in
-        mcp__claude_ai_organon__) twin=mcp__organon__ ;;
-        *) twin=mcp__claude_ai_organon__ ;;
+            mcp__claude_ai_organon__) twin=mcp__organon__ ;;
+            *) twin=mcp__claude_ai_organon__ ;;
         esac
         while IFS= read -r tool; do
             [ -n "$tool" ] || continue

@@ -28,3 +28,6 @@ snippets/
 .organon-resync-token
 .venv/
 dist/
+
+# CI checkout of the pinned shared release implementation
+.tooling/

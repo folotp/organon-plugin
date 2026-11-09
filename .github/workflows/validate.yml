@@ -1,0 +1,46 @@
+name: Validate
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  checks:
+    name: Checks (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.13.7'
+          python-version: '3.11'
+      - name: Install shell tools (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y shellcheck shfmt jq
+      - name: Install shell tools (macOS)
+        if: runner.os == 'macOS'
+        run: brew install shellcheck shfmt jq
+      - name: Validate
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        shell: bash
+        run: |
+          if [[ -z "$BASE_SHA" || "$BASE_SHA" =~ ^0+$ ]]; then
+            BASE_SHA="$(git rev-parse HEAD^)"
+          fi
+          ./scripts/dev check --base "$BASE_SHA"
+      - name: Check out shared packager
+        uses: actions/checkout@v4
+        with:
+          repository: folotp/pa-toolkit
+          ref: 4e96ad65732fa79093674afbd231692c2891c8c4
+          path: .tooling/pa-toolkit
+      - name: Verify release archive
+        run: ./scripts/dev package --packager .tooling/pa-toolkit/skills/plugin-release/scripts/package.sh

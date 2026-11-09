@@ -2,6 +2,10 @@
 
 Organon vault conventions for AI agents — packaged as a portable plugin of [Agent Skills](https://agentskills.io/specification) for Claude, ChatGPT and Gemini.
 
+## Development
+
+Start with [the shared development workflow](docs/development.md) and `AGENTS.md`. Claude Code, Codex, other agents, and humans use the same checks. Release packaging follows [the release runbook](docs/release.md).
+
 ## What this plugin provides
 
 Eight description-triggered skills (load automatically when working with the Organon Obsidian vault at `~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Organon`) plus one Claude-only slash command. Each agent uses its own Organon connector (`mcp-tools-istefox` ≥ 3.3.0) for the remote Obsidian MCP server; Claude\'s is the claude.ai-hosted connector at `https://organon-claude.folot.net/mcp` — no bundled `.mcp.json`; Cloudflare Access OAuth runs in the browser on first connect.
@@ -28,7 +32,7 @@ Releases moved out of this plugin: they are cut with `/pa-toolkit:plugin-release
 
 ## Absorbed kepano content — version-pin model (since v1.0.0)
 
-This plugin carries 9 references absorbed verbatim from [kepano `obsidian-skills`](https://github.com/kepano/obsidian-skills) for generic Obsidian syntax. One upstream sha is pinned in `kepano-version.txt`; the absorbed bytes are guaranteed to match upstream at that sha. Check: `./scripts/kepano-check-upstream.sh` (compares pin vs upstream HEAD). Refresh runbook: [`docs/refreshing-kepano.md`](docs/refreshing-kepano.md).
+This plugin carries 9 adapted references derived from [kepano `obsidian-skills`](https://github.com/kepano/obsidian-skills) for generic Obsidian syntax. One upstream sha is pinned in `kepano-version.txt`; the pin records the source version; local adaptations are not byte-equivalent to upstream. Check: `./scripts/kepano-check-upstream.sh` (compares pin vs upstream HEAD). Refresh runbook: [`docs/refreshing-kepano.md`](docs/refreshing-kepano.md).
 
 The pre-v1.0.0 design used per-section `body_sha256` fingerprints in `kepano-sync.json` plus a bidirectional drift detector + a `/kepano-resync` runbook. The version-pin model is ~95% cheaper to maintain (1 line vs a 9-section ledger; 65-LoC check script vs 317 LoC) at the cost of less granular drift reporting — for casual refresh cadence, the tradeoff is right-sized.
 

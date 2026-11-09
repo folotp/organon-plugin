@@ -57,7 +57,7 @@ Seed stores are not targets — drift audit covers them.
 
 **Rule files** (family 3): orientation files that hold instructions + rules dirs + every `organon-*` SKILL.md. Skip catalogue notes (e.g. control index) and `references/`.
 
-**Pinned files**: paths from `ABSORBED_PATHS` in `scripts/hooks/block-absorbed-edits.sh`. See Exclusions.
+**Pinned files**: paths from `config/protected-references.json` (`paths` array). See Exclusions.
 
 ## Language
 

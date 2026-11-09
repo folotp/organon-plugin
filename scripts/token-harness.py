@@ -1,7 +1,7 @@
 #!/usr/bin/env -S uv run --script
 # /// script
 # requires-python = ">=3.9"
-# dependencies = ["tiktoken"]
+# dependencies = ["tiktoken==0.14.0"]
 # ///
 """Token harness — formal P6.2 successor.
 
@@ -296,7 +296,7 @@ def skill_path(skill: str, rel: str) -> Path:
 # ---------------------------------------------------------------------------
 
 
-def session_costs(session: dict, token_cache: dict[Path, int]) -> dict:
+def session_costs(session: dict, token_cache: dict[Path, int], profile: str = "delegated") -> dict:
     """Return per-session pre/post tokens and the file lists used.
 
     `pre_tokens`: cascade-eager era (every absorbed ref loaded with the SKILL).
@@ -321,7 +321,7 @@ def session_costs(session: dict, token_cache: dict[Path, int]) -> dict:
 
     for skill in session["skills"]:
         spec = SKILLS[skill]
-        dispatches = spec.get("dispatch_to") is not None
+        dispatches = spec.get("dispatch_to") is not None and profile == "delegated"
 
         # Core: always loaded in both eras (SKILL.md, dispatch shim or full body).
         for rel in spec["core"]:
@@ -352,6 +352,10 @@ def session_costs(session: dict, token_cache: dict[Path, int]) -> dict:
                     subagent_files.append((str(p.relative_to(REPO_ROOT)), t))
                 else:
                     post_files.append((str(p.relative_to(REPO_ROOT)), t))
+
+        if spec.get("dispatch_to") and not dispatches:
+            runbook = SKILLS_DIR / skill / "references/AUTHOR_RUNBOOK.md"
+            post_files.append((str(runbook.relative_to(REPO_ROOT)), cached(runbook)))
 
         # If the skill dispatches, count the sub-agent's body too.
         if dispatches:
@@ -447,6 +451,7 @@ def main() -> int:
         action="store_true",
         help="print results only, do not create eval-workspace/iteration-N/.",
     )
+    parser.add_argument("--profile", choices=("inline", "delegated"), default="delegated")
     args = parser.parse_args()
 
     iteration = args.iteration if args.iteration else auto_iteration()
@@ -455,7 +460,7 @@ def main() -> int:
     token_cache: dict[Path, int] = {}
     rows: list[dict] = []
     for s in SESSIONS:
-        rows.append(session_costs(s, token_cache))
+        rows.append(session_costs(s, token_cache, profile=args.profile))
 
     ratios = [r["ratio"] for r in rows]
     mean_ratio = round(statistics.mean(ratios), 3)
@@ -475,8 +480,8 @@ def main() -> int:
     print(f"p90(ratio)          = {p90_ratio}")
     print(f"aggregate ratio     = {aggregate_ratio}  ({pre_total} / {post_total})")
     print(f"pre tokens (cascade)= {pre_total}")
-    print(f"post tokens (main)  = {post_total}   ← main opus session cost")
-    print(f"sub-agent tokens    = {subagent_total}   ← dispatched to sonnet/haiku, separate context")
+    print(f"post tokens (main)  = {post_total}   ← modeled main-context tokens")
+    print(f"sub-agent tokens    = {subagent_total}   ← modeled separate-context tokens")
     print(f"target              = ≥ 2.15× (B4-complet)")
     print(f"verdict             = {verdict(mean_ratio)}")
 
