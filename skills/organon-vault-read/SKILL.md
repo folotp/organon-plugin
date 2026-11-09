@@ -19,7 +19,7 @@ Apply in order; first match wins.
 
 1. **Single frontmatter key, known path?** → `get_note_property{ path, key }`.
 2. **Enumerate values of a key vault-wide?** → `list_property_values{ key }`. Distinct values + counts; no body read.
-3. **Frontmatter block only?** → `get_note_properties{ path }` (inactive — `activate_tools` first). One JSON object, native YAML types, from the metadata cache. The canonical whole-frontmatter read; `get_vault_file_partial mode=frontmatter` reads one field only.
+3. **Frontmatter block only?** → `get_note_properties{ path }`. One JSON object, native YAML types, from the metadata cache. The canonical whole-frontmatter read; `get_vault_file_partial mode=frontmatter` reads one field only.
 4. **Single heading section?** → `get_vault_file_partial{ filename, mode: "heading", target: "<heading text>" }`.
 5. **Single block ref (`^id`)?** → `get_vault_file_partial{ filename, mode: "block", target: "<id>" }`.
 6. **Heading outline (TOC) only?** → `get_vault_file_partial{ filename, mode: "document-map" }`. Also lists block ids, frontmatter keys.
@@ -46,12 +46,14 @@ Connector exposes only `active`/`promoted` tools. Inactive → absent from your 
 `activate_tools{ names }` promotes connector-side: `persist:false` (default) until Obsidian reloads,
 `persist:true` permanent. Auto-promotes at 3 calls. Idempotent.
 
-Client sees the change only if it re-fetches the tool list (`tools/list_changed`). Some don't mid-session:
-activation succeeds, tool stays missing. It appears from the next session on. Claude branch: observed in
-Claude Code with the claude.ai-hosted connector, subagents included (`No such tool available`).
+Client sees the change only if it re-fetches the tool list (`tools/list_changed`). Hosted clients don't
+mid-session: activation succeeds, tool stays missing. It appears from the next session on. Cause:
+client-side refresh + connector notifies only the caller's request stream (`docs/mcp-tool-loading.md`
+§Hosted-client caveat). Claude branch: claude.ai-hosted connector never refreshes, Code and cloud,
+subagents included (`No such tool available`).
 
-Inactive by default (Tier B, `docs/mcp-tool-loading.md`): `get_note_properties`, `find_orphaned_notes`,
-`get_file_info`, `list_tasks`, `list_attachments`, `list_vault_folders`, `get_vault_tree`.
+Inactive by default (Tier B, `docs/mcp-tool-loading.md`): `find_orphaned_notes`, `get_file_info`,
+`list_tasks`, `list_attachments`, `get_vault_tree`.
 
 Tool needed, not in your list:
 
