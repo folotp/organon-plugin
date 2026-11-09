@@ -76,7 +76,7 @@ Retired at v1.0.0: `kepano-sync.json`, `vault-sync.json`. They're no longer root
 
 Resolve each as `<REPO_ROOT>/<filename>` and apply the same multi-base resolution rules below. Add a new entry to this allowlist only when a new root-level file actually starts being mentioned by name in prose — the list is small on purpose, since the false-positive risk grows with breadth.
 
-#### Multi-base resolution (calibrated 2026-05)
+#### Multi-base resolution
 
 A bare-path mention is considered RESOLVED if **any** of the following resolve to an existing on-disk path:
 
@@ -84,7 +84,7 @@ A bare-path mention is considered RESOLVED if **any** of the following resolve t
 2. **Containing-file base.** `<dirname-of-mentioning-file>/<path>` exists. This catches absorbed-from-kepano references that preserve upstream's `references/X.md` link form, which resolves correctly in-place after absorption (sibling lookup) but not from repo root.
 3. **Basename fallback under `skills/`.** The path's *basename* exists anywhere under `skills/*/references/` or as a `skills/*/SKILL.md` — i.e. `find skills -name "<basename>" -path '*/references/*' -o -name '<basename>' -path '*/SKILL.md'` returns at least one hit. This catches prose mentions like "VOCABULARIES.md" or "MARKDOWN_SYNTAX.md" that name an absorbed file by basename without the full plugin path.
 
-Only if all three resolutions fail, surface as `BARE-PATH-DRIFT` (lower severity than explicit-link drift). The pre-calibration single-base resolver produced ~117 hits on a corpus with zero real drift; the calibrated form returns zero on that same corpus.
+Only if all three resolutions fail, surface as `BARE-PATH-DRIFT` (lower severity than explicit-link drift).
 
 This pattern still produces false positives — a path inside a code block referring to a hypothetical file is the residual class. Mitigations:
 - Only flag paths that look like real on-disk shapes (extensions in the allowlist above).
@@ -97,11 +97,9 @@ This pattern still produces false positives — a path inside a code block refer
 
 Skills reference siblings by name in prose: `the organon-vault-read skill`, `organon-frontmatter`, `organon-vault-write`. These map 1:1 to `skills/<name>/SKILL.md`. If the prose mentions a skill name with a leading `/` (`/organon-memory-audit`) it's also a slash-command claim, mapping to `commands/<name>.md`.
 
-#### Whitelist resolution (calibrated 2026-05)
+#### Whitelist resolution
 
-The previous regex (`[\`/]?(organon-[a-z-]+|kepano-[a-z]+|vault-[a-z]+|plugin-[a-z]+)\b`) over-matched compound nouns: `vault-side`, `plugin-dev`, `kepano-absorbed`, `kepano-resync` mid-sentence vs `kepano-resync` as-skill-name, etc. — produced 51 false positives on first calibration run with zero real drift.
-
-Replace with a **whitelist-driven** check:
+Use a **whitelist-driven** check — a prefix regex over-matches compound nouns (`vault-side`, `plugin-dev`, `kepano-absorbed`):
 
 ```bash
 # Build the authoritative list of real skills + commands + agents.
@@ -175,7 +173,7 @@ Each entry: `<file>:<line> → <reference> → <diagnostic>`. Include a "closest
 
 ## Reporting back
 
-Return the table plus the per-drift breakdown if any drift was found. Under 500 words total — if the drift list is large, summarise by scope and link to the line ranges. The dispatcher decides whether to fix before merging or releasing.
+Return the table plus the per-drift breakdown if any drift was found. If the drift list is large, summarise by scope and link to the line ranges. The dispatcher decides whether to fix before merging or releasing.
 
 Hard rules:
 

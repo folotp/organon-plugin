@@ -1,6 +1,6 @@
 ---
 name: release-readiness
-description: Use before `/pa-toolkit:plugin-release` to run all pre-flight gates as a read-only sweep. Runs `git status`, the kepano upstream check, `uv run scripts/token-harness.py --no-write`, `claude plugin validate`, and dispatches `markdown-link-validator`. Reports one go/no-go verdict per gate. Read-only.
+description: Use before `/pa-toolkit:plugin-release` to run all pre-flight gates as a read-only sweep. Runs `git status`, the kepano upstream check, `uv run scripts/token-harness.py --no-write`, `claude plugin validate`, `./scripts/validate-specs.sh`, and dispatches `markdown-link-validator`. Reports one go/no-go verdict per gate. Read-only.
 tools: Bash, Read, Grep, Glob, Agent
 model: sonnet
 ---
@@ -27,7 +27,7 @@ If the repo root is missing, stop and ask. Do not guess.
 
 ## Gates to run
 
-Run all six in parallel where possible (the bash invocations are independent). Use `Bash` with `run_in_background` for the slow ones (token harness, markdown-link-validator agent dispatch).
+Run all seven in parallel where possible (the bash invocations are independent). Use `Bash` with `run_in_background` for the slow ones (token harness, markdown-link-validator agent dispatch).
 
 ### Gate 1 — Working tree clean on `main`
 
@@ -85,10 +85,10 @@ FAIL: missing required content OR includes excluded content.
 
 ### Gate 6 — Markdown link integrity
 
-Dispatch the `markdown-link-validator` agent against the repo. Catches drift in cross-references between SKILL.md, references/, command files, docs/, and agent definitions where a single rename silently rots the link — complement to `readme-inventory-checker` (which checks the public surface enumerated in README) and to Gate 4's plugin-validator (which checks manifest/structure, not prose links).
+Dispatch the `markdown-link-validator` agent against the repo. Catches drift in cross-references between SKILL.md, references/, command files, docs/, and agent definitions where a single rename silently rots the link — complement to `readme-inventory-checker` (which checks the public surface enumerated in README) and to Gate 3's plugin validator (which checks manifest/structure, not prose links).
 
 ```text
-Use the Agent tool with subagent_type="markdown-link-validator", prompt="Validate Markdown links + bare-path mentions across <REPO_ROOT>. Scope: all. Report under 500 words."
+Use the Agent tool with subagent_type="markdown-link-validator", prompt="Validate Markdown links + bare-path mentions across <REPO_ROOT>. Scope: all."
 ```
 
 PASS: validator reports `CONSISTENT`.
@@ -121,6 +121,7 @@ Branch: <branch>  Tree: <clean|dirty>
 | 4. Token harness regression           | PASS / FAIL / DEGRADED | <one-line> |
 | 5. .plugin archive build dry-run      | PASS / FAIL            | <one-line> |
 | 6. Markdown link integrity            | PASS / FAIL / DEGRADED | <one-line> |
+| 7. Spec conformance                   | PASS / FAIL            | <one-line> |
 
 Verdict: GO | NO-GO | GO-WITH-DEGRADED-GATES
 
@@ -134,7 +135,7 @@ If a gate is DEGRADED (rc≥2 on the drift gate, harness failed to run), the ver
 
 ## Reporting back
 
-Return the table above plus a one-paragraph executive summary if any gate is non-green. Under 400 words total. The dispatcher (or PA) decides whether to proceed with `/pa-toolkit:plugin-release`.
+Return the table above plus a one-paragraph executive summary if any gate is non-green. The dispatcher (or PA) decides whether to proceed with `/pa-toolkit:plugin-release`.
 
 Hard rules:
 
