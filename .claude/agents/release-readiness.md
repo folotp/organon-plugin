@@ -1,6 +1,6 @@
 ---
 name: release-readiness
-description: Use before `/pa-toolkit:plugin-release` to run all pre-flight gates as a read-only sweep. Runs `git status`, the kepano upstream check, `python3 scripts/token-harness.py --no-write`, `claude plugin validate`, and dispatches `markdown-link-validator`. Reports one go/no-go verdict per gate. Read-only.
+description: Use before `/pa-toolkit:plugin-release` to run all pre-flight gates as a read-only sweep. Runs `git status`, the kepano upstream check, `uv run scripts/token-harness.py --no-write`, `claude plugin validate`, and dispatches `markdown-link-validator`. Reports one go/no-go verdict per gate. Read-only.
 tools: Bash, Read, Grep, Glob, Agent
 model: sonnet
 ---
@@ -63,7 +63,7 @@ FAIL: exit 1 (any error). Warnings (e.g. stale `.plugin` artifacts, `.DS_Store`)
 ### Gate 4 — Token harness regression check
 
 ```bash
-cd "$REPO_ROOT" && python3 scripts/token-harness.py --no-write
+cd "$REPO_ROOT" && uv run scripts/token-harness.py --no-write
 ```
 
 `--no-write` keeps the run from creating a new `eval-workspace/iteration-N/` for a pre-flight (only formal release runs should freeze an iteration).

@@ -180,7 +180,7 @@ shapes.
 
 ```sh
 cd ~/Developer/organon-plugin
-python3 scripts/token-harness.py
+uv run scripts/token-harness.py
 ```
 
 Output: a per-session token table plus the mean ratio. JSON sidecar at
