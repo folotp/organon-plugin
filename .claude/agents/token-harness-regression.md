@@ -59,10 +59,6 @@ Capture stdout. The harness prints per-session rows plus a summary block
 (`mean(ratio)`, `aggregate ratio`, `verdict`). Parse what you need from
 that — the JSON output is gated behind `--no-write` (which only prints).
 
-Alternative: re-derive the same numbers by reading the harness module's
-constants and recomputing yourself. Prefer running the script — it is the
-canonical path and guaranteed to match the committed baselines.
-
 ### 4. Read the baseline
 
 ```bash
@@ -128,7 +124,7 @@ loaded files (look at the harness's per-session `pre_files`/`post_files`).
 
 ## Reporting back
 
-Return the table plus forensic block (if FAIL) under 400 words. The
+Return the table plus forensic block (if FAIL). The
 dispatcher (or PA) decides whether to merge.
 
 Hard rules:

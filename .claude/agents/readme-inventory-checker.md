@@ -52,7 +52,7 @@ For each skill directory, capture:
 - The `description` field (first sentence — what the README typically paraphrases).
 - Whether `disable-model-invocation: true` is set (user-only) or not (description-triggered).
 
-Compare against the skills the README enumerates in its "What this plugin provides" / "Core" / "Aux" / "User-only" sections. The README uses **bold** skill names: `**organon-frontmatter**`, `**kepano-resync**`, etc.
+Compare against the skills the README enumerates in its "What this plugin provides" subsections (currently "Core" and "Aux"). The README uses **bold** skill names: `**organon-frontmatter**`, `**organon-vault-read**`, etc.
 
 MATCH: every directory under `skills/` is mentioned in the README, with the correct invocation category (description-triggered vs user-only).
 DRIFT cases:
@@ -68,7 +68,7 @@ Source of truth:
 ls "$REPO_ROOT"/commands/*.md | xargs -n1 basename | sed 's/\.md$//'
 ```
 
-Compare against the commands the README mentions with the `/<name>` form. Each user-only skill in the README typically pairs with a `/<name>` command.
+Compare against the commands the README mentions with the `/<name>` form.
 
 MATCH: every `commands/<name>.md` appears as `/<name>` in the README.
 DRIFT: command file added without README mention, or README references `/<name>` with no matching command file.
@@ -121,7 +121,7 @@ If any check is DRIFT, append a "Suggested edits" block listing each drift with 
 
 ## Reporting back
 
-Return the table plus the suggested-edits block (if any) under 350 words. The dispatcher decides whether to fix before merging or releasing.
+Return the table plus the suggested-edits block (if any) The dispatcher decides whether to fix before merging or releasing.
 
 Hard rules:
 

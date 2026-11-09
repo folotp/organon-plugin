@@ -84,7 +84,7 @@ For each merge SHA, list the skills whose `SKILL.md` or `references/` were touch
 git -C "$REPO_ROOT" diff --name-only <sha>^1..<sha> -- 'skills/*/SKILL.md' 'skills/*/references/*'
 ```
 
-Use the `<sha>^1..<sha>` form rather than bare `git diff-tree <sha>`. Without parent selection, `diff-tree` collapses merge commits and emits no paths (the original failure mode). With `-m` it over-emits — `-m` shows diffs against **all** parents, so a long-lived PR branch that lagged `main` would bleed unrelated mainline changes into "Skills affected" via the second-parent diff. `<sha>^1..<sha>` selects the first-parent diff only — the canonical "what did this PR add to mainline" form. It also handles squash/rebase merges naturally: when `<sha>` has only one parent, the range is just the single-commit diff.
+Use the `<sha>^1..<sha>` form rather than bare `git diff-tree <sha>`. Without parent selection, `diff-tree` collapses merge commits and emits no paths. With `-m` it over-emits — `-m` shows diffs against **all** parents, so a long-lived PR branch that lagged `main` would bleed unrelated mainline changes into "Skills affected" via the second-parent diff. `<sha>^1..<sha>` selects the first-parent diff only — the canonical "what did this PR add to mainline" form. It also handles squash/rebase merges naturally: when `<sha>` has only one parent, the range is just the single-commit diff.
 
 Aggregate across the range. Each unique `skills/<name>/...` path → `<name>` in the "Skills affected" section. Include a one-line "what changed" derived from the bullet text of the merges that touched it.
 
@@ -172,8 +172,6 @@ Print exactly one Markdown block to stdout, structured per pa-toolkit's `skills/
 - `claude plugin validate` passes.
 ```
 
-Drop empty sections silently (e.g., if there were no `perf/` merges, omit the "Performance" subheading entirely — but keep the section heading "What changed" even if only one subheading lives under it).
-
 ## Reporting back
 
 Print a short preamble before the Markdown block, on stderr (so it's visible to the dispatcher but doesn't pollute stdout if piped):
@@ -187,7 +185,7 @@ changelog-synthesizer:
   heading: <synthesised or supplied>
 ```
 
-Then print the Markdown block to **stdout**. Total output (preamble + draft) under 800 words for a typical release; longer is acceptable for a major version with many merges.
+Then print the Markdown block to **stdout**.
 
 Hard rules:
 
