@@ -38,6 +38,7 @@ Snapshot: connector v3.3.0, `tool_catalog` 2026-11-08. `promoted` covers both de
 | `get_outgoing_links`, `get_backlinks`, `find_broken_links`, `get_files_by_tag`, `list_property_values`, `get_recent_files`, `execute_dataview_query` | promoted (auto) | organon-vault-read |
 | `patch_vault_file`, `search_and_replace`, `set_note_property`, `delete_note_property`, `append_to_vault_file`, `create_vault_file`, `execute_template`, `rename_vault_file`, `rename_heading` | promoted | organon-vault-write |
 | `get_server_info` | promoted | health check, memory-audit probe |
+| `get_canvas`, `add_canvas_node`, `connect_canvas_nodes`, `update_canvas_node`, `delete_canvas_node` | promoted (`persist:true`, 2026-11-08) | organon-canvas via `canvas-author` |
 | `list_tags`, `search_vault`, `tool_catalog`, `activate_tool`, `activate_tools` | active (baseline) | — |
 
 ## Tier B — on-demand (`inactive`, real skill dependency, `activate_tools(persist:false)` guard)
@@ -46,9 +47,14 @@ Snapshot: connector v3.3.0, `tool_catalog` 2026-11-08. `promoted` covers both de
 |---|---|---|
 | `get_note_properties`, `find_orphaned_notes`, `get_file_info`, `list_tasks`, `list_attachments`, `list_vault_folders`, `get_vault_tree` | organon-vault-read | `SKILL.md` §On-demand tools |
 | `update_note_properties`, `rename_tag`, `ensure_block_id`, `set_task_status`, `create_vault_directory`, `delete_vault_directory`, `delete_vault_file` | organon-vault-write | `SKILL.md` §On-demand tools |
-| `get_canvas`, `add_canvas_node`, `connect_canvas_nodes`, `update_canvas_node`, `delete_canvas_node` | organon-canvas | `references/AUTHOR_RUNBOOK.md` |
 
-Deliberately not persisted — let real demand earn promotion. Skills also carry a drift rule: a tool missing
+**Claude Code caveat (observed 2026-11-08, #115 test):** Claude Code fixes its tool list at session (and
+subagent) start. `activate_tools` succeeds connector-side but the new tool never appears — the call then
+fails with `No such tool available`. On-demand activation therefore only works on clients that refresh on
+`tools/list_changed`. Tools a subagent needs must be persisted (done for the 5 canvas tools); for the main
+session, a tool activated mid-session is usable from the next session on.
+
+Otherwise deliberately not persisted — let real demand earn promotion. Skills also carry a drift rule: a tool missing
 from the client's list → `activate_tools` before concluding it's unavailable, so a stale tier here costs one
 idempotent call, not a failure.
 
