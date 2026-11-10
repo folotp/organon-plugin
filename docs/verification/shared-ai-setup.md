@@ -69,3 +69,21 @@ pa-toolkit#21 now rejects existing non-object JSON release extensions, including
 pa-marketplace#11 now pushes the bot branch even when merging current main is its only change. The isolated remote test advances main in an unrelated file and confirms the refreshed bot branch contains that main commit; it failed before the fix and passes afterward. This prevents a bump PR remaining permanently behind under strict protection.
 
 The final dependency policy also diagnoses the already-used Bash and UnZip executables explicitly. A nonzero advisory lint exit with empty output is reported as failed, with a regression test preventing a false pass.
+
+## Merged rollout verification — 2026-11-10
+
+All three implementation PRs are merged, and their main-branch CI passed:
+
+- Organon#134: `281b8f5759df22afae386c257bba42feb68a5b40`.
+- pa-marketplace#11: `dcf797eacdf0ede4e2f7b1e2adfe7738f6e7d8b7`.
+- pa-toolkit#21: `a56f1803914682b965444cbf0bf030d2fd41229e`.
+
+The final pa-toolkit driver also preserves literal braces in Python/JSON/regex command arguments, substituting only `{packager}` and `{output}` in one pass. All nine release/guard tests passed, including a packager path containing a literal placeholder token. Both review threads were fixed, replied to and resolved. Organon CI now pins the merged toolkit commit above, incorporating both final review fixes and retaining a commit reachable from toolkit main.
+
+A fresh dry-run using the merged toolkit main driver against the clean merged Organon main checkout passed the actual repository preflight/package contract: 53 runtime files, 78 archive entries, explicit planned output path, null retained archive. It performed no commit, push, tag, release publication or marketplace dispatch. The follow-up pin change also passed the full shared check and 24 infrastructure tests before committing.
+
+Main protection is active in all three repositories: PRs required, enforced for administrators, strict required checks, no force pushes/deletion. Marketplace requires `Marketplace validation`; Actions PR creation is enabled while default workflow permissions remain read-only. Its adapted bot has a regression-tested PR route; an actual new-version bot publication was not manufactured for this verification.
+
+Local main checkouts match the merged commits. The generic toolkit/marketplace hook launchers now point to the stable pa-toolkit main checkout rather than an implementation worktree; Organon's staged-snapshot launcher remains installed. Organon and toolkit main are clean. The pre-existing marketplace `CLAUDE.md` edit is preserved. Implementation remote branches were deleted by PA and pruned locally.
+
+Installed marketplace copies were not released or changed. For normal local Codex use, review/trust the new exact hook definitions through `/hooks`; the earlier fresh-session evidence used explicitly reviewed invocation-local definitions and does not silently modify global hook trust.
