@@ -177,6 +177,12 @@ class RepositoryTests(unittest.TestCase):
             dev.hook('stop')
             files.assert_not_called()
 
+    def test_stop_failure_without_output_is_not_reported_passed(self):
+        output = io.StringIO()
+        with patch('sys.stdin', io.StringIO('{}')), patch.object(dev, 'shell_files', return_value=['fixture.sh']), patch.object(dev.subprocess, 'run', return_value=subprocess.CompletedProcess([], 1, '')), contextlib.redirect_stdout(output):
+            dev.hook('stop')
+        self.assertIn('failed without diagnostic output', json.loads(output.getvalue())['systemMessage'])
+
     def test_version_outputs(self):
         for output, expected in [('git version 2.54.0 (Apple Git)', (2,54,0)), ('shfmt v3.6.0', (3,6,0)),
                                  ('ShellCheck - shell analysis\nversion: 0.9.0', (0,9,0)), ('jq-1.6', (1,6,0)),

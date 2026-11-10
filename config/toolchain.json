@@ -22,5 +22,13 @@
   "zip": {
     "minimum": "3.0.0",
     "flag": "-v"
+  },
+  "bash": {
+    "minimum": "3.2.0",
+    "flag": "--version"
+  },
+  "unzip": {
+    "minimum": "6.0.0",
+    "flag": "-v"
   }
 }

@@ -278,7 +278,8 @@ def hook(event):
         shell = subprocess.run(['shellcheck', '-x', '--severity=warning', *shell_files()], cwd=ROOT,
                                text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         message = (output.stdout + shell.stdout)[-4000:]
-        print(json.dumps({'systemMessage': 'Shared lint (advisory; files unchanged): ' + (message or 'passed')}))
+        status = message or ('failed without diagnostic output' if output.returncode or shell.returncode else 'passed')
+        print(json.dumps({'systemMessage': 'Shared lint (advisory; files unchanged): ' + status}))
         return
     feedback = []
     paths = hook_paths(payload)
@@ -312,6 +313,7 @@ def parse_version(output):
 
 
 def doctor():
+    require(sys.version_info >= (3, 9), 'Launcher Python 3.9+ required; use a supported python3 on PATH')
     policy = data('config/toolchain.json')
     failures = []
     for name, rule in policy.items():

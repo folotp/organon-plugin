@@ -23,7 +23,7 @@ jobs:
           python-version: '3.11'
       - name: Install shell tools (Linux)
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y shellcheck shfmt jq
+        run: sudo apt-get update && sudo apt-get install -y shellcheck shfmt jq zip unzip
       - name: Install shell tools (macOS)
         if: runner.os == 'macOS'
         run: brew install shellcheck shfmt jq
