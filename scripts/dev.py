@@ -20,30 +20,44 @@ MARKER = "# managed-by: organon-plugin install-git-hooks.sh"
 
 
 def run(*args, cwd=None, capture=False):
+    """Run argv in the selected worktree; raise on nonzero exit.
+
+    Capture stdout only when requested; all other output stays visible to the caller."""
     return subprocess.run(args, cwd=cwd or ROOT, check=True, text=True,
                           stdout=subprocess.PIPE if capture else None).stdout
 
 
 def git(*args, cwd=None):
+    """Return stripped Git output for this worktree; propagate command failures."""
     return run("git", *args, cwd=cwd, capture=True).strip()
 
 
 def data(path):
+    """Read repository-relative JSON policy; malformed or missing inputs fail closed."""
     return json.loads((ROOT / path).read_text())
 
 
 def require(condition, message):
+    """Raise a CLI policy failure with actionable text when an invariant is false."""
     if not condition:
         raise ValueError(message)
 
 
 def source_files():
     # Include new development files before the first commit; skip ignored artifacts.
+    """Return existing tracked and nonignored untracked files, including symlinks.
+
+    Using Git instead of a filesystem walk excludes environments and local artifacts
+    while allowing checks before the first commit. This does not select package inputs."""
     names = run("git", "ls-files", "--cached", "--others", "--exclude-standard", "-z", capture=True)
     return sorted({ROOT / p for p in names.split("\0") if p and (ROOT / p).is_file()})
 
 
 def specs():
+    """Validate portable skills, connector tool declarations and both manifest paths.
+
+    The Claude manifest must remain a symlink to the canonical root manifest.
+    Validator executables come from the locked project environment, never a skip path."""
     run("bash", str(ROOT / "scripts/check-agent-tools.sh"))
     for skill in sorted((ROOT / "skills").iterdir()):
         if (skill / "SKILL.md").is_file():
@@ -54,6 +68,10 @@ def specs():
 
 
 def links():
+    """Check explicit relative Markdown targets in current source files.
+
+    Parse Markdown so examples are ignored. Vault wikilinks, URL/fragment-only links
+    and heading existence are outside this structural check; prose needs review."""
     from markdown_it import MarkdownIt
     parser = MarkdownIt()
     errors = []
@@ -74,6 +92,9 @@ def links():
 
 
 def inventory():
+    """Check current README skill/command coverage and its latest release version.
+
+    Ignore historical changelog inventory when checking currently shipped entries."""
     readme = (ROOT / "README.md").read_text().split("## Changes since", 1)[0]
     for skill in (ROOT / "skills").glob("*/SKILL.md"):
         require(f"**{skill.parent.name}**" in readme, f"README missing skill {skill.parent.name}")
@@ -85,6 +106,12 @@ def inventory():
 
 
 def protected(base):
+    """Compare current protected files with base, enforcing pin/exception policy.
+
+    Union base and current inventories so deleting a policy entry cannot exempt a
+    changed reference. Exceptions authorize exact bytes, never a wildcard. A resync
+    token permits selected editor operations only and always blocks this gate.
+    A changed pin records a refresh workflow; it does not prove upstream equivalence."""
     config = data("config/protected-references.json")
     pin = (ROOT / "kepano-version.txt").read_text().strip()
     require(re.fullmatch(r"kepano/obsidian-skills@[0-9a-f]{40}", pin), "Malformed Kepano pin")
@@ -109,6 +136,10 @@ def protected(base):
 
 
 def lint(fix=False):
+    """Check shell style, ShellCheck warnings and Git whitespace; fix only on opt-in.
+
+    format uses shfmt -w explicitly. Normal checks and lifecycle hooks never rewrite
+    files behind the agent. The shell file selection is shared with Stop feedback."""
     files = shell_files()
     run("shfmt", "-i", "4", "-ci", "-w" if fix else "-d", *files)
     if not fix:
@@ -117,6 +148,11 @@ def lint(fix=False):
 
 
 def tokens(update=False):
+    """Compare modeled main/total content tokens with the tracked scenario baseline.
+
+    Both inline and delegated profiles have a 5% aggregate regression limit. Updating
+    the baseline is an explicit reviewed operation, not a way to repair a failed gate.
+    These estimates are content-size comparisons, not measured API usage or billing."""
     spec = importlib.util.spec_from_file_location("token_harness", ROOT / "scripts/token-harness.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -143,6 +179,10 @@ def tokens(update=False):
 
 def package_paths():
     # Ignore local artifacts even when they live inside a shipped directory.
+    """Expand the runtime allowlist, retaining only nonignored source files.
+
+    Selection, path validation and archive verification are separate steps so callers
+    can inspect the contract without creating an archive. Source symlinks are retained."""
     sources = set(source_files())
     paths = []
     for name in data("config/package-files.json"):
@@ -153,6 +193,9 @@ def package_paths():
 
 
 def package_check():
+    """Validate runtime selection, external symlinks and the audit-command invariant.
+
+    Only listed payloads ship; development configuration and out-of-repo targets fail."""
     paths = package_paths()
     for path in paths:
         require(not any(p in path.relative_to(ROOT).parts for p in ('.claude', '.codex', '.agents', '.git')), f"Development config in package: {path}")
@@ -163,6 +206,11 @@ def package_check():
 
 def package(packager, output):
     # Delegate zip creation to pa-toolkit; only select this plugin's payload here.
+    """Stage the runtime contract, delegate ZIP creation and verify exact file names.
+
+    packager selects pa-toolkit package.sh explicitly. Temporary staging is cleaned
+    on success or failure; only a verified archive is copied to output. Preserve the
+    source manifest symlink, and never package the development checkout directly."""
     package_check()
     script = Path(packager).expanduser().resolve()
     require(script.is_file(), "Pass --packager pointing to pa-toolkit's package.sh")
@@ -189,6 +237,11 @@ def package(packager, output):
 
 
 def check(base, skip_tests=False):
+    """Run the common required gates in order; stop at the first failure.
+
+    Used by agents, isolated staged checks and both CI operating systems. Full release
+    archive creation is a separate package/driver step, not implied by package_check.
+    skip_tests is an internal option; normal CLI checks always run infrastructure tests."""
     doctor()
     specs()
     lint()
@@ -202,6 +255,11 @@ def check(base, skip_tests=False):
 
 
 def check_staged():
+    """Validate exactly the Git index, not unstaged edits that could hide a defect.
+
+    Export the index into a disposable repository, compare it with committed HEAD,
+    and invoke the same check command there. Strip inherited GIT_* variables so Git
+    cannot resolve back to the original checkout. Never change its branch or index."""
     require(git("branch", "--show-current") not in ("", "main"), "Commit from a named feature branch, not main/detached HEAD")
     require(not (ROOT / '.organon-resync-token').exists(), "Remove .organon-resync-token before commit")
     # Export the index, never the working tree: partial staging must not hide failures.
@@ -219,6 +277,10 @@ def check_staged():
 
 def install_hooks(uninstall=False):
     # Honor core.hooksPath and Git's common metadata directory for linked worktrees.
+    """Install/remove only the marked staged-check launcher at Git’s resolved path.
+
+    Linked worktrees may share this file; the launcher resolves the active worktree
+    when executed. Refuse unmanaged hooks rather than replacing someone else’s checks."""
     path = Path(git("rev-parse", "--path-format=absolute", "--git-path", "hooks/pre-commit"))
     if path.exists():
         require(MARKER in path.read_text(), f"Preserving unmanaged hook: {path}; merge manually")
@@ -233,7 +295,13 @@ def install_hooks(uninstall=False):
 
 
 def hook_paths(payload):
-    """Normalize native patch headers and Claude file edits, never shell text."""
+    """Resolve every native patch header or Claude file path against payload cwd.
+
+    Include move destinations as well as sources: protecting only the source
+    would permit overwriting a protected destination. Resolve dot segments and
+    symlinks before consulting the one repository inventory. Unsupported shapes
+    or paths outside this repository raise; arbitrary shell text is never parsed.
+    """
     require(isinstance(payload, dict), 'Hook payload must be an object')
     inputs = payload.get('tool_input', {})
     require(isinstance(inputs, dict), 'Unsupported tool_input shape')
@@ -260,6 +328,13 @@ def hook_paths(payload):
 
 
 def hook(event):
+    """Adapt one lifecycle event to common policy and bounded client-compatible output.
+
+    start emits advisory branch context. edit raises on protected paths unless each
+    path has a scoped token entry. format and stop produce advisory JSON without
+    changing files; repeated Stop events do not request another continuation. Native
+    patch and Claude file payloads normalize through hook_paths. Git/CI cover other
+    editing paths, including shell writes, which these matchers do not intercept."""
     if event == 'start':
         if git('branch', '--show-current') == 'main':
             print('Development policy: create a feature branch/worktree before committing; see AGENTS.md.')
@@ -303,16 +378,26 @@ def hook(event):
 
 
 def shell_files():
+    """Select repository shell sources, including the extensionless scripts/dev."""
     return [str(p) for p in source_files() if p.suffix == '.sh' or p == ROOT / 'scripts/dev']
 
 
 def parse_version(output):
+    """Normalize the first major.minor[.patch] tuple from required-tool output.
+
+    Support Git vendor suffixes, shfmt prefixes, jq and Info-ZIP banners. Unknown
+    formats raise instead of being assumed supported; fixtures pin the expected forms."""
     match = re.search(r'(\d+)\.(\d+)(?:\.(\d+))?', output)
     require(match, 'Cannot parse tool version: ' + output[:160])
     return tuple(int(x or 0) for x in match.groups())
 
 
 def doctor():
+    """Report required executable versions and verify the managed project interpreter.
+
+    The launcher can use Python 3.9+, while uv selects Python 3.11+ for locked checks.
+    Do not reject a usable managed environment based on Apple’s older system Python.
+    Missing tools, unsupported versions and blocked uv access fail with a remedy."""
     require(sys.version_info >= (3, 9), 'Launcher Python 3.9+ required; use a supported python3 on PATH')
     policy = data('config/toolchain.json')
     failures = []
@@ -343,6 +428,12 @@ def doctor():
 
 
 def main():
+    """Dispatch the shared CLI and preserve each consumer’s failure/output contract.
+
+    Required commands fail nonzero. Stop errors become explicit advisory JSON, with
+    no recursive continuation. Do not print a generic success suffix after hook JSON.
+    Release-check requires a clean tree, full gates and an actual verified archive;
+    only upstream freshness remains advisory. Session launching lives in scripts/dev."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('command', choices=['doctor', 'specs', 'links', 'inventory', 'tokens', 'baseline', 'check', 'check-staged', 'format', 'install-hooks', 'hook', 'worktree', 'package-check', 'package', 'release-check'])
     parser.add_argument('extra', nargs='*')

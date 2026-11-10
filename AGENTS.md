@@ -7,6 +7,7 @@ This repository ships Organon vault skills, not the Obsidian MCP server.
 - `agents/`, `commands/`: Claude runtime adapters. `.claude/agents/`: development wrappers.
 - `plugin.json`: sole version source; preserve `.claude-plugin/plugin.json` symlink.
 - `scripts/dev`: shared development command; `docs/development.md`: setup and workflow.
+- Architecture, source ownership and change procedures: `docs/development-architecture.md`.
 - Vault access is unnecessary for development checks. Use an explicitly selected test vault for integration tests; never infer permission to change Organon from a repository task.
 
 ## Workflow
@@ -17,6 +18,10 @@ This repository ships Organon vault skills, not the Obsidian MCP server.
 - For substantial refactors, explain the plan first. Preserve unrelated changes.
 - Keep durable decisions in tracked docs and shared runbooks, not private agent memory.
 - Shell: Bash 3.2 compatible, `shfmt -i 4 -ci`; Python tooling is locked with uv. Flag new dependencies.
+
+## Code and documentation
+
+Code must explain its own intent through precise names, coherent functions and explicit contracts. Add docstrings or nearby comments for non-obvious inputs/outputs, side effects, failure behavior, invariants and the reasons behind important decisions; do not narrate obvious statements. Complement the code with repository architecture/design documents and operational runbooks. Update code, related docs, examples and tests together in the same PR. Preserve one authoritative implementation of each policy; client adapters refer to it. Documentation is part of completion, not a later task. A reviewer must be able to understand, operate and modify the change without this conversation or private agent memory.
 
 ## Protected references and releases
 - Protected paths are listed once in `config/protected-references.json`. Follow `docs/refreshing-kepano.md`; never bypass protection through a different editing tool.

@@ -282,12 +282,14 @@ SESSIONS: list[dict] = [
 
 
 def file_tokens(path: Path) -> int:
+    """Count UTF-8 source content with the configured tokenizer; fail if absent."""
     if not path.is_file():
         raise FileNotFoundError(f"Missing file: {path}")
     return len(ENCODING.encode(path.read_text(encoding="utf-8")))
 
 
 def skill_path(skill: str, rel: str) -> Path:
+    """Resolve a skill-relative source path under the modeled skills directory."""
     return SKILLS_DIR / skill / rel
 
 
@@ -393,6 +395,7 @@ def session_costs(session: dict, token_cache: dict[Path, int], profile: str = "d
 
 
 def auto_iteration() -> int:
+    """Choose the next unused local report number without creating output yet."""
     if not EVAL_DIR.is_dir():
         return 1
     pattern = re.compile(r"^iteration-(\d+)$")
@@ -405,6 +408,7 @@ def auto_iteration() -> int:
 
 
 def render_table(rows: list[dict]) -> str:
+    """Render scenario costs as a readable table; leave calculation to session_costs."""
     cols = ("id", "name", "pre_tokens", "post_tokens", "subagent_tokens", "ratio")
     headers = ("ID", "Session shape", "pre_tok", "post_tok", "sub_tok", "ratio")
     widths = [len(h) for h in headers]
@@ -426,6 +430,7 @@ def render_table(rows: list[dict]) -> str:
 
 
 def verdict(mean_ratio: float) -> str:
+    """Classify the historical comparison ratio; separate from the CI regression gate."""
     if mean_ratio >= 2.15:
         return "PASS (target ≥ 2.15× B4-complet)"
     if mean_ratio >= 2.0:
@@ -439,6 +444,10 @@ def verdict(mean_ratio: float) -> str:
 
 
 def main() -> int:
+    """Run the standalone historical report and write its explicit evaluation output.
+
+    CI uses scripts/dev tokens and the tracked baseline instead of this reporting
+    entry point. Generated evaluation reports must stay outside committed source."""
     parser = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     parser.add_argument(
         "--iteration",

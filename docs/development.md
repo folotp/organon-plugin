@@ -1,10 +1,13 @@
 # Shared development workflow
 
+Start with [the architecture and maintenance guide](https://github.com/folotp/organon-plugin/blob/main/docs/development-architecture.md) when changing the tooling. The shared [agent contract](https://github.com/folotp/organon-plugin/blob/main/AGENTS.md) requires self-documenting code plus architecture and runbooks maintained in the same PR.
+
 ## Setup
 
 The minimum supported tool versions live in `config/toolchain.json`: Git 2.31, uv 0.13.7, jq 1.6, shfmt 3.6, ShellCheck 0.9, Info-ZIP 3.0, UnZip 6.0, and Bash 3.2. These are supported minimums, not exact shell-tool pins; CI package managers may supply newer versions. Python libraries and the skills validator revision remain locked by `uv.lock`. The launcher uses Python 3.9+ (including Apple's system Python); uv selects the project Python 3.11+ separately. Doctor reports both interpreters and detected tool versions, and fails missing, unsupported, or unparseable required tooling. CI runs doctor as part of the same check on Linux/macOS. Shell code remains Bash 3.2 compatible.
 
 On macOS, install the command-line tools with Homebrew. `uv sync --locked` prepares the project environment. A missing/offline cache is a failed check, never a skipped gate. Under a sandbox, request approved access for a blocked existing cache or prepare an explicitly writable cache/environment before checking. `UV_CACHE_DIR` and `UV_PROJECT_ENVIRONMENT` are supported explicit per-invocation uv settings; avoid silently changing global settings. Keep environments outside version control.
+
 ```sh
 ./scripts/dev doctor
 ./scripts/dev install-hooks
