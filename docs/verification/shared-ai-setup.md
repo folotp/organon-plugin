@@ -44,7 +44,7 @@ A squashed revert can make a PR stacked on the old branch merge empty: current-m
 ## Deterministic and release checks
 
 - Shared check: tool/version diagnostics, eight skill specifications, manifest schema/symlink, shell lint/format, links/inventory, protected references, unchanged token aggregates, archive contract and 23 isolated infrastructure tests.
-- pa-toolkit: seven extension/fallback and branch-guard tests; Linux/macOS CI passed on `05e90142f5c3e3ae7ac16e1c5f409d45866210e0` (PR folotp/pa-toolkit#21). ShellCheck and actionlint passed; the unchanged low-level package.sh has pre-existing shfmt differences, which were not rewritten.
+- pa-toolkit: eight extension/fallback and branch-guard tests; Linux/macOS CI passed on the initial implementation and are rerun for the reviewed revision `c457505941c788be49459295e872993af7d53297` (PR folotp/pa-toolkit#21). ShellCheck and actionlint passed; the unchanged low-level package.sh has pre-existing shfmt differences, which were not rewritten.
 - A real Organon archive matched the allowlist, retained runtime skills/agents/command, required memory-audit docs/script, provenance and manifest compatibility. `claude plugin validate` on the extracted archive passed. Development hook/configuration files, environments and ignored artifacts were absent. Root-level docs and memory-audit references stay shipped to preserve runtime README links; this development verification report is excluded.
 - The actual portable release-driver dry-run passed from a clean linked feature worktree. It automatically ran Organon’s shared release-check and package contract, verified 53 runtime files (78 ZIP entries including directories), returned an explicit planned output path and null archive, and cleaned temporary staging. It made no commit, tag, push, publication or marketplace change. A retained build and optional client check are also verified before handoff.
 
@@ -61,3 +61,9 @@ The disposable client worktrees and their two baseline-only branches were remove
 Optional cross-format probes found existing pa-toolkit compatibility boundaries: strict skills-ref rejects its unchanged Claude-only `argument-hint` / `disable-model-invocation` fields, and Organon’s portable manifest schema requires `$schema`, which the unchanged legacy pa-toolkit manifest does not declare. These were not substituted for pa-toolkit’s actual required tests. Claude’s native validator passed pa-toolkit with existing directory-catalog warnings (license/icon and root project context); no public plugin submission is part of this task.
 
 The marketplace workflow change is committed in folotp/pa-marketplace#11; its CI validation passed. Its protection/settings rollout is intentionally sequenced after that PR merges, so the current direct-push workflow stays functional in the meantime. All implementation PRs need review/merge before main checkouts use the new sources.
+
+## Review fixes — 2026-11-10
+
+pa-toolkit#21 now rejects existing non-object JSON release extensions, including `null`, before considering fallback packaging. Regression coverage reproduces the old bypass in dry-run and build and also checks arrays, numbers, strings and booleans. All eight release/guard tests passed locally. Organon’s CI pin selects this fixed driver revision.
+
+pa-marketplace#11 now pushes the bot branch even when merging current main is its only change. The isolated remote test advances main in an unrelated file and confirms the refreshed bot branch contains that main commit; it failed before the fix and passes afterward. This prevents a bump PR remaining permanently behind under strict protection.

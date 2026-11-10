@@ -40,7 +40,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: folotp/pa-toolkit
-          ref: 05e90142f5c3e3ae7ac16e1c5f409d45866210e0
+          ref: c457505941c788be49459295e872993af7d53297
           path: .tooling/pa-toolkit
       - name: Verify release archive
         run: |
