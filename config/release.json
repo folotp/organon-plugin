@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "preflight": [
+    "./scripts/dev",
+    "release-check",
+    "--packager",
+    "{packager}"
+  ],
+  "package": [
+    "./scripts/dev",
+    "package",
+    "--packager",
+    "{packager}",
+    "--output",
+    "{output}"
+  ]
+}

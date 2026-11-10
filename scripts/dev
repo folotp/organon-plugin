@@ -2,6 +2,20 @@
 set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$root"
+# Normalize client startup to the repository root, including subdirectory launches.
+# Client trust/permissions remain unchanged; no extra flags are injected.
+if [[ "${1:-}" == session ]]; then
+    shift
+    client="${1:-}"
+    case "$client" in
+        claude | codex) shift ;;
+        *)
+            echo 'Usage: scripts/dev session claude|codex [client arguments]' >&2
+            exit 2
+            ;;
+    esac
+    exec "$client" "$@"
+fi
 case "${1:-help}" in
     doctor | worktree | hook | install-hooks | check-staged)
         exec python3 "$root/scripts/dev.py" "$@"

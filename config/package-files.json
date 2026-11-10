@@ -8,7 +8,16 @@
   "README.md",
   "LICENSE",
   "kepano-version.txt",
-  "docs",
   "scripts/kepano-check-upstream.sh",
-  "config/protected-references.json"
+  "config/protected-references.json",
+  "docs/contributor-notes.md",
+  "docs/cross-platform-skills.md",
+  "docs/development.md",
+  "docs/hook-scope.md",
+  "docs/large-reads-in-subagents.md",
+  "docs/mcp-tool-loading.md",
+  "docs/refreshing-kepano.md",
+  "docs/release.md",
+  "docs/token-harness-methodology.md",
+  "docs/memory-audit"
 ]

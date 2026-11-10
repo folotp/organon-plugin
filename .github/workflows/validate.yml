@@ -23,7 +23,7 @@ jobs:
           python-version: '3.11'
       - name: Install shell tools (Linux)
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y shellcheck shfmt jq
+        run: sudo apt-get update && sudo apt-get install -y shellcheck shfmt jq zip unzip
       - name: Install shell tools (macOS)
         if: runner.os == 'macOS'
         run: brew install shellcheck shfmt jq
@@ -40,7 +40,10 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: folotp/pa-toolkit
-          ref: 4e96ad65732fa79093674afbd231692c2891c8c4
+          ref: c457505941c788be49459295e872993af7d53297
           path: .tooling/pa-toolkit
       - name: Verify release archive
-        run: ./scripts/dev package --packager .tooling/pa-toolkit/skills/plugin-release/scripts/package.sh
+        run: |
+          python3 .tooling/pa-toolkit/skills/plugin-release/scripts/release.py . \
+            --dry-run --output "$RUNNER_TEMP/organon-package" \
+            --result "$RUNNER_TEMP/organon-release-result.json"

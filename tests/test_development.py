@@ -138,6 +138,85 @@ class RepositoryTests(unittest.TestCase):
         with patch('sys.stdin', io.StringIO(json.dumps({'tool_input': {'file_path': str(self.root / 'protected.md')}}))):
             dev.hook('edit')
 
+    def patch_payload(self, text, cwd=None):
+        return {'tool_name': 'apply_patch', 'tool_input': {'command': text}, 'cwd': str(cwd or self.root)}
+
+    def test_native_patch_multiple_paths_and_move_destination(self):
+        payload = self.patch_payload('*** Begin Patch\n*** Update File: ordinary.md\n*** Move to: protected.md\n@@\n-a\n+b\n*** End Patch')
+        with patch('sys.stdin', io.StringIO(json.dumps(payload))):
+            with self.assertRaisesRegex(ValueError, 'Protected reference'):
+                dev.hook('edit')
+        self.assertEqual(len(dev.hook_paths(payload)), 2)
+
+    def test_native_patch_subdirectory_absolute_and_delete(self):
+        (self.root / 'sub').mkdir()
+        for name in ('../protected.md', str(self.root / 'protected.md')):
+            payload = self.patch_payload('*** Begin Patch\n*** Delete File: ' + name + '\n*** End Patch', self.root / 'sub')
+            with patch('sys.stdin', io.StringIO(json.dumps(payload))):
+                with self.assertRaisesRegex(ValueError, 'Protected reference'):
+                    dev.hook('edit')
+
+    def test_native_patch_scoped_token_does_not_allow_other_path(self):
+        self.write('.organon-resync-token', 'ordinary.md\n')
+        payload = self.patch_payload('*** Begin Patch\n*** Add File: protected.md\n+x\n*** End Patch')
+        with patch('sys.stdin', io.StringIO(json.dumps(payload))):
+            with self.assertRaisesRegex(ValueError, 'Protected reference'):
+                dev.hook('edit')
+        self.write('.organon-resync-token', 'protected.md\n')
+        with patch('sys.stdin', io.StringIO(json.dumps(payload))):
+            dev.hook('edit')
+
+    def test_malformed_unsupported_and_outside_paths_fail(self):
+        for payload in ([], {'tool_input': []}, {'tool_name': 'Bash', 'tool_input': {'command': 'echo x'}},
+                        self.patch_payload('bad'), self.patch_payload('*** Begin Patch\n*** Add File: /tmp/outside\n+x\n*** End Patch')):
+            with self.subTest(payload=payload), self.assertRaises(ValueError):
+                dev.hook_paths(payload)
+
+    def test_stop_does_not_recurse(self):
+        with patch('sys.stdin', io.StringIO('{"stop_hook_active":true}')), patch.object(dev, 'source_files') as files:
+            dev.hook('stop')
+            files.assert_not_called()
+
+    def test_stop_failure_without_output_is_not_reported_passed(self):
+        output = io.StringIO()
+        with patch('sys.stdin', io.StringIO('{}')), patch.object(dev, 'shell_files', return_value=['fixture.sh']), patch.object(dev.subprocess, 'run', return_value=subprocess.CompletedProcess([], 1, '')), contextlib.redirect_stdout(output):
+            dev.hook('stop')
+        self.assertIn('failed without diagnostic output', json.loads(output.getvalue())['systemMessage'])
+
+    def test_version_outputs(self):
+        for output, expected in [('git version 2.54.0 (Apple Git)', (2,54,0)), ('shfmt v3.6.0', (3,6,0)),
+                                 ('ShellCheck - shell analysis\nversion: 0.9.0', (0,9,0)), ('jq-1.6', (1,6,0)),
+                                 ('Copyright 1990-2008\nThis is Zip 3.0 (July)', (3,0,0))]:
+            self.assertEqual(dev.parse_version(output), expected)
+        with self.assertRaises(ValueError):
+            dev.parse_version('unrecognized')
+
+    def test_doctor_required_tools_missing_old_and_supported(self):
+        self.write('config/toolchain.json', json.dumps({'shfmt': {'minimum': '3.6.0', 'flag': '--version'}}))
+        for found, version, success in [(None, '3.6.0', False), ('/tool/shfmt', '3.5.0', False), ('/tool/shfmt', 'v3.6.0', True)]:
+            with patch.object(dev.shutil, 'which', return_value=found), patch.object(dev.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0, version)), patch.object(dev, 'run', return_value='3.12.0'), patch.object(dev, 'git', return_value=str(self.root / '.git/hooks/pre-commit')):
+                if success:
+                    dev.doctor()
+                else:
+                    with self.assertRaises(ValueError):
+                        dev.doctor()
+
+    def test_session_launcher_resolves_root_from_subdirectory(self):
+        import shutil
+        launcher = self.root / 'scripts/dev'
+        launcher.parent.mkdir(exist_ok=True)
+        shutil.copy2(self.original_root / 'scripts/dev', launcher)
+        fake_bin = self.root / 'fake-bin'
+        fake_bin.mkdir()
+        client = fake_bin / 'codex'
+        client.write_text('#!/bin/sh\nprintf "%s\\n" "$PWD" "$@"\n')
+        client.chmod(0o755)
+        env = dict(os.environ, PATH=str(fake_bin) + os.pathsep + os.environ['PATH'])
+        result = subprocess.check_output([str(launcher), 'session', 'codex', '--example', 'argument with spaces'], cwd=launcher.parent, env=env, text=True)
+        lines = result.splitlines()
+        self.assertEqual(Path(lines[0]).resolve(), self.root.resolve())
+        self.assertEqual(lines[1:], ['--example', 'argument with spaces'])
+
     def test_package_rejects_development_config(self):
         self.write('.codex/hooks.json', '{}')
         self.write('config/package-files.json', json.dumps(['.codex']))
