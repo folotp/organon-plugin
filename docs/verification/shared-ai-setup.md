@@ -46,7 +46,7 @@ A squashed revert can make a PR stacked on the old branch merge empty: current-m
 - Shared check: tool/version diagnostics, eight skill specifications, manifest schema/symlink, shell lint/format, links/inventory, protected references, unchanged token aggregates, archive contract and 23 isolated infrastructure tests.
 - pa-toolkit: seven extension/fallback and branch-guard tests; Linux/macOS CI passed on `05e90142f5c3e3ae7ac16e1c5f409d45866210e0` (PR folotp/pa-toolkit#21). ShellCheck and actionlint passed; the unchanged low-level package.sh has pre-existing shfmt differences, which were not rewritten.
 - A real Organon archive matched the allowlist, retained runtime skills/agents/command, required memory-audit docs/script, provenance and manifest compatibility. `claude plugin validate` on the extracted archive passed. Development hook/configuration files, environments and ignored artifacts were absent. Root-level docs and memory-audit references stay shipped to preserve runtime README links; this development verification report is excluded.
-- The full portable release-driver dry-run will be recorded after committing the implementation, because its clean-tree gate intentionally rejects an in-progress source checkout.
+- The actual portable release-driver dry-run passed from a clean linked feature worktree. It automatically ran Organon’s shared release-check and package contract, verified 53 runtime files (78 ZIP entries including directories), returned an explicit planned output path and null archive, and cleaned temporary staging. It made no commit, tag, push, publication or marketplace change. A retained build and optional client check are also verified before handoff.
 
 ## Protection and rollout
 
@@ -57,3 +57,7 @@ pa-marketplace was unprotected and its bot still directly pushes main. A separat
 Merge pa-toolkit#21 before Organon's integration PR. Organon's CI pins the new driver revision and runs its actual dry-run contract. Source edits do not update installed pa-toolkit copies; installed distribution requires a separately authorized release. No release was performed.
 
 The disposable client worktrees and their two baseline-only branches were removed; `git worktree list` confirmed only the primary and implementation worktrees remain. The primary Organon checkout stayed clean on main.
+
+Optional cross-format probes found existing pa-toolkit compatibility boundaries: strict skills-ref rejects its unchanged Claude-only `argument-hint` / `disable-model-invocation` fields, and Organon’s portable manifest schema requires `$schema`, which the unchanged legacy pa-toolkit manifest does not declare. These were not substituted for pa-toolkit’s actual required tests. Claude’s native validator passed pa-toolkit with existing directory-catalog warnings (license/icon and root project context); no public plugin submission is part of this task.
+
+The marketplace workflow change is committed in folotp/pa-marketplace#11; its CI validation passed. Its protection/settings rollout is intentionally sequenced after that PR merges, so the current direct-push workflow stays functional in the meantime. All implementation PRs need review/merge before main checkouts use the new sources.

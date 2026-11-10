@@ -324,8 +324,8 @@ def doctor():
         try:
             version = parse_version(result.stdout)
             minimum = tuple(int(n) for n in rule['minimum'].split('.'))
-            require(result.returncode == 0 and version >= minimum, f'{name} >= {rule["minimum"]} required')
             print(f'{name}: {".".join(map(str, version))} ({found})')
+            require(result.returncode == 0 and version >= minimum, f'{name} >= {rule["minimum"]} required; upgrade the detected installation')
         except ValueError as error:
             failures.append(str(error))
     print(f'Launcher Python: {sys.version.split()[0]} ({sys.executable}); project Python is checked separately')
@@ -335,9 +335,9 @@ def doctor():
         print('Managed project Python: ' + result.strip())
     except (OSError, subprocess.CalledProcessError):
         failures.append('Managed Python unavailable: run uv sync --locked with approved network/cache access; see docs/development.md')
+    require(not failures, '; '.join(failures))
     path = Path(git('rev-parse', '--path-format=absolute', '--git-path', 'hooks/pre-commit'))
     print(f'pre-commit: {path} ({"current launcher" if path.exists() and "check-staged" in path.read_text() else "missing or outdated"})')
-    require(not failures, '; '.join(failures))
 
 
 def main():
