@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PROJECT_DIR}/scripts/hooks/block-absorbed-edits.sh",
+            "command": "\"$(git rev-parse --show-toplevel)/scripts/hooks/block-absorbed-edits.sh\"",
             "timeout": 5
           }
         ]
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PROJECT_DIR}/scripts/hooks/enforce-skill-delegation.sh",
+            "command": "\"$(git rev-parse --show-toplevel)/scripts/hooks/enforce-skill-delegation.sh\"",
             "timeout": 5
           }
         ]
@@ -29,7 +29,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PROJECT_DIR}/scripts/hooks/postedit-shfmt.sh",
+            "command": "\"$(git rev-parse --show-toplevel)/scripts/hooks/postedit-shfmt.sh\"",
             "timeout": 10
           }
         ]
@@ -40,7 +40,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PROJECT_DIR}/scripts/hooks/userprompt-branch-check.sh",
+            "command": "\"$(git rev-parse --show-toplevel)/scripts/hooks/userprompt-branch-check.sh\"",
             "timeout": 5
           }
         ]
@@ -51,7 +51,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PROJECT_DIR}/scripts/hooks/stop-shellcheck.sh",
+            "command": "\"$(git rev-parse --show-toplevel)/scripts/hooks/stop-shellcheck.sh\"",
             "timeout": 10
           }
         ]

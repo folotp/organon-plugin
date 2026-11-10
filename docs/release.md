@@ -10,8 +10,15 @@ Resolve the intended installed or local `pa-toolkit/skills/plugin-release/script
 ./scripts/dev release-check --packager /path/to/pa-toolkit/skills/plugin-release/scripts/package.sh
 ```
 
-For the actual archive, use `scripts/dev package --packager <same-path> --output <directory>` as this repository's packaging entry point in the pa-toolkit release workflow. It stages only `config/package-files.json` inputs in a temporary directory, delegates archive creation to pa-toolkit, and verifies the archive's exact file inventory. Do not call the generic packager directly on this source checkout: its broad inclusion rules can include development adapters and local artifacts. No pa-toolkit source change is required by this wrapper; automated callers of its generic packager must adopt this repository entry point before the next release.
+The pa-toolkit shared entry point is `skills/plugin-release/scripts/release.py`, with its agent-neutral procedure in `skills/plugin-release/references/runbook.md`. This repository's `config/release.json` explicitly supplies `scripts/dev release-check` and `scripts/dev package`. Both dry-run and build invoke the same contract; the driver returns the verified absolute archive path in a JSON receipt for upload.
 
+```sh
+python3 /path/to/pa-toolkit/skills/plugin-release/scripts/release.py /path/to/clean/organon-worktree --packager /path/to/pa-toolkit/skills/plugin-release/scripts/package.sh --output /tmp/organon-release --result /tmp/organon-release-result.json --dry-run
+```
+
+The dry-run builds and checks a temporary archive, cleans staging, and returns `planned_archive` with a null `archive`. Omit `--dry-run` only to build a retained archive; that command still does not publish. Pass the receipt's `archive` explicitly to the authorized upload. The repository must be clean, including from a linked worktree. The wrapper stages only `config/package-files.json`, invokes the generic packager, and verifies exact inventory. Never call the generic packager directly on this source checkout.
+
+Source changes in a local pa-toolkit checkout do not change an installed marketplace copy. Select the updated checkout explicitly until a separately authorized pa-toolkit release distributes the new entry point. The generic package.sh did not change, so Organon's CI packager pin remains valid; CI also verifies the new release driver from a separately pinned revision once merged.
 The package retains portable skills, Claude runtime agents/command, documentation, the memory-audit upstream-check script, protected-reference inventory, metadata, assets, README, license, and provenance pin. It excludes automatically loaded development instructions, hooks, tests, environments, development scripts, and CI. Runtime hooks and bundled MCP configuration remain absent.
 
 The pin-to-upstream-HEAD comparison is an advisory update signal, never proof of adapted-content equivalence. Other required check failures stop release. An optional `claude plugin validate <staged-package-root>` is a client compatibility smoke test, not a dependency of shared validation.

@@ -109,7 +109,7 @@ def protected(base):
 
 
 def lint(fix=False):
-    files = [str(p) for p in source_files() if p.suffix == ".sh" or p == ROOT / "scripts/dev"]
+    files = shell_files()
     run("shfmt", "-i", "4", "-ci", "-w" if fix else "-d", *files)
     if not fix:
         run("shellcheck", "-x", "--severity=warning", *files)
@@ -189,6 +189,7 @@ def package(packager, output):
 
 
 def check(base, skip_tests=False):
+    doctor()
     specs()
     lint()
     links()
@@ -231,44 +232,112 @@ def install_hooks(uninstall=False):
     print(f"Installed {path}; shared by worktrees using this hooks path")
 
 
+def hook_paths(payload):
+    """Normalize native patch headers and Claude file edits, never shell text."""
+    require(isinstance(payload, dict), 'Hook payload must be an object')
+    inputs = payload.get('tool_input', {})
+    require(isinstance(inputs, dict), 'Unsupported tool_input shape')
+    if payload.get('tool_name') == 'apply_patch':
+        command = inputs.get('command')
+        require(isinstance(command, str) and command.startswith('*** Begin Patch'), 'Malformed apply_patch payload')
+        names = re.findall(r'^\*\*\* (?:Add File|Update File|Delete File|Move to): (.+)$', command, re.M)
+        require(names, 'Patch has no supported file headers')
+    elif inputs.get('file_path'):
+        names = [inputs['file_path']]
+    else:
+        raise ValueError('Unsupported edit payload; Git/CI remain authoritative')
+    cwd = Path(payload.get('cwd', str(ROOT)))
+    require(cwd.is_absolute(), 'Hook cwd must be absolute')
+    paths = []
+    for name in names:
+        require(isinstance(name, str) and name.strip(), 'Invalid edit path')
+        path = Path(name)
+        path = (path if path.is_absolute() else cwd / path).resolve()
+        # Outside-root writes cannot be checked against this repository inventory.
+        require(path.is_relative_to(ROOT.resolve()), 'Edit path outside repository: ' + str(path))
+        paths.append(path)
+    return paths
+
+
 def hook(event):
     if event == 'start':
         if git('branch', '--show-current') == 'main':
             print('Development policy: create a feature branch/worktree before committing; see AGENTS.md.')
         return
     payload = json.load(sys.stdin)
-    if event in ('edit', 'format'):
-        name = payload.get('tool_input', {}).get('file_path')
-        if not name:
-            return  # Tool adapters do not substitute for Git/CI validation.
-        path = Path(name)
-        path = (path if path.is_absolute() else ROOT / path).resolve()
-        if not path.is_relative_to(ROOT.resolve()):
+    require(isinstance(payload, dict), 'Hook payload must be an object')
+    if event == 'stop':
+        if payload.get('stop_hook_active'):
             return
+        # Advisory JSON feedback: never force another Stop cycle or modify files.
+        if not shell_files():
+            print('{}')
+            return
+        output = subprocess.run(['shfmt', '-i', '4', '-ci', '-d', *shell_files()], cwd=ROOT,
+                                text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        shell = subprocess.run(['shellcheck', '-x', '--severity=warning', *shell_files()], cwd=ROOT,
+                               text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        message = (output.stdout + shell.stdout)[-4000:]
+        print(json.dumps({'systemMessage': 'Shared lint (advisory; files unchanged): ' + (message or 'passed')}))
+        return
+    feedback = []
+    paths = hook_paths(payload)
+    for path in paths:
         rel = path.relative_to(ROOT.resolve()).as_posix()
         if event == 'format':
             if path.suffix == '.sh' and path.is_file():
-                run('shfmt', '-i', '4', '-ci', '-d', str(path))
-            return
+                result = subprocess.run(['shfmt', '-i', '4', '-ci', '-d', str(path)], text=True,
+                                        stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                if result.returncode:
+                    feedback.append('Formatting required (advisory only; file unchanged). Run scripts/dev format explicitly.\n' + result.stdout[-3500:])
+            continue
         if rel in data('config/protected-references.json')['paths']:
             token = ROOT / '.organon-resync-token'
             allowed = token.exists() and rel in [l.strip() for l in token.read_text().splitlines() if not l.lstrip().startswith('#')]
             require(allowed, f'Protected reference: {rel}; follow docs/refreshing-kepano.md')
-    elif event == 'stop':
-        lint()
+
+    if feedback:
+        print(json.dumps({'hookSpecificOutput': {'hookEventName': 'PostToolUse',
+                          'additionalContext': '\n'.join(feedback)[-4000:]}}))
+
+
+def shell_files():
+    return [str(p) for p in source_files() if p.suffix == '.sh' or p == ROOT / 'scripts/dev']
+
+
+def parse_version(output):
+    match = re.search(r'(\d+)\.(\d+)(?:\.(\d+))?', output)
+    require(match, 'Cannot parse tool version: ' + output[:160])
+    return tuple(int(x or 0) for x in match.groups())
 
 
 def doctor():
-    missing = []
-    for name in ('git', 'python3', 'uv', 'jq', 'shfmt', 'shellcheck', 'zip'):
+    policy = data('config/toolchain.json')
+    failures = []
+    for name, rule in policy.items():
         found = shutil.which(name)
-        print(f'{name}: {found or "MISSING"}')
         if not found:
-            missing.append(name)
+            print(f'{name}: MISSING')
+            failures.append(f'Install {name} >= {rule["minimum"]}')
+            continue
+        result = subprocess.run([found, rule['flag']], text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        try:
+            version = parse_version(result.stdout)
+            minimum = tuple(int(n) for n in rule['minimum'].split('.'))
+            require(result.returncode == 0 and version >= minimum, f'{name} >= {rule["minimum"]} required')
+            print(f'{name}: {".".join(map(str, version))} ({found})')
+        except ValueError as error:
+            failures.append(str(error))
+    print(f'Launcher Python: {sys.version.split()[0]} ({sys.executable}); project Python is checked separately')
+    try:
+        result = run('uv', 'run', '--locked', '--project', str(ROOT), 'python', '-c',
+                     'import sys; print(sys.version.split()[0]); sys.exit(sys.version_info < (3, 11))', capture=True)
+        print('Managed project Python: ' + result.strip())
+    except (OSError, subprocess.CalledProcessError):
+        failures.append('Managed Python unavailable: run uv sync --locked with approved network/cache access; see docs/development.md')
     path = Path(git('rev-parse', '--path-format=absolute', '--git-path', 'hooks/pre-commit'))
     print(f'pre-commit: {path} ({"current launcher" if path.exists() and "check-staged" in path.read_text() else "missing or outdated"})')
-    print('Vault/MCP and agent CLIs: optional; not needed by shared checks.')
-    require(not missing, 'Missing required development tools: ' + ', '.join(missing))
+    require(not failures, '; '.join(failures))
 
 
 def main():
@@ -292,7 +361,13 @@ def main():
     elif command == 'check-staged' or (command == 'check' and args.staged): check_staged()
     elif command == 'check': check(args.base)
     elif command == 'install-hooks': install_hooks(args.uninstall)
-    elif command == 'hook': hook(args.extra[0])
+    elif command == 'hook':
+        try:
+            hook(args.extra[0])
+        except (ValueError, OSError, subprocess.CalledProcessError) as error:
+            if args.extra[0] != 'stop':
+                raise
+            print(json.dumps({'systemMessage': 'Shared lint unavailable: ' + str(error)[:1000]}))
     elif command == 'worktree':
         require(len(args.extra) == 2, 'Usage: scripts/dev worktree <branch> <destination>')
         require(re.match(r'^(feat|fix|chore|perf|docs)/', args.extra[0]), 'Use a documented branch prefix')
@@ -309,7 +384,8 @@ def main():
         require(bool(args.packager), '--packager is required for archive verification')
         with tempfile.TemporaryDirectory(prefix='organon-release-check-') as temp:
             package(args.packager, temp)
-    print(f'{command}: passed')
+    if command != 'hook':
+        print(f'{command}: passed')
 
 
 if __name__ == '__main__':

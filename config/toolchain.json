@@ -1,0 +1,26 @@
+{
+  "git": {
+    "minimum": "2.31.0",
+    "flag": "--version"
+  },
+  "uv": {
+    "minimum": "0.13.7",
+    "flag": "--version"
+  },
+  "jq": {
+    "minimum": "1.6.0",
+    "flag": "--version"
+  },
+  "shfmt": {
+    "minimum": "3.6.0",
+    "flag": "--version"
+  },
+  "shellcheck": {
+    "minimum": "0.9.0",
+    "flag": "--version"
+  },
+  "zip": {
+    "minimum": "3.0.0",
+    "flag": "-v"
+  }
+}
