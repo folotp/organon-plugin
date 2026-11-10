@@ -4,7 +4,7 @@ Organon vault conventions for AI agents — packaged as a portable plugin of [Ag
 
 ## Development
 
-Start with [the shared development workflow](docs/development.md) and `AGENTS.md`. Claude Code, Codex, other agents, and humans use the same checks. Release packaging follows [the release runbook](docs/release.md).
+Start with [the shared development workflow](docs/development.md) and `AGENTS.md`. Claude Code, Codex, other agents, and humans use the same checks. Release packaging follows [the release runbook](docs/release.md). For implementation ownership, CI flow and safe modification procedures, read [the maintainer architecture](https://github.com/folotp/organon-plugin/blob/main/docs/development-architecture.md).
 
 ## What this plugin provides
 

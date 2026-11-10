@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Shared development launcher; see docs/development.md and docs/development-architecture.md.
+# Resolve this script’s worktree, never another agent’s cwd or the primary checkout.
+# Lightweight hooks/diagnostics use the launcher Python; full checks use locked uv.
 set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$root"
